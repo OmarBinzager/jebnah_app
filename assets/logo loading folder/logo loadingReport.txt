@@ -1,0 +1,24 @@
+Report created: 
+	04/03/48	11:59:07 م
+
+Project name: logo loading.aep
+
+Source files collected to: 
+	C:\Users\pc\Downloads\logo loading folder
+
+Source files collected: All
+
+Collected comps:  
+	Comp 1
+	j
+	
+Number of collected files:  1
+
+Size of collected files:  1.3 MB
+
+Collected source files: 
+	C:\Users\pc\Downloads\j.ai
+	
+Rendering plug-ins:
+	Classic 3D
+	

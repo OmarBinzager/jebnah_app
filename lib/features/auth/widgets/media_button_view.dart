@@ -1,0 +1,46 @@
+import 'package:flutter/material.dart';
+import '../../../helper/responsive_helper.dart';
+import '../../../utill/dimensions.dart';
+
+class MediaButtonView extends StatelessWidget {
+  final Function onTap;
+  final String image;
+  const MediaButtonView({super.key, required this.onTap, required this.image});
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: () => onTap(),
+      child: Container(
+        height: ResponsiveHelper.isDesktop(context) ? 50 : 40,
+        width: ResponsiveHelper.isDesktop(context)
+            ? 130
+            : ResponsiveHelper.isTab(context)
+            ? 110
+            : 40,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: Theme.of(
+            context,
+          ).textTheme.bodyLarge!.color!.withValues(alpha: 0.1),
+          borderRadius: const BorderRadius.all(
+            Radius.circular(Dimensions.radiusSizeTen),
+          ),
+        ),
+        child: Image.asset(
+          image,
+          height: ResponsiveHelper.isDesktop(context)
+              ? 30
+              : ResponsiveHelper.isTab(context)
+              ? 25
+              : 20,
+          width: ResponsiveHelper.isDesktop(context)
+              ? 30
+              : ResponsiveHelper.isTab(context)
+              ? 25
+              : 20,
+        ),
+      ),
+    );
+  }
+}

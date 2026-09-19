@@ -1,0 +1,25 @@
+Report created: 
+	17/02/48	02:11:05 م
+
+Project name: جبناه.aep
+
+Source files collected to: 
+	C:\Users\pc\Downloads\جبناه folder
+
+Source files collected: All
+
+Collected comps:  
+	Comp 1
+	Pre-comp 1
+	Pre-comp 2
+	
+Number of collected files:  1
+
+Size of collected files:  177 KB
+
+Collected source files: 
+	C:\Users\pc\Downloads\IMG_5058 (PDF).pdf
+	
+Rendering plug-ins:
+	Classic 3D
+	
