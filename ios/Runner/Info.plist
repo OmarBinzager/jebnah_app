@@ -49,5 +49,16 @@
 		<true/>
 		<key>UIViewControllerBasedStatusBarAppearance</key>
 		<false/>
+		<!-- Permissions -->
+		<key>NSLocationWhenInUseUsageDescription</key>
+		<string>This app requires access to your location to show nearby stores, set delivery addresses, and track your orders.</string>
+		<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+		<string>This app requires access to your location to provide accurate delivery tracking and address services.</string>
+		<key>NSLocationAlwaysUsageDescription</key>
+		<string>This app requires access to your location to provide accurate delivery tracking and address services.</string>
+		<key>NSPhotoLibraryUsageDescription</key>
+		<string>This app requires access to your photo library to select and upload profile pictures or order attachments.</string>
+		<key>NSCameraUsageDescription</key>
+		<string>This app requires access to your camera to take profile photos.</string>
 	</dict>
 </plist>
