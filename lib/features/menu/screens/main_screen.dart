@@ -87,6 +87,7 @@ class _MainScreenState extends State<MainScreen> {
                     appBar: ResponsiveHelper.isDesktop(context)
                         ? null
                         : AppBar(
+                            toolbarHeight: 63,
                             backgroundColor: Theme.of(context).cardColor,
                             leading: splash.pageIndex == 0
                                 ? null
@@ -107,7 +108,7 @@ class _MainScreenState extends State<MainScreen> {
                                         isDarkTheme
                                             ? Images.darkAppLogo
                                             : Images.webBarLogoPlaceHolder,
-                                        height: 120,
+                                        height: 138,
                                         fit: BoxFit.contain,
                                       ),
                                       const SizedBox(
