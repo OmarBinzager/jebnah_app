@@ -6,11 +6,12 @@ import '../../../common/widgets/custom_pop_scope_handel_deep_link_widget.dart';
 import '../../../helper/responsive_helper.dart';
 import '../../../localization/app_localization.dart';
 import '../../../features/splash/providers/splash_provider.dart';
+import '../../../common/models/config_model.dart';
+import '../../../utill/app_constants.dart';
 import '../../../utill/dimensions.dart';
-import '../../../common/widgets/custom_app_bar_widget.dart';
+import '../../../utill/styles.dart';
 import '../../../common/widgets/footer_web_widget.dart';
 import '../../../common/widgets/web_app_bar_widget.dart';
-import '../../../localization/language_constraints.dart';
 import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher_string.dart';
@@ -18,6 +19,27 @@ import 'package:url_launcher/url_launcher_string.dart';
 class HtmlViewerScreen extends StatelessWidget {
   final HtmlType htmlType;
   const HtmlViewerScreen({super.key, required this.htmlType});
+
+  String _resolvePolicyImageUrl(TermsAndConditions? policy) {
+    if (policy == null) return '';
+
+    String raw = (policy.backgroundImageUrl ?? '').trim();
+    if (raw.isEmpty) {
+      raw = (policy.backgroundImage ?? '').trim();
+    }
+    if (raw.isEmpty) return '';
+
+    if (raw.startsWith('http://') || raw.startsWith('https://')) {
+      return raw;
+    }
+
+    String clean = raw.startsWith('/') ? raw.substring(1) : raw;
+    if (clean.contains('business-settings/page-setup')) {
+      return '${AppConstants.baseUrl}/$clean';
+    }
+
+    return '${AppConstants.baseUrl}/storage/app/public/business-settings/page-setup/$clean';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,46 +49,47 @@ class HtmlViewerScreen extends StatelessWidget {
     ).configModel;
     String data = 'no_result_found';
     String appBarText = '';
-    String imageUrl = '';
+    TermsAndConditions? selectedPolicy;
 
     switch (htmlType) {
       case HtmlType.termsAndCondition:
-        data = configModel!.termsAndConditions?.description ?? '';
-        imageUrl = configModel.termsAndConditions?.backgroundImageUrl ?? '';
+        selectedPolicy = configModel?.termsAndConditions;
+        data = selectedPolicy?.description ?? '';
         appBarText = 'terms_and_condition';
         break;
       case HtmlType.aboutUs:
-        data = configModel!.aboutUs?.description ?? '';
-        imageUrl = configModel.aboutUs?.backgroundImageUrl ?? '';
+        selectedPolicy = configModel?.aboutUs;
+        data = selectedPolicy?.description ?? '';
         appBarText = 'about_us';
         break;
       case HtmlType.privacyPolicy:
-        data = configModel!.privacyPolicy?.description ?? '';
-        imageUrl = configModel.privacyPolicy?.backgroundImageUrl ?? '';
+        selectedPolicy = configModel?.privacyPolicy;
+        data = selectedPolicy?.description ?? '';
         appBarText = 'privacy_policy';
         break;
       case HtmlType.faq:
-        data = configModel!.faq?.description ?? '';
-        imageUrl = configModel.faq?.backgroundImageUrl ?? '';
+        selectedPolicy = configModel?.faq;
+        data = selectedPolicy?.description ?? '';
         appBarText = 'faq';
         break;
       case HtmlType.cancellationPolicy:
-        data = configModel!.cancellationPolicy?.description ?? '';
-        imageUrl = configModel.cancellationPolicy?.backgroundImageUrl ?? '';
+        selectedPolicy = configModel?.cancellationPolicy;
+        data = selectedPolicy?.description ?? '';
         appBarText = 'cancellation_policy';
         break;
       case HtmlType.refundPolicy:
-        data = configModel!.refundPolicy?.description ?? '';
-        imageUrl = configModel.refundPolicy?.backgroundImageUrl ?? '';
+        selectedPolicy = configModel?.refundPolicy;
+        data = selectedPolicy?.description ?? '';
         appBarText = 'refund_policy';
         break;
       case HtmlType.returnPolicy:
-        data = configModel!.returnPolicy?.description ?? '';
-        imageUrl = configModel.returnPolicy?.backgroundImageUrl ?? '';
+        selectedPolicy = configModel?.returnPolicy;
+        data = selectedPolicy?.description ?? '';
         appBarText = 'return_policy';
         break;
     }
 
+    String imageUrl = _resolvePolicyImageUrl(selectedPolicy);
     final bool hasValidBannerImage = imageUrl.trim().isNotEmpty &&
         (imageUrl.startsWith('http://') || imageUrl.startsWith('https://'));
 
@@ -76,16 +99,12 @@ class HtmlViewerScreen extends StatelessWidget {
 
     return CustomPopScopeHandelDeepLinkWidget(
       child: Scaffold(
-        appBar:
-            (ResponsiveHelper.isDesktop(context)
-                    ? const PreferredSize(
-                        preferredSize: Size.fromHeight(120),
-                        child: WebAppBarWidget(),
-                      )
-                    : CustomAppBarWidget(
-                        title: getTranslated(appBarText, context),
-                      ))
-                as PreferredSizeWidget?,
+        appBar: ResponsiveHelper.isDesktop(context)
+            ? const PreferredSize(
+                preferredSize: Size.fromHeight(120),
+                child: WebAppBarWidget(),
+              )
+            : null,
         body: SingleChildScrollView(
           child: Column(
             children: [
