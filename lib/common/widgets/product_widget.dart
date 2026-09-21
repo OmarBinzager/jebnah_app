@@ -4,6 +4,7 @@ import '../../../../common/models/product_model.dart';
 import '../../../../helper/price_converter_helper.dart';
 import '../../../../utill/product_type.dart';
 import '../../../../helper/route_helper.dart';
+import '../../../../helper/responsive_helper.dart';
 import '../../../../localization/app_localization.dart';
 import '../../../../localization/language_constraints.dart';
 import '../../../../common/providers/cart_provider.dart';
@@ -624,7 +625,7 @@ class _ProductGridWidget extends StatelessWidget {
                     child: CustomImageWidget(
                       fit: BoxFit.contain,
                       width: double.infinity,
-                      height: 160,
+                      height: ResponsiveHelper.isDesktop(context) ? 160 : 135,
                       image:
                           '${Provider.of<SplashProvider>(context, listen: false).baseUrls!.productImageUrl}/${(product.image?.isNotEmpty ?? false) ? product.image![0] : ''}',
                     ),
@@ -703,11 +704,11 @@ class _ProductGridWidget extends StatelessWidget {
               Align(
                 alignment: Alignment.center,
                 child: Container(
-                  margin: const EdgeInsets.only(top: 6),
-                  width: 50,
-                  height: 35,
+                  margin: const EdgeInsets.only(top: 4, bottom: 2),
+                  width: 46,
+                  height: 26,
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(6),
+                    borderRadius: BorderRadius.circular(5),
                     border: Border.all(
                       color: Theme.of(context).cardColor,
                       width: 1,
@@ -716,83 +717,90 @@ class _ProductGridWidget extends StatelessWidget {
                   ),
                   child: brandImageUrl.isNotEmpty
                       ? ClipRRect(
-                          borderRadius: BorderRadius.circular(6),
+                          borderRadius: BorderRadius.circular(5),
                           child: CustomImageWidget(
                             image: brandImageUrl,
                             fit: BoxFit.contain,
                           ),
                         )
-                      : const Icon(Icons.store, size: 20),
+                      : const Icon(Icons.store, size: 16),
                 ),
               ),
 
               // Product Details
               Expanded(
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(10, 6, 10, 10),
+                  padding: const EdgeInsets.fromLTRB(8, 2, 8, 6),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      // Product Name - Made clearer
                       Flexible(
-                        child: Text(
-                          product.name ?? '',
-                          style: poppinsBold.copyWith(
-                            fontSize: 13,
-                            height: 1.3,
-                            color: Theme.of(context).textTheme.bodyLarge?.color,
-                          ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            // Product Name - Made clearer
+                            Text(
+                              product.name ?? '',
+                              style: poppinsBold.copyWith(
+                                fontSize: 12,
+                                height: 1.2,
+                                color:
+                                    Theme.of(context).textTheme.bodyLarge?.color,
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+
+                            const SizedBox(height: 2),
+
+                            // Price Section - Made clearer
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                // Current Price
+                                Flexible(
+                                  child: CustomDirectionalityWidget(
+                                    child: Text(
+                                      PriceConverterHelper.convertPrice(
+                                        context,
+                                        priceWithDiscount,
+                                      ),
+                                      style: poppinsExtraBold.copyWith(
+                                        fontSize: 14,
+                                        color: Theme.of(context).primaryColor,
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 4),
+                                // Original Price
+                                if ((product.price ?? 0) > priceWithDiscount)
+                                  Flexible(
+                                    child: CustomDirectionalityWidget(
+                                      child: Text(
+                                        PriceConverterHelper.convertPrice(
+                                          context,
+                                          product.price,
+                                        ),
+                                        style: poppinsRegular.copyWith(
+                                          fontSize: 11,
+                                          decoration:
+                                              TextDecoration.lineThrough,
+                                          color:
+                                              Theme.of(context).disabledColor,
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ],
                         ),
                       ),
-
-                      const SizedBox(height: 2),
-
-                      // Price Section - Made clearer
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          // Current Price
-                          Flexible(
-                            child: CustomDirectionalityWidget(
-                              child: Text(
-                                PriceConverterHelper.convertPrice(
-                                  context,
-                                  priceWithDiscount,
-                                ),
-                                style: poppinsExtraBold.copyWith(
-                                  fontSize: 16,
-                                  color: Theme.of(context).primaryColor,
-                                ),
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 4),
-                          // Original Price
-                          if ((product.price ?? 0) > priceWithDiscount)
-                            Flexible(
-                              child: CustomDirectionalityWidget(
-                                child: Text(
-                                  PriceConverterHelper.convertPrice(
-                                    context,
-                                    product.price,
-                                  ),
-                                  style: poppinsRegular.copyWith(
-                                    fontSize: 11,
-                                    decoration: TextDecoration.lineThrough,
-                                    color: Theme.of(context).disabledColor,
-                                  ),
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                            ),
-                        ],
-                      ),
-
-                      const SizedBox(height: 8),
 
                       // Add to Cart Button - Full width (no wish button in same row)
                       _buildAddToCartButton(
@@ -862,7 +870,7 @@ class _ProductGridWidget extends StatelessWidget {
       return Consumer<CartProvider>(
         builder: (context, cart, child) => Container(
           width: double.infinity,
-          padding: const EdgeInsets.symmetric(vertical: 8),
+          height: 34,
           decoration: BoxDecoration(
             color: Theme.of(context).primaryColor,
             borderRadius: BorderRadius.circular(25),
@@ -948,6 +956,7 @@ class _ProductGridWidget extends StatelessWidget {
 
     return SizedBox(
       width: double.infinity,
+      height: 34,
       child: ElevatedButton(
         onPressed: () {
           if (product.variations == null || product.variations!.isEmpty) {
@@ -975,21 +984,21 @@ class _ProductGridWidget extends StatelessWidget {
         style: ElevatedButton.styleFrom(
           backgroundColor: Theme.of(context).primaryColor,
           foregroundColor: Colors.white,
-          padding: const EdgeInsets.symmetric(vertical: 10),
+          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 0),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(25),
           ),
-          minimumSize: const Size(0, 38),
+          minimumSize: const Size(0, 32),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.shopping_cart_outlined, size: 16),
-            const SizedBox(width: 6),
+            const Icon(Icons.shopping_cart_outlined, size: 15),
+            const SizedBox(width: 4),
             Flexible(
               child: Text(
                 getTranslated('add_to_cart', context),
-                style: poppinsSemiBold.copyWith(fontSize: 13),
+                style: poppinsSemiBold.copyWith(fontSize: 12),
                 overflow: TextOverflow.ellipsis,
               ),
             ),
