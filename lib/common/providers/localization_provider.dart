@@ -38,6 +38,7 @@ class LocalizationProvider extends ChangeNotifier {
           AppConstants.languages[0].countryCode,
     );
     _isLtr = _locale.languageCode != 'ar';
+    _languageIndex = getCurrentLanguageIndex();
     notifyListeners();
   }
 

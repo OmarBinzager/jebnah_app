@@ -184,9 +184,33 @@ class SplashProvider extends ChangeNotifier {
     _firstTimeConnectionCheck = isChecked;
   }
 
+  final List<int> _pageHistory = [0];
+  List<int> get pageHistory => _pageHistory;
+
   void setPageIndex(int index) {
+    if (index == 0) {
+      _pageHistory.clear();
+      _pageHistory.add(0);
+      _pageIndex = 0;
+      notifyListeners();
+      return;
+    }
+
     _pageIndex = index;
+    if (_pageHistory.isEmpty || _pageHistory.last != index) {
+      _pageHistory.add(index);
+    }
     notifyListeners();
+  }
+
+  bool popPageIndex() {
+    if (_pageHistory.length > 1) {
+      _pageHistory.removeLast();
+      _pageIndex = _pageHistory.last;
+      notifyListeners();
+      return true;
+    }
+    return false;
   }
 
   Future<bool> initSharedData() {

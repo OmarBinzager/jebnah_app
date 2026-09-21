@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import '../../../common/widgets/custom_pop_scope_widget.dart';
 import '../../../helper/route_helper.dart';
@@ -9,7 +8,6 @@ import '../../../utill/color_resources.dart';
 import '../../../utill/dimensions.dart';
 import '../../../utill/styles.dart';
 import '../../../features/onboarding/widgets/on_boarding_widget.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 class OnBoardingScreen extends StatelessWidget {
@@ -42,8 +40,8 @@ class OnBoardingScreen extends StatelessWidget {
                                   context,
                                   listen: false,
                                 ).disableIntro();
-                                context.go(
-                                  '${RouteHelper.menu}?from_intro=${jsonEncode(true)}',
+                                RouteHelper.getMainRoute(
+                                  action: RouteAction.pushNamedAndRemoveUntil,
                                 );
                               },
                               child: Text(
@@ -125,8 +123,8 @@ class OnBoardingScreen extends StatelessWidget {
                                         context,
                                         listen: false,
                                       ).disableIntro();
-                                      context.go(
-                                        '${RouteHelper.menu}?from_intro=${jsonEncode(true)}',
+                                      RouteHelper.getMainRoute(
+                                        action: RouteAction.pushNamedAndRemoveUntil,
                                       );
                                     } else {
                                       _pageController.nextPage(

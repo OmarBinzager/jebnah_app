@@ -70,13 +70,14 @@ class CustomAppBarWidget extends StatelessWidget
                   Navigator.pop(context);
                   return;
                 } else {
-                  RouteHelper.getMainRoute(
-                    action: RouteAction.pushNamedAndRemoveUntil,
-                  );
-                  Provider.of<SplashProvider>(
+                  final splash = Provider.of<SplashProvider>(
                     context,
                     listen: false,
-                  ).setPageIndex(0);
+                  );
+                  if (splash.popPageIndex()) {
+                    return;
+                  }
+                  splash.setPageIndex(0);
                   return;
                 }
               },

@@ -208,7 +208,7 @@ class _MyAppState extends State<MyApp> {
     final splashProvider = Provider.of<SplashProvider>(context, listen: false);
     final cartProvider = Provider.of<CartProvider>(context, listen: false);
 
-    splashProvider.initSharedData();
+    await splashProvider.initSharedData();
     cartProvider.getCartData();
 
     final configModel = await splashProvider.initConfig(

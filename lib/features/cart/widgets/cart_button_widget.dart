@@ -6,6 +6,7 @@ import '../../../features/coupon/providers/coupon_provider.dart';
 import '../../../features/order/providers/order_provider.dart';
 import '../../../helper/custom_snackbar_helper.dart';
 import '../../../helper/price_converter_helper.dart';
+import '../../../features/auth/providers/auth_provider.dart';
 import '../../../helper/route_helper.dart';
 import '../../../localization/language_constraints.dart';
 import '../../../utill/dimensions.dart';
@@ -66,6 +67,15 @@ class CartButtonWidget extends StatelessWidget {
             CustomButtonWidget(
               buttonText: getTranslated('proceed_to_checkout', context),
               onPressed: () {
+                final authProvider = Provider.of<AuthProvider>(
+                  context,
+                  listen: false,
+                );
+                if (!authProvider.isLoggedIn()) {
+                  RouteHelper.getLoginRoute();
+                  return;
+                }
+
                 if (_itemPrice < (_configModel?.minimumOrderValue ?? 0)) {
                   showCustomSnackBarHelper(
                     ' ${getTranslated('minimum_order_amount_is', context)} ${PriceConverterHelper.convertPrice(context, _configModel?.minimumOrderValue)}, ${getTranslated('you_have', context)} ${PriceConverterHelper.convertPrice(context, _itemPrice)} ${getTranslated('in_your_cart_please_add_more_item', context)}',

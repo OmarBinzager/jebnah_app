@@ -6,10 +6,10 @@ import '../common/models/error_response_model.dart';
 import '../helper/route_helper.dart';
 import '../localization/language_constraints.dart';
 import '../main.dart';
-import '../features/splash/providers/splash_provider.dart';
 import '../helper/custom_snackbar_helper.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
+import '../features/auth/providers/auth_provider.dart';
 
 class ApiCheckerHelper {
   static void checkApi(ApiResponseModel apiResponse) {
@@ -19,11 +19,14 @@ class ApiCheckerHelper {
         error.errors!.isNotEmpty &&
         (error.errors![0].code == '401' || error.errors![0].code == 'auth-001') &&
         ModalRoute.of(Get.context!)?.settings.name != RouteHelper.login) {
-      Provider.of<SplashProvider>(
+      final authProvider = Provider.of<AuthProvider>(
         Get.context!,
         listen: false,
-      ).removeSharedData();
-      RouteHelper.getLoginRoute(action: RouteAction.pushNamedAndRemoveUntil);
+      );
+      if (authProvider.isLoggedIn()) {
+        authProvider.clearSharedData();
+        RouteHelper.getLoginRoute(action: RouteAction.pushNamedAndRemoveUntil);
+      }
     } else {
       String? errorMessage;
       if (error.errors != null && error.errors!.isNotEmpty) {

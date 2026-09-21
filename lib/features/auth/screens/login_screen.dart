@@ -77,7 +77,42 @@ class _LoginScreenState extends State<LoginScreen> {
                       preferredSize: Size.fromHeight(120),
                       child: WebAppBarWidget(),
                     )
-                  : null,
+                  : AppBar(
+                      backgroundColor: Colors.transparent,
+                      elevation: 0,
+                      automaticallyImplyLeading: false,
+                      leading: Navigator.canPop(context)
+                          ? IconButton(
+                              icon: Icon(
+                                Icons.arrow_back_ios,
+                                color: Theme.of(context).primaryColor,
+                                size: 20,
+                              ),
+                              onPressed: () => Navigator.pop(context),
+                            )
+                          : null,
+                      actions: [
+                        TextButton(
+                          onPressed: () {
+                            Provider.of<SplashProvider>(
+                              context,
+                              listen: false,
+                            ).setPageIndex(0);
+                            RouteHelper.getMainRoute(
+                              action: RouteAction.pushNamedAndRemoveUntil,
+                            );
+                          },
+                          child: Text(
+                            getTranslated('skip', context),
+                            style: poppinsSemiBold.copyWith(
+                              color: Theme.of(context).primaryColor,
+                              fontSize: Dimensions.fontSizeDefault,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: Dimensions.paddingSizeSmall),
+                      ],
+                    ),
               body: SafeArea(
                 child: CustomScrollView(
                   slivers: [
@@ -523,50 +558,53 @@ class _LoginScreenState extends State<LoginScreen> {
                                       height: Dimensions.paddingSizeDefault,
                                     ),
 
-                                    if (configModel?.isGuestCheckout ??
-                                        false) ...[
-                                      Center(
-                                        child: TextButton(
-                                          onPressed: () =>
-                                              RouteHelper.getMainRoute(
-                                                action: RouteAction
-                                                    .pushNamedAndRemoveUntil,
-                                              ),
-                                          child: RichText(
-                                            text: TextSpan(
-                                              children: [
-                                                TextSpan(
-                                                  text:
-                                                      '${getTranslated('continue_as_a', context)} ',
-                                                  style: poppinsRegular
-                                                      .copyWith(
-                                                        fontSize: Dimensions
-                                                            .fontSizeSmall,
-                                                        color: Theme.of(context)
-                                                            .hintColor
-                                                            .withValues(
-                                                              alpha: 0.6,
-                                                            ),
-                                                      ),
-                                                ),
-                                                TextSpan(
-                                                  text: getTranslated(
-                                                    'guest',
-                                                    context,
-                                                  ),
-                                                  style: poppinsRegular
-                                                      .copyWith(
-                                                        color: Theme.of(
-                                                          context,
-                                                        ).primaryColor,
-                                                      ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
+                                     Center(
+                                       child: TextButton(
+                                         onPressed: () {
+                                           Provider.of<SplashProvider>(
+                                             context,
+                                             listen: false,
+                                           ).setPageIndex(0);
+                                           RouteHelper.getMainRoute(
+                                             action: RouteAction
+                                                 .pushNamedAndRemoveUntil,
+                                           );
+                                         },
+                                         child: RichText(
+                                           text: TextSpan(
+                                             children: [
+                                               TextSpan(
+                                                 text:
+                                                     '${getTranslated('continue_as_a', context)} ',
+                                                 style: poppinsRegular
+                                                     .copyWith(
+                                                       fontSize: Dimensions
+                                                           .fontSizeDefault,
+                                                       color: Theme.of(context)
+                                                           .hintColor
+                                                           .withValues(
+                                                             alpha: 0.8,
+                                                           ),
+                                                     ),
+                                               ),
+                                               TextSpan(
+                                                 text: getTranslated(
+                                                   'guest',
+                                                   context,
+                                                 ),
+                                                 style: poppinsBold.copyWith(
+                                                   color: Theme.of(
+                                                     context,
+                                                   ).primaryColor,
+                                                   fontSize: Dimensions
+                                                       .fontSizeDefault,
+                                                 ),
+                                               ),
+                                             ],
+                                           ),
+                                         ),
+                                       ),
+                                     ),
 
                                     const SizedBox(
                                       height: Dimensions.paddingSizeLarge,

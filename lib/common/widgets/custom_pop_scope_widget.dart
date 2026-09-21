@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import '../../../../common/widgets/custom_alert_dialog_widget.dart';
 import '../../../../features/splash/providers/splash_provider.dart';
 import '../../../../helper/responsive_helper.dart';
-import '../../../../helper/route_helper.dart';
 import '../../../../localization/language_constraints.dart';
 import '../../../../utill/dimensions.dart';
 import 'package:provider/provider.dart';
@@ -37,7 +36,9 @@ class _CustomPopScopeWidgetState extends State<CustomPopScopeWidget> {
         }
 
         if (splashProvider.pageIndex != 0) {
-          RouteHelper.getMainRoute(action: RouteAction.pushNamedAndRemoveUntil);
+          if (splashProvider.popPageIndex()) {
+            return;
+          }
           splashProvider.setPageIndex(0);
           return;
         }

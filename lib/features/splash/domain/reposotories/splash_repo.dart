@@ -14,28 +14,54 @@ class SplashRepo extends DataSyncRepo {
     return await fetchData<T>(AppConstants.configUri, source);
   }
 
-  Future<bool> initSharedData() {
+  Future<bool> initSharedData() async {
     if (!sharedPreferences!.containsKey(AppConstants.theme)) {
-      return sharedPreferences!.setBool(AppConstants.theme, false);
+      await sharedPreferences!.setBool(AppConstants.theme, false);
     }
     if (!sharedPreferences!.containsKey(AppConstants.countryCode)) {
-      return sharedPreferences!.setString(AppConstants.countryCode, 'US');
+      await sharedPreferences!.setString(
+        AppConstants.countryCode,
+        AppConstants.languages[0].countryCode!,
+      );
     }
     if (!sharedPreferences!.containsKey(AppConstants.languageCode)) {
-      return sharedPreferences!.setString(AppConstants.languageCode, 'en');
+      await sharedPreferences!.setString(
+        AppConstants.languageCode,
+        AppConstants.languages[0].languageCode!,
+      );
     }
     if (!sharedPreferences!.containsKey(AppConstants.cartList)) {
-      return sharedPreferences!.setStringList(AppConstants.cartList, []);
+      await sharedPreferences!.setStringList(AppConstants.cartList, []);
     }
     if (!sharedPreferences!.containsKey(AppConstants.onBoardingSkip)) {
-      return sharedPreferences!.setBool(AppConstants.onBoardingSkip, true);
+      await sharedPreferences!.setBool(AppConstants.onBoardingSkip, true);
     }
 
-    return Future.value(true);
+    return true;
   }
 
-  Future<bool> removeSharedData() {
-    return sharedPreferences!.clear();
+  Future<bool> removeSharedData() async {
+    String? lang = sharedPreferences!.getString(AppConstants.languageCode);
+    String? country = sharedPreferences!.getString(AppConstants.countryCode);
+    bool? theme = sharedPreferences!.getBool(AppConstants.theme);
+    bool? onBoarding = sharedPreferences!.getBool(AppConstants.onBoardingSkip);
+
+    await sharedPreferences!.clear();
+
+    if (lang != null) {
+      await sharedPreferences!.setString(AppConstants.languageCode, lang);
+    }
+    if (country != null) {
+      await sharedPreferences!.setString(AppConstants.countryCode, country);
+    }
+    if (theme != null) {
+      await sharedPreferences!.setBool(AppConstants.theme, theme);
+    }
+    if (onBoarding != null) {
+      await sharedPreferences!.setBool(AppConstants.onBoardingSkip, onBoarding);
+    }
+
+    return true;
   }
 
   void disableIntro() {
