@@ -148,7 +148,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
     // قائمة الصفحات والسياسات والمعلومات العامة
     final List<Map<String, String>> infoItems = [
-      {'title': getTranslated('contact_us', context), 'route': 'contact_us'},
       {'title': getTranslated('faq', context), 'route': 'faq'},
       {
         'title': getTranslated('terms_and_condition', context),
@@ -158,6 +157,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
         'title': getTranslated('privacy_policy', context),
         'route': 'privacy_policy',
       },
+      if (splashProvider.configModel?.returnPolicyStatus ?? true)
+        {
+          'title': getTranslated('return_policy', context),
+          'route': 'return_policy',
+        },
+      if (splashProvider.configModel?.refundPolicyStatus ?? true)
+        {
+          'title': getTranslated('refund_policy', context),
+          'route': 'refund_policy',
+        },
+      if (splashProvider.configModel?.cancellationPolicyStatus ?? true)
+        {
+          'title': getTranslated('cancellation_policy', context),
+          'route': 'cancellation_policy',
+        },
       {'title': getTranslated('about_us', context), 'route': 'about_us'},
     ];
 
@@ -791,8 +805,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
         );
         break;
 
-      case 'contact_us':
-        // مسار الاتصال بنا حسب تعريفات تطبيقك
+      case 'return_policy':
+        RouteHelper.getReturnPolicyRoute();
+        break;
+
+      case 'refund_policy':
+        RouteHelper.getRefundPolicyRoute();
+        break;
+
+      case 'cancellation_policy':
+        RouteHelper.getCancellationPolicyRoute();
         break;
 
       case 'faq':

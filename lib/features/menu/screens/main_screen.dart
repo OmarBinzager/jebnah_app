@@ -57,10 +57,7 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final bool isDarkTheme = Provider.of<ThemeProvider>(
-      context,
-      listen: false,
-    ).darkTheme;
+    final bool isDarkTheme = Provider.of<ThemeProvider>(context).darkTheme;
 
     final bool isDesktop = ResponsiveHelper.isDesktop(context);
 
@@ -102,7 +99,9 @@ class _MainScreenState extends State<MainScreen> {
                                 ? Row(
                                     children: [
                                       Image.asset(
-                                        Images.webBarLogoPlaceHolder,
+                                        isDarkTheme
+                                            ? Images.darkAppLogo
+                                            : Images.webBarLogoPlaceHolder,
                                         height: 120,
                                         fit: BoxFit.contain,
                                       ),

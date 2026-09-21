@@ -60,6 +60,7 @@ class Images {
   // Image
   static const String appLogo = 'assets/image/j.png';
   static const String splashlogo = 'assets/image/jebnah_logo.png';
+  static const String darkAppLogo = 'assets/image/jebnah_logo.png';
   static const String webBarLogoPlaceHolder =
       'assets/image/web_bar_logo_place_holder.png';
   static const String onBoarding1 = 'assets/image/on_boarding_1.png';

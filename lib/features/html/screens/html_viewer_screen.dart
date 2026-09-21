@@ -7,10 +7,10 @@ import '../../../helper/responsive_helper.dart';
 import '../../../localization/app_localization.dart';
 import '../../../features/splash/providers/splash_provider.dart';
 import '../../../utill/dimensions.dart';
-import '../../../utill/styles.dart';
-import '../../../common/widgets/app_bar_base_widget.dart';
+import '../../../common/widgets/custom_app_bar_widget.dart';
 import '../../../common/widgets/footer_web_widget.dart';
 import '../../../common/widgets/web_app_bar_widget.dart';
+import '../../../localization/language_constraints.dart';
 import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher_string.dart';
@@ -67,6 +67,9 @@ class HtmlViewerScreen extends StatelessWidget {
         break;
     }
 
+    final bool hasValidBannerImage = imageUrl.trim().isNotEmpty &&
+        (imageUrl.startsWith('http://') || imageUrl.startsWith('https://'));
+
     if (data.isNotEmpty) {
       data = data.replaceAll('href=', 'target="_blank" href=');
     }
@@ -79,9 +82,9 @@ class HtmlViewerScreen extends StatelessWidget {
                         preferredSize: Size.fromHeight(120),
                         child: WebAppBarWidget(),
                       )
-                    : ResponsiveHelper.isMobilePhone()
-                    ? null
-                    : AppBarBaseWidget(title: appBarText.tr))
+                    : CustomAppBarWidget(
+                        title: getTranslated(appBarText, context),
+                      ))
                 as PreferredSizeWidget?,
         body: SingleChildScrollView(
           child: Column(
@@ -115,17 +118,22 @@ class HtmlViewerScreen extends StatelessWidget {
                             : const SizedBox.shrink(),
                         const SizedBox(height: Dimensions.paddingSizeSmall),
 
-                        SizedBox(
-                          height: ResponsiveHelper.isMobilePhone() ? 50 : 100,
-                          width: Dimensions.webScreenWidth,
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(
-                              Dimensions.paddingSizeSmall,
+                        if (hasValidBannerImage) ...[
+                          SizedBox(
+                            height: ResponsiveHelper.isMobilePhone() ? 120 : 180,
+                            width: Dimensions.webScreenWidth,
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(
+                                Dimensions.paddingSizeSmall,
+                              ),
+                              child: CustomImageWidget(
+                                image: imageUrl,
+                                fit: BoxFit.cover,
+                              ),
                             ),
-                            child: CustomImageWidget(image: imageUrl),
                           ),
-                        ),
-                        const SizedBox(height: Dimensions.paddingSizeSmall),
+                          const SizedBox(height: Dimensions.paddingSizeSmall),
+                        ],
 
                         Padding(
                           padding: ResponsiveHelper.isDesktop(context)
