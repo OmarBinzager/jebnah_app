@@ -29,12 +29,26 @@ class HtmlViewerScreen extends StatelessWidget {
     }
     if (raw.isEmpty) return '';
 
+    // If it's already a full URL, fix the missing storage/app/public path
     if (raw.startsWith('http://') || raw.startsWith('https://')) {
+      if (raw.contains('/storage/business-settings/page-setup/')) {
+        return raw.replaceAll(
+          '/storage/business-settings/page-setup/',
+          '/storage/app/public/business-settings/page-setup/',
+        );
+      }
       return raw;
     }
 
     String clean = raw.startsWith('/') ? raw.substring(1) : raw;
-    if (clean.contains('business-settings/page-setup')) {
+    if (clean.contains('storage/business-settings/page-setup/')) {
+      clean = clean.replaceAll(
+        'storage/business-settings/page-setup/',
+        'storage/app/public/business-settings/page-setup/',
+      );
+    }
+
+    if (clean.contains('storage/app/public/business-settings/page-setup/')) {
       return '${AppConstants.baseUrl}/$clean';
     }
 

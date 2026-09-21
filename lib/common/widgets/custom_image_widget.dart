@@ -1,9 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import '../../../../common/widgets/custom_asset_image_widget.dart';
-import '../../../../utill/app_constants.dart';
 import '../../../../utill/images.dart';
 
 class CustomImageWidget extends StatelessWidget {
@@ -31,9 +29,7 @@ class CustomImageWidget extends StatelessWidget {
         : Images.placeHolder;
 
     return CachedNetworkImage(
-      imageUrl: kIsWeb
-          ? '${AppConstants.baseUrl}/image-proxy?url=$image'
-          : image,
+      imageUrl: image,
       height: height,
       width: width,
       fit: fit,
