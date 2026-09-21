@@ -152,19 +152,14 @@ class HtmlViewerScreen extends StatelessWidget {
                         const SizedBox(height: Dimensions.paddingSizeSmall),
 
                         if (hasValidBannerImage) ...[
-                          Container(
-                            alignment: Alignment.center,
-                            constraints: BoxConstraints(
-                              maxHeight: ResponsiveHelper.isDesktop(context) ? 350 : 250,
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(
+                              Dimensions.paddingSizeSmall,
                             ),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(
-                                Dimensions.paddingSizeSmall,
-                              ),
-                              child: CustomImageWidget(
-                                image: imageUrl,
-                                fit: BoxFit.contain,
-                              ),
+                            child: CustomImageWidget(
+                              image: imageUrl,
+                              width: double.infinity,
+                              fit: BoxFit.fitWidth,
                             ),
                           ),
                           const SizedBox(height: Dimensions.paddingSizeSmall),
