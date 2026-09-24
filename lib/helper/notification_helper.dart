@@ -129,21 +129,23 @@ class NotificationHelper {
     String? senderType;
     String? profileImage;
 
-    title = message.data['title'];
-    body = message.data['body'];
+    title = message.notification?.title ?? message.data['title'];
+    body = message.notification?.body ?? message.data['body'];
     orderID = message.data['order_id'];
     userName = message.data['name'];
     senderType = message.data['sender_type'];
     profileImage = message.data['profile_image'];
-    image = (message.data['image'] != null && message.data['image'].isNotEmpty)
-        ? message.data['image'].startsWith('http')
-              ? message.data['image']
-              : '${AppConstants.baseUrl}/storage/app/public/notification/${message.data['image']}'
-        : null;
+    image = (message.notification?.android?.imageUrl != null &&
+            message.notification!.android!.imageUrl!.isNotEmpty)
+        ? message.notification!.android!.imageUrl
+        : (message.data['image'] != null && message.data['image'].isNotEmpty)
+            ? message.data['image'].startsWith('http')
+                ? message.data['image']
+                : '${AppConstants.baseUrl}/storage/app/public/notification/${message.data['image']}'
+            : null;
     type = message.data['type'];
 
-    // عرض الإشعار فقط على الويب (كـ Dialog)
-    if (kIsWeb) {
+    if (Get.context != null && (title != null || body != null)) {
       showDialog(
         context: Get.context!,
         builder: (context) => Center(
@@ -160,15 +162,10 @@ class NotificationHelper {
         ),
       );
     } else {
-      // تم حذف: عرض الإشعارات المحلية للأجهزة المحمولة
-      // يمكنك إضافة أي منطق بديل هنا إذا أردت (مثل: حفظ الإشعارات في قاعدة بيانات محلية)
       if (kDebugMode) {
         print(
-          'Mobile notification received but local notifications are disabled:',
+          'Notification received: $title - $body (type: $type)',
         );
-        print('Title: $title');
-        print('Body: $body');
-        print('Type: $type');
       }
     }
   }

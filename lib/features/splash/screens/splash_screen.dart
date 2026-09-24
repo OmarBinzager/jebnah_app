@@ -96,18 +96,31 @@ class _SplashScreenState extends State<SplashScreen>
     }
   }
 
-  void _route() {
+  Future<void> _route() async {
     final SplashProvider splashProvider = Provider.of<SplashProvider>(
       context,
       listen: false,
     );
-    splashProvider.initConfig(context, source: DataSourceEnum.local).then((
-      configModel,
-    ) async {
-      if (configModel != null && mounted) {
-        _onConfigAction(configModel, splashProvider, context);
+    ConfigModel? configModel;
+    try {
+      configModel = await splashProvider.initConfig(
+        context,
+        source: DataSourceEnum.local,
+      );
+      if (configModel == null && mounted) {
+        configModel = await splashProvider
+            .initConfig(context, source: DataSourceEnum.client)
+            .timeout(const Duration(seconds: 4), onTimeout: () => null);
       }
-    });
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error loading config during splash: $e');
+      }
+    }
+
+    if (mounted) {
+      _onConfigAction(configModel, splashProvider, context);
+    }
   }
 
   void _onConfigAction(
@@ -118,73 +131,71 @@ class _SplashScreenState extends State<SplashScreen>
     if (configModel != null) {
       splashProvider.getDeliveryInfo();
       splashProvider.initializeScreenList();
+    }
 
-      double minimumVersion = 0.0;
-      if (Platform.isAndroid) {
-        if (splashProvider.configModel?.playStoreConfig?.minVersion != null) {
-          minimumVersion =
-              splashProvider.configModel?.playStoreConfig?.minVersion ??
-              AppConstants.appVersion;
-        }
-      } else if (Platform.isIOS) {
-        if (splashProvider.configModel?.appStoreConfig?.minVersion != null) {
-          minimumVersion =
-              splashProvider.configModel?.appStoreConfig?.minVersion ??
-              AppConstants.appVersion;
-        }
+    double minimumVersion = 0.0;
+    if (Platform.isAndroid) {
+      if (splashProvider.configModel?.playStoreConfig?.minVersion != null) {
+        minimumVersion =
+            splashProvider.configModel?.playStoreConfig?.minVersion ??
+            AppConstants.appVersion;
       }
+    } else if (Platform.isIOS) {
+      if (splashProvider.configModel?.appStoreConfig?.minVersion != null) {
+        minimumVersion =
+            splashProvider.configModel?.appStoreConfig?.minVersion ??
+            AppConstants.appVersion;
+      }
+    }
 
-      final int elapsedTime = DateTime.now()
-          .difference(_startTime)
-          .inMilliseconds;
-      final int remainingTime = (5000 - elapsedTime).clamp(0, 5000);
+    final int elapsedTime = DateTime.now()
+        .difference(_startTime)
+        .inMilliseconds;
+    final int remainingTime = (1500 - elapsedTime).clamp(0, 1500);
 
-      Future.delayed(Duration(milliseconds: remainingTime)).then((_) {
-        if (!mounted) return;
+    Future.delayed(Duration(milliseconds: remainingTime)).then((_) {
+      if (!mounted) return;
 
-        if (AppConstants.appVersion < minimumVersion &&
-            !ResponsiveHelper.isWeb()) {
-          RouteHelper.getUpdateRoute(
+      if (configModel != null &&
+          AppConstants.appVersion < minimumVersion &&
+          !ResponsiveHelper.isWeb()) {
+        RouteHelper.getUpdateRoute(
+          action: RouteAction.pushNamedAndRemoveUntil,
+        );
+      } else if (configModel != null &&
+          MaintenanceHelper.isMaintenanceModeEnable(configModel) &&
+          MaintenanceHelper.isCustomerMaintenanceEnable(configModel)) {
+        RouteHelper.getMainRoute(
+          action: RouteAction.pushNamedAndRemoveUntil,
+        );
+      } else if (notificationBody != null) {
+        notificationRoute();
+      } else if (Provider.of<AuthProvider>(
+        Get.context!,
+        listen: false,
+      ).isLoggedIn()) {
+        Provider.of<AuthProvider>(
+          Get.context!,
+          listen: false,
+        ).updateToken();
+        RouteHelper.getMainRoute(
+          action: RouteAction.pushNamedAndRemoveUntil,
+        );
+      } else {
+        if (Provider.of<SplashProvider>(
+          Get.context!,
+          listen: false,
+        ).showIntro()) {
+          RouteHelper.getOnboardingScreen(
             action: RouteAction.pushNamedAndRemoveUntil,
           );
         } else {
-          if (MaintenanceHelper.isMaintenanceModeEnable(configModel) &&
-              MaintenanceHelper.isCustomerMaintenanceEnable(configModel)) {
-            if (mounted) {
-              RouteHelper.getMainRoute(
-                action: RouteAction.pushNamedAndRemoveUntil,
-              );
-            }
-          } else if (notificationBody != null) {
-            notificationRoute();
-          } else if (Provider.of<AuthProvider>(
-            Get.context!,
-            listen: false,
-          ).isLoggedIn()) {
-            Provider.of<AuthProvider>(
-              Get.context!,
-              listen: false,
-            ).updateToken();
-            RouteHelper.getMainRoute(
-              action: RouteAction.pushNamedAndRemoveUntil,
-            );
-          } else {
-            if (Provider.of<SplashProvider>(
-              Get.context!,
-              listen: false,
-            ).showIntro()) {
-              RouteHelper.getOnboardingScreen(
-                action: RouteAction.pushNamedAndRemoveUntil,
-              );
-            } else {
-              RouteHelper.getMainRoute(
-                action: RouteAction.pushNamedAndRemoveUntil,
-              );
-            }
-          }
+          RouteHelper.getMainRoute(
+            action: RouteAction.pushNamedAndRemoveUntil,
+          );
         }
-      });
-    }
+      }
+    });
   }
 
   void _checkConnectivity() {

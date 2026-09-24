@@ -3,8 +3,9 @@ import 'dart:io';
 import 'dart:ui';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'firebase_options.dart';
 import 'package:flutter/foundation.dart'
-    show defaultTargetPlatform, kDebugMode, kIsWeb;
+    show kDebugMode, kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'common/enums/app_mode_enum.dart';
@@ -15,6 +16,7 @@ import 'features/order/providers/image_note_provider.dart';
 import 'features/order_track/providers/tracker_provider.dart';
 import 'features/review/providers/review_provider.dart';
 
+import 'helper/notification_helper.dart';
 import 'helper/responsive_helper.dart';
 import 'helper/route_helper.dart';
 import 'features/auth/providers/auth_provider.dart';
@@ -67,30 +69,9 @@ Future<void> main() async {
 
   try {
     if (Firebase.apps.isEmpty) {
-      if (kIsWeb) {
-        await Firebase.initializeApp(
-          options: const FirebaseOptions(
-            apiKey: "AIzaSyCDmxgOAjPs4xSEEgaVIDCd_FXCQyFWg-s",
-            authDomain: "jebnah.firebaseapp.com",
-            projectId: "jebnah",
-            storageBucket: "jebnah.firebasestorage.app",
-            messagingSenderId: "1090280767907",
-            appId: "1:1090280767907:web:8703626713a04f7b139a16",
-          ),
-        );
-      } else if (Platform.isAndroid) {
-        await Firebase.initializeApp(
-          options: const FirebaseOptions(
-            apiKey: "AIzaSyCDmxgOAjPs4xSEEgaVIDCd_FXCQyFWg-s",
-            appId: "1:1090280767907:android:8703626713a04f7b139a16",
-            messagingSenderId: "1090280767907",
-            projectId: "jebnah",
-            storageBucket: "jebnah.firebasestorage.app",
-          ),
-        );
-      } else {
-        await Firebase.initializeApp();
-      }
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
     }
   } catch (e) {
     if (kDebugMode) {
@@ -98,18 +79,11 @@ Future<void> main() async {
     }
   }
 
-  if (kIsWeb) {
-    if (AppConstants.appMode != AppMode.demo) {
-      await FacebookAuth.instance.webAndDesktopInitialize(
-        appId: "1216934565526698",
-        cookie: true,
-        xfbml: true,
-        version: "v15.0",
-      );
-    }
-  } else {
-    if (defaultTargetPlatform == TargetPlatform.android) {
-      FirebaseMessaging.instance.requestPermission();
+  try {
+    FirebaseMessaging.onBackgroundMessage(myBackgroundMessageHandler);
+  } catch (e) {
+    if (kDebugMode) {
+      print('Error registering background message handler: $e');
     }
   }
 
@@ -176,6 +150,75 @@ Future<void> main() async {
       child: MyApp(isWeb: !kIsWeb, route: path),
     ),
   );
+
+  // Initialize notifications asynchronously in background without blocking UI
+  _initNotifications();
+}
+
+void _initNotifications() async {
+  if (kIsWeb) {
+    if (AppConstants.appMode != AppMode.demo) {
+      await FacebookAuth.instance.webAndDesktopInitialize(
+        appId: "1216934565526698",
+        cookie: true,
+        xfbml: true,
+        version: "v15.0",
+      );
+    }
+  } else {
+    try {
+      await FirebaseMessaging.instance.requestPermission(
+        alert: true,
+        badge: true,
+        sound: true,
+      );
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error requesting notification permission: $e');
+      }
+    }
+
+    try {
+      await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
+        alert: true,
+        badge: true,
+        sound: true,
+      );
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error setting foreground notification options: $e');
+      }
+    }
+
+    try {
+      await FirebaseMessaging.instance.subscribeToTopic(AppConstants.topic);
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error subscribing to topic: $e');
+      }
+    }
+
+    try {
+      await NotificationHelper.initialize();
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error initializing NotificationHelper: $e');
+      }
+    }
+
+    try {
+      final token = await FirebaseMessaging.instance.getToken();
+      if (kDebugMode) {
+        print('----------------------------------------');
+        print('FCM TOKEN: $token');
+        print('----------------------------------------');
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error getting FCM token: $e');
+      }
+    }
+  }
 }
 
 class MyApp extends StatefulWidget {

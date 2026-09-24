@@ -45,7 +45,7 @@ class CustomButtonWidget extends StatelessWidget {
               (onPressed == null
                   ? Theme.of(context).hintColor.withValues(alpha: 0.6)
                   : Theme.of(context).primaryColor),
-          minimumSize: Size(Dimensions.webScreenWidth, height ?? 50),
+          minimumSize: Size(width ?? Dimensions.webScreenWidth, height ?? 50),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(borderRadius),
           ),
@@ -68,9 +68,13 @@ class CustomButtonWidget extends StatelessWidget {
                     ),
                     const SizedBox(width: Dimensions.paddingSizeSmall),
 
-                    Text(
-                      getTranslated('loading', context),
-                      style: poppinsMedium.copyWith(color: Colors.white),
+                    Flexible(
+                      child: Text(
+                        getTranslated('loading', context),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: poppinsMedium.copyWith(color: Colors.white),
+                      ),
                     ),
                   ],
                 ),
@@ -90,15 +94,19 @@ class CustomButtonWidget extends StatelessWidget {
                         )
                       : const SizedBox(),
 
-                  Text(
-                    buttonText ?? '',
-                    textAlign: TextAlign.center,
-                    style:
-                        textStyle ??
-                        poppinsMedium.copyWith(
-                          fontSize: Dimensions.fontSizeLarge,
-                          color: textColor ?? Theme.of(context).cardColor,
-                        ),
+                  Flexible(
+                    child: Text(
+                      buttonText ?? '',
+                      textAlign: TextAlign.center,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style:
+                          textStyle ??
+                          poppinsMedium.copyWith(
+                            fontSize: Dimensions.fontSizeLarge,
+                            color: textColor ?? Theme.of(context).cardColor,
+                          ),
+                    ),
                   ),
                 ],
               ),

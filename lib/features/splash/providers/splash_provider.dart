@@ -90,14 +90,23 @@ class SplashProvider extends ChangeNotifier {
         if (context.mounted) {
           _onConfigAction(context, fromNotification);
         }
-      }
 
-      if (context.mounted) {
-        initConfig(
-          context,
-          fromNotification: fromNotification,
-          source: DataSourceEnum.client,
-        );
+        if (context.mounted) {
+          initConfig(
+            context,
+            fromNotification: fromNotification,
+            source: DataSourceEnum.client,
+          );
+        }
+        return _configModel;
+      } else {
+        if (context.mounted) {
+          return await initConfig(
+            context,
+            fromNotification: fromNotification,
+            source: DataSourceEnum.client,
+          );
+        }
       }
     } else {
       ApiResponseModel<Response> apiResponseModel = await splashRepo!.getConfig(
