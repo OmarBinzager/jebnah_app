@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../../../common/widgets/custom_pop_scope_handel_deep_link_widget.dart';
 import '../../../localization/app_localization.dart';
@@ -47,10 +47,10 @@ class UpdateScreen extends StatelessWidget {
                   buttonText: getTranslated('update_now', context),
                   onPressed: () async {
                     String? appUrl = 'https://google.com';
-                    if (Platform.isAndroid) {
+                    if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
                       appUrl =
                           splashProvider.configModel!.playStoreConfig!.link;
-                    } else if (Platform.isIOS) {
+                    } else if (!kIsWeb && defaultTargetPlatform == TargetPlatform.iOS) {
                       appUrl = splashProvider.configModel!.appStoreConfig!.link;
                     }
                     if (await canLaunchUrl(Uri.parse(appUrl!))) {

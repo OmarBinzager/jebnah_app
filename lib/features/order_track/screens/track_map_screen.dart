@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../../../common/widgets/custom_app_bar_widget.dart';
@@ -326,7 +325,7 @@ class _TrackMapScreenState extends State<TrackMapScreen> {
         _maxContentKey.currentContext?.findRenderObject() as RenderBox?;
     if (box != null) {
       setState(() {
-        bool isIos = Platform.isIOS;
+        bool isIos = !kIsWeb && defaultTargetPlatform == TargetPlatform.iOS;
         _bottomSheetMaxSize =
             (box.size.height +
                 _bottomSheetBottomMargin * (isIos ? 1 : 4) +
@@ -344,7 +343,7 @@ class _TrackMapScreenState extends State<TrackMapScreen> {
         _minContentKey.currentContext?.findRenderObject() as RenderBox?;
     if (box != null) {
       setState(() {
-        bool isIos = Platform.isIOS;
+        bool isIos = !kIsWeb && defaultTargetPlatform == TargetPlatform.iOS;
         _bottomSheetMinSize =
             (box.size.height +
                 _bottomSheetBottomMargin * (isIos ? 2.5 : 4.5) +

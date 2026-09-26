@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
@@ -134,13 +133,13 @@ class _SplashScreenState extends State<SplashScreen>
     }
 
     double minimumVersion = 0.0;
-    if (Platform.isAndroid) {
+    if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
       if (splashProvider.configModel?.playStoreConfig?.minVersion != null) {
         minimumVersion =
             splashProvider.configModel?.playStoreConfig?.minVersion ??
             AppConstants.appVersion;
       }
-    } else if (Platform.isIOS) {
+    } else if (!kIsWeb && defaultTargetPlatform == TargetPlatform.iOS) {
       if (splashProvider.configModel?.appStoreConfig?.minVersion != null) {
         minimumVersion =
             splashProvider.configModel?.appStoreConfig?.minVersion ??
