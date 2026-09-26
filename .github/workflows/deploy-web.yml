@@ -1,0 +1,57 @@
+name: Build & Deploy Flutter Web & Android APK
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Java (for Android build)
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      - name: Install Dependencies
+        run: flutter pub get
+
+      # 1. Build Flutter Web
+      - name: Build Flutter Web
+        run: flutter build web --release --base-href "/"
+
+      # 2. Deploy Web to VPS
+      - name: Deploy Web to VPS
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: 22
+          source: "build/web/*"
+          target: "/var/www/store-web"
+          strip_components: 2
+          rm: true
+
+      # 3. Build Android APK
+      - name: Build Android Release APK
+        run: flutter build apk --release
+
+      # 4. Upload APK as Artifact
+      - name: Upload Android APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release
+          path: build/app/outputs/flutter-apk/app-release.apk

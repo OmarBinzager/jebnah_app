@@ -11,8 +11,8 @@ class AppConstants {
   static const AppMode appMode = AppMode.release;
   static const LocalCachesTypeEnum cachesType = LocalCachesTypeEnum.all;
   static const String fontFamily = 'Cairo';
-  static const String baseUrl = 'https://jebnah.com/dashboard';
-  static const String webHostUrl = 'https://jebnah.com/dashboard';
+  static const String baseUrl = 'https://jebnah.com';
+  static const String webHostUrl = 'https://jebnah.com';
 
   // static const String baseUrl = 'http://10.0.2.2/work/jbnh';
   // static const String webHostUrl = 'https://10.0.2.2/work/jbnh';
