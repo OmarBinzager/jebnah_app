@@ -3,6 +3,7 @@ import '../../../../helper/route_helper.dart';
 import '../../../../localization/app_localization.dart';
 import '../../../../features/auth/providers/auth_provider.dart';
 import '../../../../common/providers/cart_provider.dart';
+import '../../../../common/providers/theme_provider.dart';
 import '../../../../utill/app_constants.dart';
 import '../../../../utill/dimensions.dart';
 import '../../../../utill/images.dart';
@@ -28,10 +29,14 @@ class MainAppBarWidget extends StatelessWidget implements PreferredSizeWidget {
                 onTap: () => RouteHelper.getMainRoute(),
                 child: Row(
                   children: [
-                    Image.asset(
-                      Images.webBarLogoPlaceHolder,
-                      height: 36,
-                      fit: BoxFit.contain,
+                    Consumer<ThemeProvider>(
+                      builder: (context, themeProvider, child) => Image.asset(
+                        themeProvider.darkTheme
+                            ? Images.darkAppLogo
+                            : Images.webBarLogoPlaceHolder,
+                        height: 36,
+                        fit: BoxFit.contain,
+                      ),
                     ),
                     const SizedBox(width: Dimensions.paddingSizeSmall),
                     Text(

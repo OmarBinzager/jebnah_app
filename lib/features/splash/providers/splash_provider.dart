@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
 import '../../../common/enums/data_source_enum.dart';
 import '../../../common/enums/html_type_enum.dart';
@@ -185,12 +186,24 @@ class SplashProvider extends ChangeNotifier {
       }
       initializeScreenList();
 
-      notifyListeners();
+      _safeNotifyListeners();
     }
   }
 
   void setFirstTimeConnectionCheck(bool isChecked) {
     _firstTimeConnectionCheck = isChecked;
+  }
+
+  void _safeNotifyListeners() {
+    final phase = SchedulerBinding.instance.schedulerPhase;
+    if (phase == SchedulerPhase.persistentCallbacks ||
+        phase == SchedulerPhase.midFrameMicrotasks) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        notifyListeners();
+      });
+    } else {
+      notifyListeners();
+    }
   }
 
   final List<int> _pageHistory = [0];
@@ -201,7 +214,7 @@ class SplashProvider extends ChangeNotifier {
       _pageHistory.clear();
       _pageHistory.add(0);
       _pageIndex = 0;
-      notifyListeners();
+      _safeNotifyListeners();
       return;
     }
 
@@ -209,14 +222,14 @@ class SplashProvider extends ChangeNotifier {
     if (_pageHistory.isEmpty || _pageHistory.last != index) {
       _pageHistory.add(index);
     }
-    notifyListeners();
+    _safeNotifyListeners();
   }
 
   bool popPageIndex() {
     if (_pageHistory.length > 1) {
       _pageHistory.removeLast();
       _pageIndex = _pageHistory.last;
-      notifyListeners();
+      _safeNotifyListeners();
       return true;
     }
     return false;
@@ -301,7 +314,7 @@ class SplashProvider extends ChangeNotifier {
         data.forEach((deliveryInfo) {
           _deliveryInfoModelList?.add(DeliveryInfoModel.fromJson(deliveryInfo));
         });
-        notifyListeners();
+        _safeNotifyListeners();
       },
     );
   }

@@ -35,6 +35,8 @@ class _CustomPopScopeWidgetState extends State<CustomPopScopeWidget> {
           widget.onPopInvoked!();
         }
 
+        if (didPop) return;
+
         if (splashProvider.pageIndex != 0) {
           if (splashProvider.popPageIndex()) {
             return;
@@ -43,7 +45,7 @@ class _CustomPopScopeWidgetState extends State<CustomPopScopeWidget> {
           return;
         }
 
-        if (!didPop && (splashProvider.pageIndex == 0)) {
+        if (splashProvider.pageIndex == 0) {
           ResponsiveHelper().showDialogOrBottomSheet(
             context,
             CustomAlertDialogWidget(

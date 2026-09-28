@@ -188,16 +188,14 @@ class _WebAppBarWidgetState extends State<WebAppBarWidget> {
                               children: [
                                 SizedBox(
                                   height: 50,
-                                  child: Consumer<SplashProvider>(
-                                    builder: (context, splash, child) =>
-                                        CustomImageWidget(
-                                          placeholder:
-                                              Images.webBarLogoPlaceHolder,
-                                          image: splash.baseUrls != null
-                                              ? '${splash.baseUrls!.ecommerceImageUrl}/${splash.configModel!.ecommerceLogo}'
-                                              : '',
+                                  child: Consumer<ThemeProvider>(
+                                    builder: (context, themeProvider, child) =>
+                                        Image.asset(
+                                          themeProvider.darkTheme
+                                              ? Images.darkAppLogo
+                                              : Images.webBarLogoPlaceHolder,
+                                          height: 50,
                                           fit: BoxFit.contain,
-                                          width: 115,
                                         ),
                                   ),
                                 ),

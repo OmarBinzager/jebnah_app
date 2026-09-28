@@ -124,6 +124,14 @@ class RouteHelper {
 
   // Static getter methods for routes
   static String getMainRoute({RouteAction? action}) {
+    if (Get.context != null) {
+      try {
+        final splash = Provider.of<SplashProvider>(Get.context!, listen: false);
+        if (splash.pageIndex != 0) {
+          splash.setPageIndex(0);
+        }
+      } catch (_) {}
+    }
     return _navigateRoute(menu, route: action);
   }
 
@@ -1149,7 +1157,11 @@ class RouteHelper {
     if (kIsWeb || Navigator.canPop(ctx)) {
       return null;
     } else {
-      Provider.of<SplashProvider>(ctx, listen: false).setPageIndex(index);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (ctx.mounted) {
+          Provider.of<SplashProvider>(ctx, listen: false).setPageIndex(index);
+        }
+      });
       return '/';
     }
   }

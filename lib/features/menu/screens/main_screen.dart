@@ -312,7 +312,12 @@ class _MainScreenState extends State<MainScreen> {
         },
         type: BottomNavigationBarType.fixed,
         backgroundColor: Theme.of(context).cardColor,
-        selectedItemColor: Theme.of(context).primaryColor,
+        selectedItemColor: (splash.pageIndex == 0 ||
+                splash.pageIndex == 1 ||
+                splash.pageIndex == 3 ||
+                splash.pageIndex == 12)
+            ? Theme.of(context).primaryColor
+            : Theme.of(context).hintColor.withValues(alpha: 0.6),
         unselectedItemColor: Theme.of(context).hintColor.withValues(alpha: 0.6),
         selectedLabelStyle: poppinsMedium.copyWith(
           fontSize: Dimensions.fontSizeDefault,

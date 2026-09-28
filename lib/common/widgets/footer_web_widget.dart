@@ -6,6 +6,7 @@ import '../../../../helper/route_helper.dart';
 import '../../../../localization/app_localization.dart';
 import '../../../../features/auth/providers/auth_provider.dart';
 import '../../../../common/providers/localization_provider.dart';
+import '../../../../common/providers/theme_provider.dart';
 import '../../../../common/providers/news_letter_provider.dart';
 import '../../../../features/profile/providers/profile_provider.dart';
 import '../../../../features/splash/providers/splash_provider.dart';
@@ -13,7 +14,6 @@ import '../../../../utill/color_resources.dart';
 import '../../../../utill/dimensions.dart';
 import '../../../../utill/images.dart';
 import '../../../../utill/styles.dart';
-import '../../../../common/widgets/custom_image_widget.dart';
 import '../../../../helper/custom_snackbar_helper.dart';
 import '../../../../common/widgets/text_hover_widget.dart';
 import 'package:provider/provider.dart';
@@ -65,14 +65,14 @@ class FooterWebWidget extends StatelessWidget {
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    Consumer<SplashProvider>(
-                                      builder: (context, splash, child) =>
-                                          CustomImageWidget(
-                                            image:
-                                                '${splash.baseUrls!.ecommerceImageUrl}/${splash.configModel!.ecommerceLogo}',
-                                            placeholder:
-                                                Images.webBarLogoPlaceHolder,
+                                    Consumer<ThemeProvider>(
+                                      builder: (context, themeProvider, child) =>
+                                          Image.asset(
+                                            themeProvider.darkTheme
+                                                ? Images.darkAppLogo
+                                                : Images.webBarLogoPlaceHolder,
                                             width: 125,
+                                            fit: BoxFit.contain,
                                           ),
                                     ),
                                   ],

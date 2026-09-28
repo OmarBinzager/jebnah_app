@@ -710,6 +710,7 @@ class _LoginScreenState extends State<LoginScreen> {
           )
           .then((status) async {
             if (status.isSuccess) {
+              if (!mounted) return;
               if (authProvider.isActiveRememberMe) {
                 authProvider.saveUserNumberAndPassword(
                   UserLogData(
@@ -723,6 +724,10 @@ class _LoginScreenState extends State<LoginScreen> {
               } else {
                 authProvider.clearUserLogData();
               }
+              Provider.of<SplashProvider>(
+                context,
+                listen: false,
+              ).setPageIndex(0);
               RouteHelper.getMainRoute(
                 action: RouteAction.pushNamedAndRemoveUntil,
               );
