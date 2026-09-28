@@ -56,43 +56,48 @@ class BrandCarouselWidget extends StatelessWidget {
               ),
             ),
 
-            Container(
-              width: Dimensions.webScreenWidth,
-              height: ResponsiveHelper.isDesktop(context)
-                  ? 200
-                  : size.width * 0.45,
-              padding: ResponsiveHelper.isDesktop(context)
-                  ? const EdgeInsets.only(
-                      top: Dimensions.paddingSizeLarge,
-                      bottom: Dimensions.paddingSizeSmall,
-                    )
-                  : null,
-              child: brandProvider.brandList != null
-                  ? brandProvider.brandList!.isNotEmpty
-                        ? Stack(
-                            fit: StackFit.expand,
-                            children: [
-                              CarouselSlider.builder(
-                                options: CarouselOptions(
-                                  autoPlay: true,
-                                  enlargeCenterPage: true,
-                                  viewportFraction:
-                                      ResponsiveHelper.isDesktop(context)
-                                      ? 0.25
-                                      : 0.8,
-                                  enlargeFactor: 0.2,
-                                  disableCenter: false,
-                                  onPageChanged: (index, reason) {
-                                    Provider.of<BrandProvider>(
-                                      context,
-                                      listen: false,
-                                    ).setCurrentCarouselIndex(index);
-                                  },
-                                ),
-                                itemCount: brandProvider.brandList!.isEmpty
-                                    ? 1
-                                    : brandProvider.brandList!.length,
-                                itemBuilder: (context, index, _) {
+            Builder(
+              builder: (context) {
+                final bool isDesktop = ResponsiveHelper.isDesktop(context);
+                final double carouselHeight = isDesktop
+                    ? 170.0
+                    : (size.width * 0.45).clamp(130.0, 200.0).roundToDouble();
+                final double containerHeight = isDesktop ? 200.0 : carouselHeight;
+
+                return Container(
+                  width: Dimensions.webScreenWidth,
+                  height: containerHeight,
+                  padding: isDesktop
+                      ? const EdgeInsets.only(
+                          top: Dimensions.paddingSizeLarge,
+                          bottom: Dimensions.paddingSizeSmall,
+                        )
+                      : null,
+                  child: brandProvider.brandList != null
+                      ? brandProvider.brandList!.isNotEmpty
+                            ? Stack(
+                                fit: StackFit.expand,
+                                children: [
+                                  CarouselSlider.builder(
+                                    key: ValueKey('brand_carousel_$isDesktop'),
+                                    options: CarouselOptions(
+                                      height: carouselHeight,
+                                      autoPlay: true,
+                                      enlargeCenterPage: true,
+                                      viewportFraction: isDesktop ? 0.25 : 0.8,
+                                      enlargeFactor: 0.2,
+                                      disableCenter: false,
+                                      onPageChanged: (index, reason) {
+                                        Provider.of<BrandProvider>(
+                                          context,
+                                          listen: false,
+                                        ).setCurrentCarouselIndex(index);
+                                      },
+                                    ),
+                                    itemCount: brandProvider.brandList!.isEmpty
+                                        ? 1
+                                        : brandProvider.brandList!.length,
+                                    itemBuilder: (context, index, _) {
                                   return InkWell(
                                     hoverColor: Colors.transparent,
                                     onTap: () {
@@ -204,6 +209,8 @@ class BrandCarouselWidget extends StatelessWidget {
                             ),
                           )
                   : const BrandShimmer(),
+                );
+              },
             ),
 
             if (ResponsiveHelper.isDesktop(context))
@@ -232,7 +239,7 @@ class BrandShimmer extends StatelessWidget {
         margin: const EdgeInsets.symmetric(horizontal: 10),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
-          color: Theme.of(context).shadowColor,
+          color: Theme.of(context).highlightColor,
         ),
       ),
     );

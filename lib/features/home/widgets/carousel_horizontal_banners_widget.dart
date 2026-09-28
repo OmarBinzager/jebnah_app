@@ -40,14 +40,20 @@ class CarouselHorizontalBannersWidget extends StatelessWidget {
           return const SizedBox();
         }
 
+        final bool isDesktop = ResponsiveHelper.isDesktop(context);
+        final double carouselHeight = isDesktop
+            ? 150.0
+            : (size.width * 0.45).clamp(130.0, 200.0).roundToDouble();
+        final double containerHeight = isDesktop
+            ? 180.0
+            : carouselHeight + (Dimensions.paddingSizeSmall * 2);
+
         return Column(
           children: [
             Container(
               width: Dimensions.webScreenWidth,
-              height: ResponsiveHelper.isDesktop(context)
-                  ? 180
-                  : size.width * 0.45,
-              padding: ResponsiveHelper.isDesktop(context)
+              height: containerHeight,
+              padding: isDesktop
                   ? const EdgeInsets.only(
                       top: Dimensions.paddingSizeLarge,
                       bottom: Dimensions.paddingSizeSmall,
@@ -59,18 +65,16 @@ class CarouselHorizontalBannersWidget extends StatelessWidget {
                 fit: StackFit.expand,
                 children: [
                   CarouselSlider.builder(
+                    key: ValueKey('carousel_horizontal_$isDesktop'),
                     options: CarouselOptions(
+                      height: carouselHeight,
                       autoPlay: true,
                       autoPlayInterval: const Duration(seconds: 5),
                       autoPlayAnimationDuration: const Duration(
                         milliseconds: 800,
                       ),
-                      enlargeCenterPage: ResponsiveHelper.isDesktop(context)
-                          ? true
-                          : false,
-                      viewportFraction: ResponsiveHelper.isDesktop(context)
-                          ? 0.33
-                          : 0.85,
+                      enlargeCenterPage: isDesktop ? true : false,
+                      viewportFraction: isDesktop ? 0.33 : 0.85,
                       enlargeFactor: 0.2,
                       disableCenter: false,
                       onPageChanged: (index, reason) {
@@ -134,10 +138,10 @@ class CarouselHorizontalBannersWidget extends StatelessWidget {
                             borderRadius: BorderRadius.circular(
                               Dimensions.radiusSizeDefault,
                             ),
+                            color: Theme.of(context).cardColor,
                             boxShadow: [
                               BoxShadow(
-                                // ignore: deprecated_member_use
-                                color: Colors.black.withOpacity(0.1),
+                                color: Colors.black.withValues(alpha: 0.08),
                                 blurRadius: 4,
                                 offset: const Offset(0, 2),
                               ),
@@ -148,12 +152,8 @@ class CarouselHorizontalBannersWidget extends StatelessWidget {
                               Dimensions.radiusSizeDefault,
                             ),
                             child: CustomImageWidget(
-                              height: ResponsiveHelper.isDesktop(context)
-                                  ? 180
-                                  : size.width * 0.45,
-                              width: ResponsiveHelper.isDesktop(context)
-                                  ? 400
-                                  : size.width,
+                              height: carouselHeight,
+                              width: double.infinity,
                               placeholder: Images.placeHolder,
                               image:
                                   '${Provider.of<SplashProvider>(context, listen: false).baseUrls!.bannerImageUrl}/${banner.image}',
@@ -265,7 +265,7 @@ class CarouselHorizontalShimmer extends StatelessWidget {
                 borderRadius: BorderRadius.circular(
                   Dimensions.radiusSizeDefault,
                 ),
-                color: Theme.of(context).shadowColor,
+                color: Theme.of(context).highlightColor,
               ),
             );
           },

@@ -28,35 +28,58 @@ class CustomImageWidget extends StatelessWidget {
         ? placeholder
         : Images.placeHolder;
 
-    return CachedNetworkImage(
-      imageUrl: image,
-      height: height,
-      width: width,
-      fit: fit,
-      placeholder: (context, url) => Center(
-        child: Transform.scale(
-          scale: 1.8,
-          alignment: Alignment.center,
-          child: Lottie.asset(
-            'assets/lottie/jebnah_logo_animation.json',
-            fit: BoxFit.contain,
-            repeat: true,
-            animate: true,
-            errorBuilder: (context, error, stackTrace) =>
-                CustomAssetImageWidget(
-                  placeholderImage,
-                  height: height,
-                  width: width,
-                  fit: fit,
-                ),
-          ),
-        ),
-      ),
-      errorWidget: (context, url, error) => CustomAssetImageWidget(
+    if (image.isEmpty) {
+      return CustomAssetImageWidget(
         placeholderImage,
         height: height,
         width: width,
         fit: fit,
+      );
+    }
+
+    return Container(
+      height: height,
+      width: width,
+      color: Theme.of(context).cardColor,
+      child: CachedNetworkImage(
+        imageUrl: image,
+        height: height,
+        width: width,
+        fit: fit,
+        fadeInDuration: const Duration(milliseconds: 200),
+        fadeOutDuration: const Duration(milliseconds: 200),
+        useOldImageOnUrlChange: true,
+        placeholder: (context, url) => Container(
+          color: Theme.of(context).cardColor,
+          child: Center(
+            child: Transform.scale(
+              scale: 1.8,
+              alignment: Alignment.center,
+              child: Lottie.asset(
+                'assets/lottie/jebnah_logo_animation.json',
+                fit: BoxFit.contain,
+                repeat: true,
+                animate: true,
+                errorBuilder: (context, error, stackTrace) =>
+                    CustomAssetImageWidget(
+                      placeholderImage,
+                      height: height,
+                      width: width,
+                      fit: fit,
+                    ),
+              ),
+            ),
+          ),
+        ),
+        errorWidget: (context, url, error) => Container(
+          color: Theme.of(context).cardColor,
+          child: CustomAssetImageWidget(
+            placeholderImage,
+            height: height,
+            width: width,
+            fit: fit,
+          ),
+        ),
       ),
     );
   }

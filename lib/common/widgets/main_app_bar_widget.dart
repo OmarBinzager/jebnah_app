@@ -19,12 +19,12 @@ class MainAppBarWidget extends StatelessWidget implements PreferredSizeWidget {
       child: Container(
         color: Theme.of(context).cardColor,
         width: 1170.0,
-        height: 45.0,
+        height: 55.0,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
               child: InkWell(
                 onTap: () => RouteHelper.getMainRoute(),
                 child: Row(
@@ -34,7 +34,7 @@ class MainAppBarWidget extends StatelessWidget implements PreferredSizeWidget {
                         themeProvider.darkTheme
                             ? Images.darkAppLogo
                             : Images.webBarLogoPlaceHolder,
-                        height: 36,
+                        height: 46,
                         fit: BoxFit.contain,
                       ),
                     ),
@@ -57,7 +57,7 @@ class MainAppBarWidget extends StatelessWidget implements PreferredSizeWidget {
   }
 
   @override
-  Size get preferredSize => const Size(double.maxFinite, 50);
+  Size get preferredSize => const Size(double.maxFinite, 55);
 }
 
 class _MenuBarWidget extends StatelessWidget {

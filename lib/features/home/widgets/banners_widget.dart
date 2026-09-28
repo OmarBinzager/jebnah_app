@@ -20,16 +20,20 @@ class BannersWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.sizeOf(context);
+    final bool isDesktop = ResponsiveHelper.isDesktop(context);
+    final double carouselHeight = isDesktop
+        ? 180.0
+        : (size.width * 0.49).clamp(140.0, 240.0).roundToDouble();
+    final double containerHeight = isDesktop ? 210.0 : carouselHeight;
+
     return Consumer<BannerProvider>(
       builder: (context, bannerProvider, child) {
         return Column(
           children: [
             Container(
               width: Dimensions.webScreenWidth,
-              height: ResponsiveHelper.isDesktop(context)
-                  ? 210
-                  : size.width * 0.49,
-              padding: ResponsiveHelper.isDesktop(context)
+              height: containerHeight,
+              padding: isDesktop
                   ? const EdgeInsets.only(
                       top: Dimensions.paddingSizeLarge,
                       bottom: Dimensions.paddingSizeSmall,
@@ -41,13 +45,12 @@ class BannersWidget extends StatelessWidget {
                             fit: StackFit.expand,
                             children: [
                               CarouselSlider.builder(
+                                key: ValueKey('banner_slider_$isDesktop'),
                                 options: CarouselOptions(
+                                  height: carouselHeight,
                                   autoPlay: true,
                                   enlargeCenterPage: true,
-                                  viewportFraction:
-                                      ResponsiveHelper.isDesktop(context)
-                                      ? 0.33
-                                      : 1,
+                                  viewportFraction: isDesktop ? 0.33 : 1.0,
                                   enlargeFactor: 0,
                                   disableCenter: true,
                                   onPageChanged: (index, reason) {
@@ -115,22 +118,13 @@ class BannersWidget extends StatelessWidget {
                                       ),
                                       decoration: BoxDecoration(
                                         borderRadius: BorderRadius.circular(10),
+                                        color: Theme.of(context).cardColor,
                                       ),
                                       child: ClipRRect(
                                         borderRadius: BorderRadius.circular(10),
                                         child: CustomImageWidget(
-                                          height:
-                                              ResponsiveHelper.isDesktop(
-                                                context,
-                                              )
-                                              ? 210
-                                              : size.width * 0.5,
-                                          width:
-                                              ResponsiveHelper.isDesktop(
-                                                context,
-                                              )
-                                              ? 400
-                                              : size.width,
+                                          height: carouselHeight,
+                                          width: double.infinity,
                                           placeholder: Images.placeHolder,
                                           image:
                                               '${Provider.of<SplashProvider>(context, listen: false).baseUrls!.bannerImageUrl}'
@@ -186,7 +180,7 @@ class BannerShimmer extends StatelessWidget {
         margin: const EdgeInsets.symmetric(horizontal: 10),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
-          color: Theme.of(context).shadowColor,
+          color: Theme.of(context).highlightColor,
         ),
       ),
     );

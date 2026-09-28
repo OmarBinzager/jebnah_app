@@ -187,14 +187,14 @@ class _WebAppBarWidgetState extends State<WebAppBarWidget> {
                             child: Row(
                               children: [
                                 SizedBox(
-                                  height: 50,
+                                  height: 70,
                                   child: Consumer<ThemeProvider>(
                                     builder: (context, themeProvider, child) =>
                                         Image.asset(
                                           themeProvider.darkTheme
                                               ? Images.darkAppLogo
                                               : Images.webBarLogoPlaceHolder,
-                                          height: 50,
+                                          height: 70,
                                           fit: BoxFit.contain,
                                         ),
                                   ),
