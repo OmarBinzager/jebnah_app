@@ -3,6 +3,7 @@ import '../../../common/widgets/price_item_widget.dart';
 import '../../../features/cart/widgets/coupon_widget.dart';
 import '../../../features/cart/widgets/delivery_option_widget.dart';
 import '../../../features/coupon/providers/coupon_provider.dart';
+import '../../../features/order/providers/order_provider.dart';
 import '../../../features/splash/providers/splash_provider.dart';
 import '../../../helper/price_converter_helper.dart';
 import '../../../localization/language_constraints.dart';
@@ -21,12 +22,14 @@ class CartDetailsWidget extends StatelessWidget {
     required double discount,
   }) : _couponController = couponController,
        _total = total,
+       _isFreeDelivery = isFreeDelivery,
        _itemPrice = itemPrice,
        _tax = tax,
        _discount = discount;
 
   final TextEditingController _couponController;
   final double _total;
+  final bool _isFreeDelivery;
   final double _itemPrice;
   final double _tax;
   final double _discount;
@@ -161,18 +164,66 @@ class CartDetailsWidget extends StatelessWidget {
                 },
               ),
 
-              Divider(
-                height: 30,
-                thickness: 1,
-                color: Theme.of(context).disabledColor.withValues(alpha: 0.1),
-              ),
+              Consumer<OrderProvider>(
+                builder: (context, orderProvider, child) {
+                  final SplashProvider splashProvider =
+                      Provider.of<SplashProvider>(context, listen: false);
+                  double deliveryCharge = 0.0;
 
-              PriceItemWidget(
-                title: getTranslated('total_amount', context),
-                subTitle: PriceConverterHelper.convertPrice(context, _total),
-                style: poppinsBold.copyWith(
-                  fontSize: Dimensions.fontSizeExtraLarge,
-                ),
+                  if (orderProvider.orderType == 'self_pickup' ||
+                      _isFreeDelivery) {
+                    deliveryCharge = 0.0;
+                  } else {
+                    if (splashProvider.deliveryInfoModelList != null &&
+                        splashProvider.deliveryInfoModelList!.isNotEmpty &&
+                        orderProvider.branchIndex <
+                            splashProvider.deliveryInfoModelList!.length) {
+                      final setup = splashProvider
+                          .deliveryInfoModelList![orderProvider.branchIndex]
+                          .deliveryChargeSetup;
+                      if (setup?.deliveryChargeType == 'fixed') {
+                        deliveryCharge =
+                            setup?.fixedDeliveryCharge?.toDouble() ??
+                                (configModel.deliveryCharge ?? 0.0);
+                      } else {
+                        deliveryCharge =
+                            setup?.minimumDeliveryCharge?.toDouble() ??
+                                (configModel.deliveryCharge ?? 0.0);
+                      }
+                    } else {
+                      deliveryCharge = configModel.deliveryCharge ?? 0.0;
+                    }
+                  }
+
+                  return Column(
+                    children: [
+                      const SizedBox(height: Dimensions.paddingSizeSmall),
+                      PriceItemWidget(
+                        title: getTranslated('delivery_fee', context),
+                        subTitle: deliveryCharge <= 0
+                            ? getTranslated('free', context)
+                            : '+ ${PriceConverterHelper.convertPrice(context, deliveryCharge)}',
+                      ),
+                      Divider(
+                        height: 30,
+                        thickness: 1,
+                        color: Theme.of(context)
+                            .disabledColor
+                            .withValues(alpha: 0.1),
+                      ),
+                      PriceItemWidget(
+                        title: getTranslated('total_amount', context),
+                        subTitle: PriceConverterHelper.convertPrice(
+                          context,
+                          _total + deliveryCharge,
+                        ),
+                        style: poppinsBold.copyWith(
+                          fontSize: Dimensions.fontSizeExtraLarge,
+                        ),
+                      ),
+                    ],
+                  );
+                },
               ),
             ],
           ),
