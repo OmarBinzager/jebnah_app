@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import '../../../../common/widgets/custom_asset_image_widget.dart';
@@ -34,6 +35,44 @@ class CustomImageWidget extends StatelessWidget {
         height: height,
         width: width,
         fit: fit,
+      );
+    }
+
+    if (kIsWeb) {
+      return Container(
+        height: height,
+        width: width,
+        color: Theme.of(context).cardColor,
+        child: Image.network(
+          image,
+          height: height,
+          width: width,
+          fit: fit,
+          gaplessPlayback: true,
+          frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
+            if (wasSynchronouslyLoaded || frame != null) {
+              return child;
+            }
+            return Container(
+              color: Theme.of(context).cardColor,
+              child: CustomAssetImageWidget(
+                placeholderImage,
+                height: height,
+                width: width,
+                fit: fit,
+              ),
+            );
+          },
+          errorBuilder: (context, error, stackTrace) => Container(
+            color: Theme.of(context).cardColor,
+            child: CustomAssetImageWidget(
+              placeholderImage,
+              height: height,
+              width: width,
+              fit: fit,
+            ),
+          ),
+        ),
       );
     }
 
