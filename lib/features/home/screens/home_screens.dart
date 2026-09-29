@@ -164,8 +164,10 @@ class _HomeScreenState extends State<HomeScreen> {
                             return const SizedBox();
                           }
                           return Padding(
-                            padding: const EdgeInsets.symmetric(
-                              vertical: Dimensions.paddingSizeSmall,
+                            padding: EdgeInsets.symmetric(
+                              vertical: ResponsiveHelper.isDesktop(context)
+                                  ? Dimensions.paddingSizeSmall
+                                  : 4.0,
                             ),
                             child: _buildTextOnlyCategories(categoryProvider),
                           );
@@ -177,7 +179,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         padding: EdgeInsets.only(
                           bottom: ResponsiveHelper.isDesktop(context)
                               ? Dimensions.paddingSizeLarge
-                              : Dimensions.fontSizeExtraLarge,
+                              : Dimensions.paddingSizeSmall,
                         ),
                         child: const CategoryWidget(),
                       ),
@@ -238,13 +240,6 @@ class _HomeScreenState extends State<HomeScreen> {
                               (productProvider.dailyProductModel == null ||
                               (productProvider
                                       .dailyProductModel
-                                      ?.products
-                                      ?.isNotEmpty ??
-                                  false));
-                          bool isFeaturedProduct =
-                              (productProvider.featuredProductModel == null ||
-                              (productProvider
-                                      .featuredProductModel
                                       ?.products
                                       ?.isNotEmpty ??
                                   false));
@@ -339,75 +334,69 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // دالة لبناء الفئات بدون صور (نص فقط) بشكل أفقي
   Widget _buildTextOnlyCategories(CategoryProvider categoryProvider) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // عنوان القسم مع خط تحته
-        Container(
-          margin: const EdgeInsets.only(
-            left: Dimensions.paddingSizeDefault,
-            right: Dimensions.paddingSizeDefault,
-            bottom: Dimensions.paddingSizeSmall,
-          ),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start),
+    final bool isDesktop = ResponsiveHelper.isDesktop(context);
+    return SizedBox(
+      height: isDesktop ? 40 : 30,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        padding: EdgeInsets.symmetric(
+          horizontal: isDesktop
+              ? Dimensions.paddingSizeDefault
+              : Dimensions.paddingSizeSmall,
         ),
-
-        // قائمة الفئات الأفقية
-        SizedBox(
-          height: 40, // تقليل الارتفاع
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(
-              horizontal: Dimensions.paddingSizeDefault,
-            ),
-            physics: const BouncingScrollPhysics(),
-            itemCount: categoryProvider.categoryList!.length,
-            itemBuilder: (context, index) {
-              final category = categoryProvider.categoryList![index];
-              return GestureDetector(
-                onTap: () {
-                  categoryProvider.onChangeSelectIndex(-1, notify: false);
-                  RouteHelper.getCategoryProductsRoute(
-                    categoryId: '${category.id}',
-                    categoryName: '${category.name}',
-                  );
-                },
-                child: Container(
-                  margin: const EdgeInsets.only(
-                    right: Dimensions
-                        .paddingSizeDefault, // تقليل المسافة بين العناصر
-                  ),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: Dimensions.paddingSizeDefault,
-                    vertical: Dimensions
-                        .paddingSizeExtraSmall, // تقليل المسافة العمودية
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.white, // خلفية بيضاء
-                    borderRadius: BorderRadius.circular(
-                      Dimensions.paddingSizeDefault,
-                    ),
-                    border: Border.all(
-                      color: Colors.grey.shade300, // حد رمادي فاتح
-                      width: 1,
-                    ),
-                  ),
-                  child: Center(
-                    child: Text(
-                      category.name ?? '',
-                      style: poppinsMedium.copyWith(
-                        fontSize: Dimensions.fontSizeExtraLarge,
-                        color: Colors.black87, // لون أسود للنص
-                      ),
-                    ),
-                  ),
-                ),
+        physics: const BouncingScrollPhysics(),
+        itemCount: categoryProvider.categoryList!.length,
+        itemBuilder: (context, index) {
+          final category = categoryProvider.categoryList![index];
+          return GestureDetector(
+            onTap: () {
+              categoryProvider.onChangeSelectIndex(-1, notify: false);
+              RouteHelper.getCategoryProductsRoute(
+                categoryId: '${category.id}',
+                categoryName: '${category.name}',
               );
             },
-          ),
-        ),
-        // تقليل المساحة السفلية
-      ],
+            child: Container(
+              margin: EdgeInsets.only(
+                right: isDesktop
+                    ? Dimensions.paddingSizeDefault
+                    : Dimensions.paddingSizeExtraSmall + 2,
+              ),
+              padding: EdgeInsets.symmetric(
+                horizontal: isDesktop
+                    ? Dimensions.paddingSizeDefault
+                    : Dimensions.paddingSizeSmall,
+                vertical: isDesktop
+                    ? Dimensions.paddingSizeExtraSmall
+                    : 3.0,
+              ),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(
+                  isDesktop
+                      ? Dimensions.paddingSizeDefault
+                      : Dimensions.radiusSizeDefault,
+                ),
+                border: Border.all(
+                  color: Colors.grey.shade300,
+                  width: 1,
+                ),
+              ),
+              child: Center(
+                child: Text(
+                  category.name ?? '',
+                  style: poppinsMedium.copyWith(
+                    fontSize: isDesktop
+                        ? Dimensions.fontSizeDefault
+                        : Dimensions.fontSizeSmall,
+                    color: Colors.black87,
+                  ),
+                ),
+              ),
+            ),
+          );
+        },
+      ),
     );
   }
 }

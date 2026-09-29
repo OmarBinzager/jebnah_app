@@ -33,22 +33,35 @@ class _CategoryWidgetState extends State<CategoryWidget> {
       builder: (context, categoryProvider, child) {
         final categoryList = categoryProvider.categoryList ?? [];
 
+        final bool isDesktop = ResponsiveHelper.isDesktop(context);
+        final double itemWidth = isDesktop ? 120 : 68;
+        final double circleSize = isDesktop ? 100 : 54;
+        final double iconSize = isDesktop ? 50 : 28;
+        final double spacingBetween =
+            isDesktop ? Dimensions.paddingSizeSmall : 4.0;
+        final double marginRight =
+            isDesktop ? Dimensions.paddingSizeDefault : Dimensions.paddingSizeSmall;
+
         return categoryProvider.categoryList == null
             ? const CategoriesShimmerWidget()
             : (categoryList.isNotEmpty)
             ? Column(
                 children: [
-                  const SizedBox(height: 30),
+                  SizedBox(height: isDesktop ? 30 : 8),
 
                   // قائمة الفئات الأفقية مع إمكانية التمرير
                   SizedBox(
-                    height: ResponsiveHelper.isDesktop(context) ? 150 : 130,
+                    height: isDesktop ? 150 : 96,
                     child: ListView.builder(
                       controller: _scrollController,
                       scrollDirection: Axis.horizontal,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: Dimensions.paddingSizeDefault,
-                        vertical: Dimensions.paddingSizeSmall,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: isDesktop
+                            ? Dimensions.paddingSizeDefault
+                            : Dimensions.paddingSizeSmall,
+                        vertical: isDesktop
+                            ? Dimensions.paddingSizeSmall
+                            : 2.0,
                       ),
                       physics: const BouncingScrollPhysics(),
                       // إضافة عنصر إضافي لعرض الكل
@@ -57,30 +70,20 @@ class _CategoryWidgetState extends State<CategoryWidget> {
                         // إذا كان هذا هو العنصر الأخير (عرض الكل)
                         if (index == categoryList.length) {
                           return Container(
-                            width: ResponsiveHelper.isDesktop(context)
-                                ? 120
-                                : 90,
-                            margin: const EdgeInsets.only(
-                              right: Dimensions.paddingSizeDefault,
+                            width: itemWidth,
+                            margin: EdgeInsets.only(
+                              right: marginRight,
                             ),
                             child: InkWell(
                               onTap: () {
-                                if (ResponsiveHelper.isWeb()) {
-                                  RouteHelper.getAllCategoryScreen();
-                                } else {
-                                  RouteHelper.getAllCategoryScreen();
-                                }
+                                RouteHelper.getAllCategoryScreen();
                               },
                               child: Column(
                                 children: [
                                   // أيقونة عرض الكل
                                   Container(
-                                    height: ResponsiveHelper.isDesktop(context)
-                                        ? 100
-                                        : 70,
-                                    width: ResponsiveHelper.isDesktop(context)
-                                        ? 100
-                                        : 70,
+                                    height: circleSize,
+                                    width: circleSize,
                                     decoration: BoxDecoration(
                                       shape: BoxShape.circle,
                                       color: Theme.of(context).primaryColor,
@@ -97,14 +100,12 @@ class _CategoryWidgetState extends State<CategoryWidget> {
                                     child: Icon(
                                       Icons.view_list_rounded,
                                       color: Colors.white,
-                                      size: ResponsiveHelper.isDesktop(context)
-                                          ? 50
-                                          : 35,
+                                      size: iconSize,
                                     ),
                                   ),
 
-                                  const SizedBox(
-                                    height: Dimensions.paddingSizeSmall,
+                                  SizedBox(
+                                    height: spacingBetween,
                                   ),
 
                                   // نص عرض الكل
@@ -116,7 +117,9 @@ class _CategoryWidgetState extends State<CategoryWidget> {
                                     child: Text(
                                       getTranslated('view_all', context),
                                       style: poppinsMedium.copyWith(
-                                        fontSize: Dimensions.fontSizeDefault,
+                                        fontSize: isDesktop
+                                            ? Dimensions.fontSizeDefault
+                                            : Dimensions.fontSizeExtraSmall,
                                         color: Theme.of(context).primaryColor,
                                       ),
                                       textAlign: TextAlign.center,
@@ -133,9 +136,9 @@ class _CategoryWidgetState extends State<CategoryWidget> {
                         // عرض الفئات العادية
                         final category = categoryList[index];
                         return Container(
-                          width: ResponsiveHelper.isDesktop(context) ? 120 : 90,
-                          margin: const EdgeInsets.only(
-                            right: Dimensions.paddingSizeDefault,
+                          width: itemWidth,
+                          margin: EdgeInsets.only(
+                            right: marginRight,
                           ),
                           child: InkWell(
                             onTap: () {
@@ -152,12 +155,8 @@ class _CategoryWidgetState extends State<CategoryWidget> {
                               children: [
                                 // صورة الفئة
                                 Container(
-                                  height: ResponsiveHelper.isDesktop(context)
-                                      ? 100
-                                      : 70,
-                                  width: ResponsiveHelper.isDesktop(context)
-                                      ? 100
-                                      : 70,
+                                  height: circleSize,
+                                  width: circleSize,
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
                                     color: Theme.of(context).cardColor,
@@ -176,19 +175,14 @@ class _CategoryWidgetState extends State<CategoryWidget> {
                                       image:
                                           '${splashProvider.baseUrls?.categoryImageUrl}/${category.image}',
                                       fit: BoxFit.cover,
-                                      height:
-                                          ResponsiveHelper.isDesktop(context)
-                                          ? 100
-                                          : 70,
-                                      width: ResponsiveHelper.isDesktop(context)
-                                          ? 100
-                                          : 70,
+                                      height: circleSize,
+                                      width: circleSize,
                                     ),
                                   ),
                                 ),
 
-                                const SizedBox(
-                                  height: Dimensions.paddingSizeSmall,
+                                SizedBox(
+                                  height: spacingBetween,
                                 ),
 
                                 // اسم الفئة
@@ -200,7 +194,9 @@ class _CategoryWidgetState extends State<CategoryWidget> {
                                   child: Text(
                                     category.name ?? '',
                                     style: poppinsRegular.copyWith(
-                                      fontSize: Dimensions.fontSizeSmall,
+                                      fontSize: isDesktop
+                                          ? Dimensions.fontSizeSmall
+                                          : Dimensions.fontSizeExtraSmall,
                                       color: Theme.of(
                                         context,
                                       ).textTheme.bodyLarge?.color,
