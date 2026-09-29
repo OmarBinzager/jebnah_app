@@ -1,6 +1,7 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import '../../../helper/responsive_helper.dart';
+import '../../../helper/route_helper.dart';
 
 import '../../../localization/language_constraints.dart';
 import '../../brand/providers/brand_provider.dart';
@@ -42,7 +43,7 @@ class BrandCarouselWidget extends StatelessWidget {
                   ),
                   InkWell(
                     onTap: () {
-                      // RouteHelper.getAllBrandsRoute();
+                      RouteHelper.getAllBrandsScreen();
                     },
                     child: Text(
                       getTranslated('view_all', context),
@@ -101,9 +102,17 @@ class BrandCarouselWidget extends StatelessWidget {
                                   return InkWell(
                                     hoverColor: Colors.transparent,
                                     onTap: () {
-                                      // RouteHelper.getBrandDetailsRoute(
-                                      //   brandId: brandProvider.brandList![index].id.toString(),
-                                      // );
+                                      if (brandProvider.brandList != null &&
+                                          brandProvider.brandList!.isNotEmpty &&
+                                          index < brandProvider.brandList!.length) {
+                                        brandProvider.onChangeBrandIndex(index);
+                                        brandProvider.getBrandProducts(
+                                          context,
+                                          brandProvider.brandList![index].id.toString(),
+                                          reload: true,
+                                        );
+                                        RouteHelper.getAllBrandsScreen();
+                                      }
                                     },
                                     child: Container(
                                       margin: const EdgeInsets.symmetric(
@@ -114,8 +123,8 @@ class BrandCarouselWidget extends StatelessWidget {
                                         color: Theme.of(context).cardColor,
                                         boxShadow: [
                                           BoxShadow(
-                                            color: Colors.black.withOpacity(
-                                              0.08,
+                                            color: Colors.black.withValues(
+                                              alpha: 0.08,
                                             ),
                                             blurRadius: 8,
                                             offset: const Offset(0, 2),
