@@ -137,103 +137,107 @@ class _AllBrandsScreenState extends State<AllBrandsScreen> {
                           ),
 
                           // عرض منتجات العلامة التجارية المحددة
-                          brandProvider.brandProducts.isNotEmpty ||
-                                  brandProvider.isLoading
-                              ? Expanded(
-                                  child: ListView.separated(
-                                    padding: const EdgeInsets.all(
-                                      Dimensions.paddingSizeSmall,
-                                    ),
-                                    itemCount:
-                                        brandProvider.brandProducts.length + 1,
-                                    itemBuilder: (context, index) {
-                                      if (index == 0) {
-                                        // خيار "كل المنتجات"
-                                        return ListTile(
-                                          onTap: () {
-                                            brandProvider.onChangeSelectIndex(
-                                              -1,
-                                            );
-                                            if (brandProvider.brandList !=
-                                                    null &&
-                                                brandProvider.brandIndex <
-                                                    brandProvider
-                                                        .brandList!
-                                                        .length) {}
-                                          },
-                                          title: Text(
-                                            getTranslated(
-                                              'all_products',
-                                              context,
-                                            ),
-                                            style: poppinsMedium.copyWith(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.w600,
-                                            ),
-                                          ),
-                                          trailing: const Icon(
-                                            Icons.arrow_forward_ios,
-                                            size: 16,
-                                          ),
-                                        );
-                                      }
-
-                                      final productIndex = index - 1;
-                                      final product = brandProvider
-                                          .brandProducts[productIndex];
-
-                                      return ListTile(
-                                        onTap: () {
-                                          brandProvider.onChangeSelectIndex(
-                                            productIndex,
-                                          );
-                                          if (product.id != null) {
-                                            Navigator.of(context).pushNamed(
-                                              RouteHelper.getProductDetailsRoute(
-                                                productId: product.id,
+                          brandProvider.isLoading
+                              ? const Expanded(
+                                  child: BrandProductsShimmerWidget(),
+                                )
+                              : brandProvider.brandProducts.isNotEmpty
+                                  ? Expanded(
+                                      child: ListView.separated(
+                                        padding: const EdgeInsets.all(
+                                          Dimensions.paddingSizeSmall,
+                                        ),
+                                        itemCount:
+                                            brandProvider.brandProducts.length + 1,
+                                        itemBuilder: (context, index) {
+                                          if (index == 0) {
+                                            // خيار "كل المنتجات"
+                                            return ListTile(
+                                              onTap: () {
+                                                brandProvider.onChangeSelectIndex(
+                                                  -1,
+                                                );
+                                              },
+                                              title: Text(
+                                                getTranslated(
+                                                  'all_products',
+                                                  context,
+                                                ),
+                                                style: poppinsMedium.copyWith(
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                              ),
+                                              trailing: const Icon(
+                                                Icons.arrow_forward_ios,
+                                                size: 16,
                                               ),
                                             );
                                           }
+
+                                          final productIndex = index - 1;
+                                          final product = brandProvider
+                                              .brandProducts[productIndex];
+
+                                          return ListTile(
+                                            onTap: () {
+                                              brandProvider.onChangeSelectIndex(
+                                                productIndex,
+                                              );
+                                              if (product.id != null) {
+                                                RouteHelper.getProductDetailsRoute(
+                                                  productId: product.id,
+                                                );
+                                              }
+                                            },
+                                            title: Text(
+                                              product.name ?? '',
+                                              style: poppinsMedium.copyWith(
+                                                fontSize: 13,
+                                                color: Theme.of(context)
+                                                    .textTheme
+                                                    .bodyLarge
+                                                    ?.color
+                                                    ?.withValues(alpha: 0.6),
+                                              ),
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                            subtitle: product.price != null
+                                                ? Text(
+                                                    '${product.price} ${getTranslated('currency_symbol', context)}',
+                                                    style: poppinsRegular.copyWith(
+                                                      fontSize: 11,
+                                                      color: Theme.of(
+                                                        context,
+                                                      ).primaryColor,
+                                                    ),
+                                                  )
+                                                : null,
+                                            trailing: const Icon(
+                                              Icons.arrow_forward_ios,
+                                              size: 14,
+                                            ),
+                                          );
                                         },
-                                        title: Text(
-                                          product.name ?? '',
-                                          style: poppinsMedium.copyWith(
-                                            fontSize: 13,
-                                            color: Theme.of(context)
-                                                .textTheme
-                                                .bodyLarge
-                                                ?.color
-                                                ?.withValues(alpha: 0.6),
+                                        separatorBuilder: (ctx, idx) => Divider(
+                                          color: Theme.of(
+                                            context,
+                                          ).hintColor.withValues(alpha: 0.1),
+                                        ),
+                                      ),
+                                    )
+                                  : Expanded(
+                                      child: Center(
+                                        child: NoDataWidget(
+                                          title: getTranslated(
+                                            'not_found',
+                                            context,
                                           ),
-                                          overflow: TextOverflow.ellipsis,
+                                          isShowButton: false,
+                                          isFooter: false,
                                         ),
-                                        subtitle: product.price != null
-                                            ? Text(
-                                                '${product.price} ${getTranslated('currency_symbol', context)}',
-                                                style: poppinsRegular.copyWith(
-                                                  fontSize: 11,
-                                                  color: Theme.of(
-                                                    context,
-                                                  ).primaryColor,
-                                                ),
-                                              )
-                                            : null,
-                                        trailing: const Icon(
-                                          Icons.arrow_forward_ios,
-                                          size: 14,
-                                        ),
-                                      );
-                                    },
-                                    separatorBuilder: (ctx, idx) => Divider(
-                                      color: Theme.of(
-                                        context,
-                                      ).hintColor.withValues(alpha: 0.1),
+                                      ),
                                     ),
-                                  ),
-                                )
-                              : const Expanded(
-                                  child: BrandProductsShimmerWidget(),
-                                ),
                         ],
                       )
                     : NoDataWidget(

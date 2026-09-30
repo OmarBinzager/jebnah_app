@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import '../../../common/enums/data_source_enum.dart';
 import '../../../data/datasource/local/cache_response.dart';
@@ -168,62 +169,73 @@ class BrandProvider extends ChangeNotifier {
       _brandProducts.clear();
       _currentPage = 1;
       _hasMoreProducts = true;
+    } else {
+      if (!_hasMoreProducts || _isLoading) return;
     }
-
-    if (!_hasMoreProducts || _isLoading) return;
 
     _isLoading = true;
     notifyListeners();
 
-    ApiResponseModel apiResponse = await brandRepo!.getBrandProducts(
-      brandId,
-      page: _currentPage,
-    );
+    try {
+      ApiResponseModel apiResponse = await brandRepo!.getBrandProducts(
+        brandId,
+        page: _currentPage,
+      );
 
-    if (apiResponse.response != null &&
-        apiResponse.response!.statusCode == 200) {
-      dynamic rawData = apiResponse.response!.data;
-      Map<String, dynamic> responseData = rawData is Map<String, dynamic>
-          ? rawData
-          : (rawData is Map ? Map<String, dynamic>.from(rawData) : {});
-
-      dynamic data = responseData['data'] ?? responseData;
-      List<dynamic> productsData = (data is Map && data['products'] != null)
-          ? data['products']
-          : (responseData['products'] ?? []);
-
-      for (var product in productsData) {
-        if (product is Map<String, dynamic>) {
-          _brandProducts.add(Product.fromJson(product));
-        } else if (product is Map) {
-          _brandProducts
-              .add(Product.fromJson(Map<String, dynamic>.from(product)));
+      if (apiResponse.response != null &&
+          apiResponse.response!.statusCode == 200) {
+        dynamic rawData = apiResponse.response!.data;
+        if (rawData is String) {
+          try {
+            rawData = jsonDecode(rawData);
+          } catch (_) {}
         }
+        Map<String, dynamic> responseData = rawData is Map<String, dynamic>
+            ? rawData
+            : (rawData is Map ? Map<String, dynamic>.from(rawData) : {});
+
+        dynamic data = responseData['data'] ?? responseData;
+        List<dynamic> productsData = (data is Map && data['products'] != null)
+            ? (data['products'] is List ? data['products'] : [])
+            : (responseData['products'] is List ? responseData['products'] : []);
+
+        for (var product in productsData) {
+          try {
+            if (product is Map<String, dynamic>) {
+              _brandProducts.add(Product.fromJson(product));
+            } else if (product is Map) {
+              _brandProducts
+                  .add(Product.fromJson(Map<String, dynamic>.from(product)));
+            }
+          } catch (e) {
+            debugPrint('Error parsing brand product: $e');
+          }
+        }
+
+        // Check if there are more products
+        Map<String, dynamic> pagination = (data is Map &&
+                data['pagination'] != null)
+            ? (data['pagination'] is Map<String, dynamic>
+                ? data['pagination']
+                : Map<String, dynamic>.from(data['pagination']))
+            : (responseData['pagination'] != null
+                ? (responseData['pagination'] is Map<String, dynamic>
+                    ? responseData['pagination']
+                    : Map<String, dynamic>.from(responseData['pagination']))
+                : {});
+        int currentPage = pagination['current_page'] ?? 1;
+        int lastPage = pagination['last_page'] ?? 1;
+        _hasMoreProducts = currentPage < lastPage;
+        _currentPage++;
+      } else {
+        ApiCheckerHelper.checkApi(apiResponse);
       }
-
-      // Check if there are more products
-      Map<String, dynamic> pagination = (data is Map &&
-              data['pagination'] != null)
-          ? (data['pagination'] is Map<String, dynamic>
-              ? data['pagination']
-              : Map<String, dynamic>.from(data['pagination']))
-          : (responseData['pagination'] != null
-              ? (responseData['pagination'] is Map<String, dynamic>
-                  ? responseData['pagination']
-                  : Map<String, dynamic>.from(responseData['pagination']))
-              : {});
-      int currentPage = pagination['current_page'] ?? 1;
-      int lastPage = pagination['last_page'] ?? 1;
-      _hasMoreProducts = currentPage < lastPage;
-      _currentPage++;
-
+    } catch (e) {
+      debugPrint('Error getting brand products: $e');
+    } finally {
+      _isLoading = false;
       notifyListeners();
-    } else {
-      ApiCheckerHelper.checkApi(apiResponse);
     }
-
-    _isLoading = false;
-    notifyListeners();
   }
 
   // إعادة تعيين البيانات
