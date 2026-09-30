@@ -88,16 +88,16 @@ flutter_launcher_icons:
   android: "launcher_icon"
   ios: true
   remove_alpha_ios: true
-  image_path: "assets/images/j.png"
+  image_path: "assets/images/j_launcher.png"
   min_sdk_android: 21
   web:
     generate: true
-    image_path: "assets/images/j.png"
+    image_path: "assets/images/j_launcher.png"
     background_color: "#0F172A"
     theme_color: "#0F172A"
   windows:
     generate: true
-    image_path: "assets/images/j.png"
+    image_path: "assets/images/j_launcher.png"
 
 flutter_native_splash:
   color: "#0F172A"
