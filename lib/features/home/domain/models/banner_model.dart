@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 class BannerModel {
   int? _id;
   String? _title;
@@ -12,9 +14,9 @@ class BannerModel {
   int? _sortOrder;
   String? _clickAction;
   String? _externalLink;
-  String? _sections;
-  String? _productIds;
-  String? _categoryIds;
+  List<String>? _sections;
+  List<String>? _productIds;
+  List<String>? _categoryIds;
   String? _scrollDirection;
 
   BannerModel({
@@ -30,9 +32,9 @@ class BannerModel {
     int? sortOrder,
     String? clickAction,
     String? externalLink,
-    String? sections,
-    String? productIds,
-    String? categoryIds,
+    dynamic sections,
+    dynamic productIds,
+    dynamic categoryIds,
     String? scrollDirection,
   }) {
     _id = id;
@@ -47,9 +49,9 @@ class BannerModel {
     _sortOrder = sortOrder;
     _clickAction = clickAction;
     _externalLink = externalLink;
-    _sections = sections;
-    _productIds = productIds;
-    _categoryIds = categoryIds;
+    _sections = _parseList(sections);
+    _productIds = _parseList(productIds);
+    _categoryIds = _parseList(categoryIds);
     _scrollDirection = scrollDirection;
   }
 
@@ -66,37 +68,69 @@ class BannerModel {
   int? get sortOrder => _sortOrder;
   String? get clickAction => _clickAction;
   String? get externalLink => _externalLink;
-  String? get sections => _sections;
-  String? get productIds => _productIds;
-  String? get categoryIds => _categoryIds;
+  List<String>? get sections => _sections;
+  List<String>? get productIds => _productIds;
+  List<String>? get categoryIds => _categoryIds;
+  List<int>? get productIdsAsInt =>
+      _productIds?.map((e) => int.tryParse(e)).whereType<int>().toList();
+  List<int>? get categoryIdsAsInt =>
+      _categoryIds?.map((e) => int.tryParse(e)).whereType<int>().toList();
   String? get scrollDirection => _scrollDirection;
 
+  static List<String>? _parseList(dynamic value) {
+    if (value == null) return null;
+    if (value is List) {
+      return value.map((e) => e.toString()).toList();
+    }
+    if (value is String) {
+      final trimmed = value.trim();
+      if (trimmed.isEmpty) return [];
+      if (trimmed.startsWith('[') && trimmed.endsWith(']')) {
+        try {
+          final decoded = jsonDecode(trimmed);
+          if (decoded is List) {
+            return decoded.map((e) => e.toString()).toList();
+          }
+        } catch (_) {}
+      }
+      if (trimmed.contains(',')) {
+        return trimmed
+            .split(',')
+            .map((e) => e.trim())
+            .where((e) => e.isNotEmpty)
+            .toList();
+      }
+      return [trimmed];
+    }
+    return null;
+  }
+
   BannerModel.fromJson(Map<String, dynamic> json) {
-    _id = json['id'];
-    _title = json['title'];
-    _image = json['image'];
+    _id = json['id'] != null ? int.tryParse(json['id'].toString()) : null;
+    _title = json['title']?.toString();
+    _image = json['image']?.toString();
     _productId = json['product_id'] != null
-        ? int.parse(json['product_id'].toString())
+        ? int.tryParse(json['product_id'].toString())
         : null;
     _status = json['status'] != null
-        ? int.parse(json['status'].toString())
+        ? int.tryParse(json['status'].toString())
         : null;
-    _createdAt = json['created_at'];
-    _updatedAt = json['updated_at'];
+    _createdAt = json['created_at']?.toString();
+    _updatedAt = json['updated_at']?.toString();
     _categoryId = json['category_id'] != null
-        ? int.parse(json['category_id'].toString())
+        ? int.tryParse(json['category_id'].toString())
         : null;
     // تحويل البيانات الجديدة من الـ JSON
-    _displayType = json['display_type'];
+    _displayType = json['display_type']?.toString();
     _sortOrder = json['sort_order'] != null
-        ? int.parse(json['sort_order'].toString())
+        ? int.tryParse(json['sort_order'].toString())
         : null;
-    _clickAction = json['click_action'];
-    _externalLink = json['external_link'];
-    _sections = json['sections'];
-    _productIds = json['product_ids'];
-    _categoryIds = json['category_ids'];
-    _scrollDirection = json['scroll_direction'];
+    _clickAction = json['click_action']?.toString();
+    _externalLink = json['external_link']?.toString();
+    _sections = _parseList(json['sections']);
+    _productIds = _parseList(json['product_ids']);
+    _categoryIds = _parseList(json['category_ids']);
+    _scrollDirection = json['scroll_direction']?.toString();
   }
 
   Map<String, dynamic> toJson() {

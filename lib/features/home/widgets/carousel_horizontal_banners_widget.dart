@@ -206,8 +206,8 @@ class CarouselHorizontalIndicator extends StatelessWidget {
       builder: (ctx, bannerProvider, _) {
         // إذا كان itemCount محدداً (للجوال) نستخدمه، وإلا نأخذه من الـ provider
         final banners = bannerProvider.bannerList?.where((banner) {
-          if (banner.sections == null) return false;
-          return banner.sections!.contains('carousel_horizontal');
+          return (banner.displayType?.contains('carousel_horizontal') ?? false) ||
+              (banner.sections?.contains('carousel_horizontal') ?? false);
         }).toList();
 
         final totalCount = itemCount ?? banners?.length ?? 0;

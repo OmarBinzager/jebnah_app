@@ -1,12 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
-import '../../../features/category/domain/models/category_model.dart';
-import '../../../common/models/product_model.dart';
 import '../../../helper/responsive_helper.dart';
-import '../../../helper/route_helper.dart';
-import '../../../localization/language_constraints.dart';
 import '../providers/banner_provider.dart';
-import '../../../features/category/providers/category_provider.dart';
 import '../../../features/splash/providers/splash_provider.dart';
 import '../../../utill/dimensions.dart';
 import '../../../utill/images.dart';
@@ -36,8 +30,7 @@ class TopBannersWidget extends StatelessWidget {
       builder: (context, bannerProvider, child) {
         // فلترة البيانات لعرض البانرات التي تحتوي على "home_top" فقط
         final topBanners = bannerProvider.bannerList?.where((banner) {
-          if (banner.sections == null) return false;
-          return banner.sections!.contains('home_top');
+          return banner.sections?.contains('home_top') ?? false;
         }).toList();
 
         // إذا كانت البيانات لا تزال تُحمل، نعرض تأثير الشيمر
@@ -70,7 +63,7 @@ class TopBannersWidget extends StatelessWidget {
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
+                    color: Colors.black.withValues(alpha: 0.1),
                     blurRadius: 10,
                     offset: const Offset(0, 4),
                   ),
@@ -130,7 +123,7 @@ class TopBannerShimmer extends StatelessWidget {
           width: double.infinity,
           height: getShimmerHeight(),
           decoration: BoxDecoration(
-            color: Theme.of(context).shadowColor.withOpacity(0.1),
+            color: Theme.of(context).shadowColor.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(Dimensions.radiusSizeDefault),
           ),
         ),
