@@ -126,33 +126,63 @@ class AddAddressWidget extends StatelessWidget {
                                 listen: false,
                               );
                           List<Branches> branches =
-                              splashProvider.configModel!.branches!;
-                          bool isAvailable =
-                              branches.length == 1 &&
-                              (branches[0].latitude == null ||
-                                  branches[0].latitude!.isEmpty);
+                              splashProvider.configModel?.branches ?? [];
+                          bool isAvailable = false;
 
-                          if (!isAvailable) {
-                            if (splashProvider.configModel?.googleMapStatus ??
-                                false) {
+                          double userLat = locationProvider.position.latitude;
+                          double userLon = locationProvider.position.longitude;
+                          if (userLat == 0 && userLon == 0) {
+                            userLat = double.tryParse(locationProvider.pickedAddressLatitude ?? '') ?? 0;
+                            userLon = double.tryParse(locationProvider.pickedAddressLongitude ?? '') ?? 0;
+                          }
+
+                          if (branches.isEmpty ||
+                              (branches.length == 1 &&
+                                  (branches[0].latitude == null || branches[0].latitude!.isEmpty))) {
+                            isAvailable = true;
+                          } else if (!(splashProvider.configModel?.googleMapStatus ?? false)) {
+                            isAvailable = true;
+                          } else {
+                            if (userLat == 0 && userLon == 0) {
+                              double? primaryLat = double.tryParse(branches[0].latitude ?? '');
+                              double? primaryLon = double.tryParse(branches[0].longitude ?? '');
+                              if (primaryLat != null && primaryLon != null && primaryLat != 0) {
+                                userLat = primaryLat;
+                                userLon = primaryLon;
+                              } else {
+                                isAvailable = true;
+                              }
+                            }
+
+                            if (!isAvailable) {
                               for (Branches branch in branches) {
-                                double distance =
-                                    Geolocator.distanceBetween(
-                                      double.parse(branch.latitude!),
-                                      double.parse(branch.longitude!),
-                                      locationProvider.position.latitude,
-                                      locationProvider.position.longitude,
-                                    ) /
-                                    1000;
-                                if (distance < branch.coverage!) {
+                                double? bLat = double.tryParse(branch.latitude ?? '');
+                                double? bLon = double.tryParse(branch.longitude ?? '');
+                                if (bLat == null || bLon == null || (bLat == 0 && bLon == 0)) {
+                                  isAvailable = true;
+                                  break;
+                                }
+
+                                double coverage = branch.coverage ?? 0;
+                                if (coverage <= 0) {
+                                  isAvailable = true;
+                                  break;
+                                }
+
+                                double distance = Geolocator.distanceBetween(
+                                      bLat,
+                                      bLon,
+                                      userLat,
+                                      userLon,
+                                    ) / 1000;
+                                if (distance <= coverage) {
                                   isAvailable = true;
                                   break;
                                 }
                               }
-                            } else {
-                              isAvailable = true;
                             }
                           }
+
                           if (!isAvailable) {
                             showCustomSnackBarHelper(
                               getTranslated(
@@ -186,16 +216,14 @@ class AddAddressWidget extends StatelessWidget {
                                           .configModel
                                           ?.googleMapStatus ??
                                       false)
-                                  ? locationProvider.position.latitude
-                                        .toString()
+                                  ? (userLat != 0 ? userLat.toString() : (branches.isNotEmpty ? branches[0].latitude : null))
                                   : null,
                               longitude:
                                   (splashProvider
                                           .configModel
                                           ?.googleMapStatus ??
                                       false)
-                                  ? locationProvider.position.longitude
-                                        .toString()
+                                  ? (userLon != 0 ? userLon.toString() : (branches.isNotEmpty ? branches[0].longitude : null))
                                   : null,
                               floorNumber: floorNumberController.text.trim(),
                               houseNumber: houseNumberController.text.trim(),

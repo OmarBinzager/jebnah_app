@@ -22,7 +22,7 @@ class BrandRepo extends DataSyncRepo {
   Future<ApiResponseModel> getBrandDetails(String brandId) async {
     try {
       final response = await dioClient.get(
-        '${AppConstants.brandDetailsUri}$brandId',
+        '${AppConstants.brandDetailsUri}/$brandId',
       );
       return ApiResponseModel.withSuccess(response);
     } catch (e) {
@@ -37,7 +37,7 @@ class BrandRepo extends DataSyncRepo {
   }) async {
     try {
       final response = await dioClient.get(
-        '${AppConstants.brandProductsUri}$brandId/products?page=$page&limit=$limit',
+        '${AppConstants.brandProductsUri}/$brandId?page=$page&limit=$limit&per_page=$limit',
       );
       return ApiResponseModel.withSuccess(response);
     } catch (e) {

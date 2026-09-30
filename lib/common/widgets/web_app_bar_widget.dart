@@ -37,7 +37,7 @@ class WebAppBarWidget extends StatefulWidget implements PreferredSizeWidget {
   State<WebAppBarWidget> createState() => _WebAppBarWidgetState();
 
   @override
-  Size get preferredSize => throw UnimplementedError();
+  Size get preferredSize => const Size.fromHeight(130);
 }
 
 class _WebAppBarWidgetState extends State<WebAppBarWidget> {
@@ -66,6 +66,8 @@ class _WebAppBarWidgetState extends State<WebAppBarWidget> {
             listen: false,
           ).locale.languageCode,
     );
+    final double screenWidth = MediaQuery.of(context).size.width;
+    final bool isNarrow = screenWidth < 900;
 
     return Container(
       decoration: BoxDecoration(
@@ -168,332 +170,462 @@ class _WebAppBarWidgetState extends State<WebAppBarWidget> {
           Expanded(
             child: Container(
               color: Theme.of(context).cardColor,
-              child: Center(
-                child: SizedBox(
-                  width: 1170,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Row(
-                        children: [
-                          InkWell(
-                            onTap: () {
-                              if (ModalRoute.of(context)!.settings.name !=
-                                  RouteHelper.menu) {
-                                RouteHelper.getMainRoute();
-                              }
-                            },
-                            child: Row(
+              child: isNarrow
+                  ? _buildNarrowHeader(context, splashProvider)
+                  : Center(
+                      child: Container(
+                        constraints: const BoxConstraints(maxWidth: 1170),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: Dimensions.paddingSizeDefault,
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Row(
                               children: [
-                                SizedBox(
-                                  height: 70,
-                                  child: Consumer<ThemeProvider>(
-                                    builder: (context, themeProvider, child) =>
-                                        Image.asset(
-                                          themeProvider.darkTheme
-                                              ? Images.darkAppLogo
-                                              : Images.webBarLogoPlaceHolder,
-                                          height: 70,
-                                          fit: BoxFit.contain,
+                                InkWell(
+                                  onTap: () {
+                                    if (ModalRoute.of(context)!.settings.name !=
+                                        RouteHelper.menu) {
+                                      RouteHelper.getMainRoute();
+                                    }
+                                  },
+                                  child: Row(
+                                    children: [
+                                      SizedBox(
+                                        height: 70,
+                                        child: Consumer<ThemeProvider>(
+                                          builder: (context, themeProvider, child) =>
+                                              Image.asset(
+                                                themeProvider.darkTheme
+                                                    ? Images.darkAppLogo
+                                                    : Images.webBarLogoPlaceHolder,
+                                                height: 70,
+                                                fit: BoxFit.contain,
+                                              ),
                                         ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(width: 30),
+
+                                TextHoverWidget(
+                                  builder: (isHovered) {
+                                    return InkWell(
+                                      onTap: () {
+                                        if (ModalRoute.of(context)!.settings.name !=
+                                            RouteHelper.menu) {
+                                          RouteHelper.getMainRoute();
+                                        }
+                                      },
+                                      child: Text(
+                                        'home'.tr,
+                                        style: isHovered
+                                            ? poppinsSemiBold.copyWith(
+                                                color: Theme.of(context).primaryColor,
+                                                fontSize: Dimensions.fontSizeLarge,
+                                              )
+                                            : poppinsMedium.copyWith(
+                                                color: Theme.of(
+                                                  context,
+                                                ).textTheme.bodyLarge?.color,
+                                                fontSize: Dimensions.fontSizeLarge,
+                                              ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                                const SizedBox(width: 30),
+
+                                TextHoverWidget(
+                                  builder: (isHovered) {
+                                    return MouseRegion(
+                                      onHover: (details) {
+                                        if (Provider.of<CategoryProvider>(
+                                              context,
+                                              listen: false,
+                                            ).categoryList !=
+                                            null) {
+                                          _showPopupMenu(
+                                            details.position,
+                                            context,
+                                            PopupMenuType.category,
+                                          );
+                                        }
+                                      },
+                                      child: Row(
+                                        children: [
+                                          Text(
+                                            'categories'.tr,
+                                            style: isHovered
+                                                ? poppinsSemiBold.copyWith(
+                                                    color: Theme.of(
+                                                      context,
+                                                    ).primaryColor,
+                                                    fontSize:
+                                                        Dimensions.fontSizeLarge,
+                                                  )
+                                                : poppinsMedium.copyWith(
+                                                    color: Theme.of(
+                                                      context,
+                                                    ).textTheme.bodyLarge?.color,
+                                                    fontSize:
+                                                        Dimensions.fontSizeLarge,
+                                                  ),
+                                          ),
+                                          const SizedBox(
+                                            width: Dimensions.paddingSizeExtraSmall,
+                                          ),
+
+                                          Icon(
+                                            Icons.expand_more,
+                                            color: Theme.of(context).primaryColor,
+                                            size: 20,
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ],
+                            ),
+
+                            Row(
+                              children: [
+                                Container(
+                                  constraints: const BoxConstraints(maxWidth: 450, minWidth: 150),
+                                  decoration: BoxDecoration(
+                                    color: Theme.of(
+                                      context,
+                                    ).disabledColor.withValues(alpha: 0.05),
+                                    borderRadius: BorderRadius.circular(
+                                      Dimensions.radiusSizeDefault,
+                                    ),
+                                  ),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 0,
+                                    vertical: 2,
+                                  ),
+                                  child: _buildSearchTextField(context),
+                                ),
+                                const SizedBox(width: Dimensions.paddingSizeExtraLarge),
+
+                                OnHoverWidget(
+                                  child: InkWell(
+                                    onTap: () {
+                                      if (ModalRoute.of(context)!.settings.name !=
+                                          RouteHelper.favorite) {
+                                        RouteHelper.getFavoriteRoute();
+                                      }
+                                    },
+                                    child: Consumer<WishListProvider>(
+                                      builder: (context, wishListProvider, _) =>
+                                          _ItemCountView(
+                                            count:
+                                                wishListProvider.wishList?.length ??
+                                                0,
+                                            icon: Icons.favorite,
+                                          ),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(
+                                  width: Dimensions.paddingSizeExtraLarge,
+                                ),
+
+                                OnHoverWidget(
+                                  child: InkWell(
+                                    onTap: () {
+                                      if (ModalRoute.of(context)!.settings.name !=
+                                          RouteHelper.cart) {
+                                        RouteHelper.getCartScreen();
+                                      }
+                                    },
+                                    child: Consumer<CartProvider>(
+                                      builder: (context, cartProvider, _) =>
+                                          _ItemCountView(
+                                            count: cartProvider
+                                                .getTotalCartQuantity(),
+                                            icon: Icons.shopping_cart,
+                                          ),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(
+                                  width: Dimensions.paddingSizeExtraLarge,
+                                ),
+
+                                Consumer<AuthProvider>(
+                                  builder: (context, authProvider, _) => InkWell(
+                                    onTap: () => !authProvider.isLoggedIn()
+                                        ? RouteHelper.getLoginRoute()
+                                        : () {},
+                                    child: TextHoverWidget(
+                                      builder: (isHover) => OnHoverWidget(
+                                        child: MouseRegion(
+                                          onHover: (details) {
+                                            if (authProvider.isLoggedIn()) {
+                                              _showPopupMenu(
+                                                details.position,
+                                                context,
+                                                PopupMenuType.profile,
+                                              );
+                                            }
+                                          },
+                                          child: Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal:
+                                                  Dimensions.paddingSizeExtraSmall,
+                                            ),
+                                            child: authProvider.isLoggedIn()
+                                                ? Consumer<ProfileProvider>(
+                                                    builder: (context, profileProvider, _) {
+                                                      return ClipRRect(
+                                                        borderRadius:
+                                                            BorderRadius.circular(
+                                                              Dimensions
+                                                                  .radiusSizeDefault,
+                                                            ),
+                                                        child: CustomImageWidget(
+                                                          image: (profileProvider.userInfoModel?.image != null &&
+                                                                  profileProvider.userInfoModel!.image!.isNotEmpty)
+                                                              ? '${splashProvider.baseUrls!.customerImageUrl}/${profileProvider.userInfoModel!.image}'
+                                                              : '',
+                                                          placeholder: Images.profile,
+                                                          height: 32,
+                                                          width: 32,
+                                                        ),
+                                                      );
+                                                    },
+                                                  )
+                                                : Icon(
+                                                    Icons.person,
+                                                    size: Dimensions
+                                                        .paddingSizeExtraLarge,
+                                                    color: isHover
+                                                        ? Theme.of(
+                                                            context,
+                                                          ).primaryColor
+                                                        : Theme.of(
+                                                            context,
+                                                          ).focusColor,
+                                                  ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+
+                                const SizedBox(
+                                  width: Dimensions.paddingSizeExtraLarge,
+                                ),
+
+                                IconButton(
+                                  onPressed: () {
+                                    if (ModalRoute.of(context)!.settings.name !=
+                                        RouteHelper.profileMenus) {
+                                      RouteHelper.getProfileMenus();
+                                    }
+                                  },
+                                  icon: Icon(
+                                    Icons.menu,
+                                    size: Dimensions.fontSizeOverLarge,
+                                    color: Theme.of(context).primaryColor,
                                   ),
                                 ),
                               ],
                             ),
-                          ),
-                          const SizedBox(width: 30),
-
-                          TextHoverWidget(
-                            builder: (isHovered) {
-                              return InkWell(
-                                onTap: () {
-                                  if (ModalRoute.of(context)!.settings.name !=
-                                      RouteHelper.menu) {
-                                    RouteHelper.getMainRoute();
-                                  }
-                                },
-                                child: Text(
-                                  'home'.tr,
-                                  style: isHovered
-                                      ? poppinsSemiBold.copyWith(
-                                          color: Theme.of(context).primaryColor,
-                                          fontSize: Dimensions.fontSizeLarge,
-                                        )
-                                      : poppinsMedium.copyWith(
-                                          color: Theme.of(
-                                            context,
-                                          ).textTheme.bodyLarge?.color,
-                                          fontSize: Dimensions.fontSizeLarge,
-                                        ),
-                                ),
-                              );
-                            },
-                          ),
-                          const SizedBox(width: 30),
-
-                          TextHoverWidget(
-                            builder: (isHovered) {
-                              return MouseRegion(
-                                onHover: (details) {
-                                  if (Provider.of<CategoryProvider>(
-                                        context,
-                                        listen: false,
-                                      ).categoryList !=
-                                      null) {
-                                    _showPopupMenu(
-                                      details.position,
-                                      context,
-                                      PopupMenuType.category,
-                                    );
-                                  }
-                                },
-                                child: Row(
-                                  children: [
-                                    Text(
-                                      'categories'.tr,
-                                      style: isHovered
-                                          ? poppinsSemiBold.copyWith(
-                                              color: Theme.of(
-                                                context,
-                                              ).primaryColor,
-                                              fontSize:
-                                                  Dimensions.fontSizeLarge,
-                                            )
-                                          : poppinsMedium.copyWith(
-                                              color: Theme.of(
-                                                context,
-                                              ).textTheme.bodyLarge?.color,
-                                              fontSize:
-                                                  Dimensions.fontSizeLarge,
-                                            ),
-                                    ),
-                                    const SizedBox(
-                                      width: Dimensions.paddingSizeExtraSmall,
-                                    ),
-
-                                    Icon(
-                                      Icons.expand_more,
-                                      color: Theme.of(context).primaryColor,
-                                      size: 20,
-                                    ),
-                                  ],
-                                ),
-                              );
-                            },
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-
-                      Row(
-                        children: [
-                          Container(
-                            width: 500,
-                            decoration: BoxDecoration(
-                              color: Theme.of(
-                                context,
-                              ).disabledColor.withValues(alpha: 0.05),
-                              borderRadius: BorderRadius.circular(
-                                Dimensions.radiusSizeDefault,
-                              ),
-                            ),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 0,
-                              vertical: 2,
-                            ),
-                            child: Consumer<SearchProvider>(
-                              builder: (context, search, _) {
-                                return CustomTextFieldWidget(
-                                  hintText: getTranslated(
-                                    'search_for_products',
-                                    context,
-                                  ),
-                                  isShowBorder: false,
-                                  fillColor: Colors.transparent,
-                                  isElevation: false,
-                                  isShowSuffixIcon: true,
-                                  imageColor: Theme.of(context).primaryColor,
-                                  suffixAssetUrl: !search.isSearch
-                                      ? Images.close
-                                      : Images.search,
-                                  onChanged: (str) {
-                                    str.length = 0;
-                                    search.setSearchValue(str);
-                                  },
-
-                                  onSuffixTap: () {
-                                    if (search
-                                            .searchController
-                                            .text
-                                            .isNotEmpty &&
-                                        search.isSearch == true) {
-                                      RouteHelper.getSearchResultRoute(
-                                        search.searchController.text,
-                                      );
-                                      search.onChangeSearchStatus();
-                                    } else if (search
-                                            .searchController
-                                            .text
-                                            .isNotEmpty &&
-                                        search.isSearch == false) {
-                                      search.searchController.clear();
-                                      search.setSearchValue('');
-                                      search.onChangeSearchStatus();
-                                    }
-                                  },
-                                  controller: search.searchController,
-                                  inputAction: TextInputAction.search,
-                                  isIcon: true,
-                                  onSubmit: (text) {
-                                    if (search
-                                        .searchController
-                                        .text
-                                        .isNotEmpty) {
-                                      RouteHelper.getSearchResultRoute(
-                                        search.searchController.text,
-                                      );
-
-                                      search.onChangeSearchStatus();
-                                    }
-                                  },
-                                );
-                              },
-                            ),
-                          ),
-                          const SizedBox(width: 70),
-
-                          OnHoverWidget(
-                            child: InkWell(
-                              onTap: () {
-                                if (ModalRoute.of(context)!.settings.name !=
-                                    RouteHelper.favorite) {
-                                  RouteHelper.getFavoriteRoute();
-                                }
-                              },
-                              child: Consumer<WishListProvider>(
-                                builder: (context, wishListProvider, _) =>
-                                    _ItemCountView(
-                                      count:
-                                          wishListProvider.wishList?.length ??
-                                          0,
-                                      icon: Icons.favorite,
-                                    ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(
-                            width: Dimensions.paddingSizeExtraLarge,
-                          ),
-
-                          OnHoverWidget(
-                            child: InkWell(
-                              onTap: () {
-                                if (ModalRoute.of(context)!.settings.name !=
-                                    RouteHelper.cart) {
-                                  RouteHelper.getCartScreen();
-                                }
-                              },
-                              child: Consumer<CartProvider>(
-                                builder: (context, cartProvider, _) =>
-                                    _ItemCountView(
-                                      count: cartProvider
-                                          .getTotalCartQuantity(),
-                                      icon: Icons.shopping_cart,
-                                    ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(
-                            width: Dimensions.paddingSizeExtraLarge,
-                          ),
-
-                          Consumer<AuthProvider>(
-                            builder: (context, authProvider, _) => InkWell(
-                              onTap: () => !authProvider.isLoggedIn()
-                                  ? RouteHelper.getLoginRoute()
-                                  : () {},
-                              child: TextHoverWidget(
-                                builder: (isHover) => OnHoverWidget(
-                                  child: MouseRegion(
-                                    onHover: (details) {
-                                      if (authProvider.isLoggedIn()) {
-                                        _showPopupMenu(
-                                          details.position,
-                                          context,
-                                          PopupMenuType.profile,
-                                        );
-                                      }
-                                    },
-                                    child: Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal:
-                                            Dimensions.paddingSizeExtraSmall,
-                                      ),
-                                      child: authProvider.isLoggedIn()
-                                          ? Consumer<ProfileProvider>(
-                                              builder: (context, profileProvider, _) {
-                                                return ClipRRect(
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                        Dimensions
-                                                            .radiusSizeDefault,
-                                                      ),
-                                                  child: CustomImageWidget(
-                                                    image:
-                                                        '${splashProvider.baseUrls!.customerImageUrl}/${profileProvider.userInfoModel != null ? profileProvider.userInfoModel!.image : ''}',
-                                                    placeholder: Images.profile,
-                                                    height: 32,
-                                                    width: 32,
-                                                  ),
-                                                );
-                                              },
-                                            )
-                                          : Icon(
-                                              Icons.person,
-                                              size: Dimensions
-                                                  .paddingSizeExtraLarge,
-                                              color: isHover
-                                                  ? Theme.of(
-                                                      context,
-                                                    ).primaryColor
-                                                  : Theme.of(
-                                                      context,
-                                                    ).focusColor,
-                                            ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-
-                          const SizedBox(
-                            width: Dimensions.paddingSizeExtraLarge,
-                          ),
-
-                          IconButton(
-                            onPressed: () {
-                              if (ModalRoute.of(context)!.settings.name !=
-                                  RouteHelper.profileMenus) {
-                                RouteHelper.getProfileMenus();
-                              }
-                            },
-                            icon: Icon(
-                              Icons.menu,
-                              size: Dimensions.fontSizeOverLarge,
-                              color: Theme.of(context).primaryColor,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+                    ),
             ),
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildSearchTextField(BuildContext context) {
+    return Consumer<SearchProvider>(
+      builder: (context, search, _) {
+        return CustomTextFieldWidget(
+          hintText: getTranslated('search_for_products', context),
+          isShowBorder: false,
+          fillColor: Colors.transparent,
+          isElevation: false,
+          isShowSuffixIcon: true,
+          imageColor: Theme.of(context).primaryColor,
+          suffixAssetUrl: !search.isSearch ? Images.close : Images.search,
+          onChanged: (str) {
+            str.length = 0;
+            search.setSearchValue(str);
+          },
+          onSuffixTap: () {
+            if (search.searchController.text.isNotEmpty &&
+                search.isSearch == true) {
+              RouteHelper.getSearchResultRoute(search.searchController.text);
+              search.onChangeSearchStatus();
+            } else if (search.searchController.text.isNotEmpty &&
+                search.isSearch == false) {
+              search.searchController.clear();
+              search.setSearchValue('');
+              search.onChangeSearchStatus();
+            }
+          },
+          controller: search.searchController,
+          inputAction: TextInputAction.search,
+          isIcon: true,
+          onSubmit: (text) {
+            if (search.searchController.text.isNotEmpty) {
+              RouteHelper.getSearchResultRoute(search.searchController.text);
+              search.onChangeSearchStatus();
+            }
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildNarrowHeader(
+    BuildContext context,
+    SplashProvider splashProvider,
+  ) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: Dimensions.paddingSizeDefault,
+            vertical: 4,
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              InkWell(
+                onTap: () {
+                  if (ModalRoute.of(context)!.settings.name != RouteHelper.menu) {
+                    RouteHelper.getMainRoute();
+                  }
+                },
+                child: SizedBox(
+                  height: 38,
+                  child: Consumer<ThemeProvider>(
+                    builder: (context, themeProvider, child) => Image.asset(
+                      themeProvider.darkTheme
+                          ? Images.darkAppLogo
+                          : Images.webBarLogoPlaceHolder,
+                      height: 38,
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+                ),
+              ),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  InkWell(
+                    onTap: () {
+                      if (ModalRoute.of(context)!.settings.name !=
+                          RouteHelper.favorite) {
+                        RouteHelper.getFavoriteRoute();
+                      }
+                    },
+                    child: Consumer<WishListProvider>(
+                      builder: (context, wishListProvider, _) => _ItemCountView(
+                        count: wishListProvider.wishList?.length ?? 0,
+                        icon: Icons.favorite,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: Dimensions.paddingSizeDefault),
+                  InkWell(
+                    onTap: () {
+                      if (ModalRoute.of(context)!.settings.name !=
+                          RouteHelper.cart) {
+                        RouteHelper.getCartScreen();
+                      }
+                    },
+                    child: Consumer<CartProvider>(
+                      builder: (context, cartProvider, _) => _ItemCountView(
+                        count: cartProvider.getTotalCartQuantity(),
+                        icon: Icons.shopping_cart,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: Dimensions.paddingSizeDefault),
+                  Consumer<AuthProvider>(
+                    builder: (context, authProvider, _) => InkWell(
+                      onTap: () => !authProvider.isLoggedIn()
+                          ? RouteHelper.getLoginRoute()
+                          : RouteHelper.getProfileScreen(),
+                      child: authProvider.isLoggedIn()
+                          ? Consumer<ProfileProvider>(
+                              builder: (context, profileProvider, _) => ClipRRect(
+                                borderRadius: BorderRadius.circular(
+                                  Dimensions.radiusSizeDefault,
+                                ),
+                                child: CustomImageWidget(
+                                  image: (profileProvider.userInfoModel?.image !=
+                                              null &&
+                                          profileProvider.userInfoModel!.image!
+                                              .isNotEmpty)
+                                      ? '${splashProvider.baseUrls!.customerImageUrl}/${profileProvider.userInfoModel!.image}'
+                                      : '',
+                                  placeholder: Images.profile,
+                                  height: 28,
+                                  width: 28,
+                                ),
+                              ),
+                            )
+                          : Icon(
+                              Icons.person,
+                              size: 26,
+                              color: Theme.of(context).primaryColor,
+                            ),
+                    ),
+                  ),
+                  const SizedBox(width: Dimensions.paddingSizeExtraSmall),
+                  IconButton(
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                    onPressed: () {
+                      if (ModalRoute.of(context)!.settings.name !=
+                          RouteHelper.profileMenus) {
+                        RouteHelper.getProfileMenus();
+                      }
+                    },
+                    icon: Icon(
+                      Icons.menu,
+                      size: 28,
+                      color: Theme.of(context).primaryColor,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(
+            Dimensions.paddingSizeDefault,
+            0,
+            Dimensions.paddingSizeDefault,
+            4,
+          ),
+          child: Container(
+            height: 38,
+            decoration: BoxDecoration(
+              color: Theme.of(context).disabledColor.withValues(alpha: 0.05),
+              borderRadius: BorderRadius.circular(Dimensions.radiusSizeDefault),
+            ),
+            child: _buildSearchTextField(context),
+          ),
+        ),
+      ],
     );
   }
 

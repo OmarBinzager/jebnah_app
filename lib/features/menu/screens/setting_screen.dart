@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -180,7 +181,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         backgroundColor: isDark
             ? ColorResources.getDarkColor(context)
             : const Color(0xFFF7F9FA),
-        appBar: ResponsiveHelper.isDesktop(context)
+        appBar: (ResponsiveHelper.isDesktop(context) || kIsWeb)
             ? const MainAppBarWidget()
             : null,
         body: Center(

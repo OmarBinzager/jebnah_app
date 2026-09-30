@@ -181,7 +181,29 @@ class Product {
           : int.tryParse(json['id'].toString());
       _name = json['name'];
       _description = json['description'];
-      _image = json['image']?.cast<String>();
+      if (json['image'] is List) {
+        _image = (json['image'] as List).map((e) => e.toString()).toList();
+      } else if (json['image'] is String) {
+        String imgStr = json['image'].toString().trim();
+        if (imgStr.startsWith('[') && imgStr.endsWith(']')) {
+          try {
+            dynamic decoded = jsonDecode(imgStr);
+            if (decoded is List) {
+              _image = decoded.map((e) => e.toString()).toList();
+            } else {
+              _image = [imgStr];
+            }
+          } catch (_) {
+            _image = [imgStr];
+          }
+        } else if (imgStr.isNotEmpty && imgStr != 'null') {
+          _image = [imgStr];
+        } else {
+          _image = [];
+        }
+      } else {
+        _image = [];
+      }
       _price = (json['price'] is num) ? json['price'].toDouble() : 0.0;
 
       if (json['variations'] != null) {
@@ -219,9 +241,9 @@ class Product {
       _capacity = (json['capacity'] is num) ? json['capacity'].toDouble() : 0.0;
       _totalStock = json['total_stock'] is int
           ? json['total_stock']
-          : int.tryParse(json['total_stock'].toString());
+          : int.tryParse((json['total_stock'] ?? json['stock'] ?? '0').toString());
 
-      if (json['rating'] != null) {
+      if (json['rating'] != null && json['rating'] is List) {
         _rating = [];
         json['rating'].forEach((v) {
           _rating!.add(Rating.fromJson(v));

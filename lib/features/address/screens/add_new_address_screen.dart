@@ -17,7 +17,6 @@ import '../../../features/splash/providers/splash_provider.dart';
 import '../../../helper/responsive_helper.dart';
 import '../../../localization/language_constraints.dart';
 import '../../../utill/dimensions.dart';
-import '../../../utill/styles.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 
@@ -111,103 +110,74 @@ class _AddNewAddressScreenState extends State<AddNewAddressScreen> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  if (!ResponsiveHelper.isDesktop(context))
-                                    MapWithLabelWidget(
-                                      isEnableUpdate: widget.isEnableUpdate,
-                                      fromCheckout: widget.fromCheckout,
-                                      address: widget.address,
-                                    ),
+                                  MapWithLabelWidget(
+                                    isEnableUpdate: widget.isEnableUpdate,
+                                    fromCheckout: widget.fromCheckout,
+                                    address: widget.address,
+                                  ),
 
                                   // for label us
-                                  if (!ResponsiveHelper.isDesktop(context))
-                                    AddressDetailsWidget(
-                                      contactPersonNameController:
-                                          _contactPersonNameController,
-                                      contactPersonNumberController:
-                                          _contactPersonNumberController,
-                                      addressNode: _addressNode,
-                                      nameNode: _nameNode,
-                                      numberNode: _numberNode,
-                                      fromCheckout: widget.fromCheckout,
-                                      address: widget.address,
-                                      isEnableUpdate: widget.isEnableUpdate,
-                                      streetNumberController:
-                                          _streetNumberController,
-                                      houseNumberController:
-                                          _houseNumberController,
-                                      houseNode: _houseNode,
-                                      stateNode: _stateNode,
-                                      florNumberController:
-                                          _florNumberController,
-                                      florNode: _floorNode,
-                                      countryCode: countryCode!,
-                                      // أضف هذه المعاملات الجديدة
-                                      cityController: _cityController,
-                                      districtController: _districtController,
-                                      streetNameController:
-                                          _streetNameController,
-                                      cityNode: _cityNode,
-                                      districtNode: _districtNode,
-                                      streetNameNode: _streetNameNode,
-                                      onValueChange: (code) {
-                                        countryCode = code;
-                                      },
-                                    ),
-
-                                  if (ResponsiveHelper.isDesktop(context)) ...[
-                                    Center(
-                                      child: Text(
-                                        getTranslated(
-                                          'delivery_address',
-                                          context,
-                                        ),
-                                        style: poppinsMedium.copyWith(
-                                          color: Theme.of(
-                                            context,
-                                          ).textTheme.bodyMedium?.color,
-                                          fontSize: Dimensions.fontSizeLarge,
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(
-                                      height: Dimensions.paddingSizeDefault,
-                                    ),
-                                  ],
+                                  AddressDetailsWidget(
+                                    contactPersonNameController:
+                                        _contactPersonNameController,
+                                    contactPersonNumberController:
+                                        _contactPersonNumberController,
+                                    addressNode: _addressNode,
+                                    nameNode: _nameNode,
+                                    numberNode: _numberNode,
+                                    fromCheckout: widget.fromCheckout,
+                                    address: widget.address,
+                                    isEnableUpdate: widget.isEnableUpdate,
+                                    streetNumberController:
+                                        _streetNumberController,
+                                    houseNumberController:
+                                        _houseNumberController,
+                                    houseNode: _houseNode,
+                                    stateNode: _stateNode,
+                                    florNumberController:
+                                        _florNumberController,
+                                    florNode: _floorNode,
+                                    countryCode: countryCode!,
+                                    // أضف هذه المعاملات الجديدة
+                                    cityController: _cityController,
+                                    districtController: _districtController,
+                                    streetNameController:
+                                        _streetNameController,
+                                    cityNode: _cityNode,
+                                    districtNode: _districtNode,
+                                    streetNameNode: _streetNameNode,
+                                    onValueChange: (code) {
+                                      countryCode = code;
+                                    },
+                                  ),
 
                                   if (ResponsiveHelper.isDesktop(context))
-                                    IntrinsicHeight(
-                                      child: AddressDetailsWidget(
-                                        contactPersonNameController:
-                                            _contactPersonNameController,
+                                    Padding(
+                                      padding: const EdgeInsets.only(
+                                        top: Dimensions.paddingSizeLarge,
+                                        bottom: Dimensions.paddingSizeLarge,
+                                      ),
+                                      child: AddAddressWidget(
+                                        isEnableUpdate: widget.isEnableUpdate,
+                                        fromCheckout: widget.fromCheckout,
                                         contactPersonNumberController:
                                             _contactPersonNumberController,
-                                        addressNode: _addressNode,
-                                        nameNode: _nameNode,
-                                        numberNode: _numberNode,
-                                        isEnableUpdate: widget.isEnableUpdate,
+                                        contactPersonNameController:
+                                            _contactPersonNameController,
                                         address: widget.address,
-                                        fromCheckout: widget.fromCheckout,
                                         streetNumberController:
                                             _streetNumberController,
                                         houseNumberController:
                                             _houseNumberController,
-                                        houseNode: _houseNode,
-                                        stateNode: _stateNode,
-                                        florNumberController:
+                                        floorNumberController:
                                             _florNumberController,
-                                        florNode: _floorNode,
                                         countryCode: countryCode!,
                                         // أضف هذه المعاملات الجديدة
                                         cityController: _cityController,
-                                        districtController: _districtController,
+                                        districtController:
+                                            _districtController,
                                         streetNameController:
                                             _streetNameController,
-                                        cityNode: _cityNode,
-                                        districtNode: _districtNode,
-                                        streetNameNode: _streetNameNode,
-                                        onValueChange: (code) {
-                                          countryCode = code;
-                                        },
                                       ),
                                     ),
                                 ],
@@ -273,6 +243,14 @@ class _AddNewAddressScreenState extends State<AddNewAddressScreen> {
 
     if (widget.address == null) {
       locationProvider.setAddAddressData(false);
+      final branches = splashProvider.configModel?.branches;
+      if (branches != null && branches.isNotEmpty) {
+        final bLat = double.tryParse(branches[0].latitude ?? '') ?? 0;
+        final bLon = double.tryParse(branches[0].longitude ?? '') ?? 0;
+        if (bLat != 0 || bLon != 0) {
+          locationProvider.setDefaultLocation(latitude: bLat, longitude: bLon);
+        }
+      }
     }
 
     await locationProvider.initializeAllAddressType(context: context);

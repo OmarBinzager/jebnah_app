@@ -29,10 +29,33 @@ class MapWidget extends StatelessWidget {
       listen: false,
     );
 
-    final branch = Provider.of<SplashProvider>(
+    final branches = Provider.of<SplashProvider>(
       context,
       listen: false,
-    ).configModel!.branches![0];
+    ).configModel?.branches;
+    final branch = (branches != null && branches.isNotEmpty) ? branches[0] : null;
+    final double branchLat = double.tryParse(branch?.latitude ?? '') ?? 0;
+    final double branchLon = double.tryParse(branch?.longitude ?? '') ?? 0;
+
+    double initLat = 0;
+    double initLon = 0;
+
+    if (isEnableUpdate &&
+        (locationProvider.pickedAddressLatitude?.isNotEmpty ?? false) &&
+        (locationProvider.pickedAddressLongitude?.isNotEmpty ?? false)) {
+      initLat = double.tryParse(locationProvider.pickedAddressLatitude!) ?? 0;
+      initLon = double.tryParse(locationProvider.pickedAddressLongitude!) ?? 0;
+    }
+
+    if (initLat == 0 && initLon == 0) {
+      if (locationProvider.position.latitude != 0 || locationProvider.position.longitude != 0) {
+        initLat = locationProvider.position.latitude;
+        initLon = locationProvider.position.longitude;
+      } else {
+        initLat = branchLat;
+        initLon = branchLon;
+      }
+    }
 
     return SizedBox(
       height: ResponsiveHelper.isMobile() ? 130 : 250,
@@ -46,66 +69,43 @@ class MapWidget extends StatelessWidget {
               minMaxZoomPreference: const MinMaxZoomPreference(0, 16),
               mapType: MapType.normal,
               initialCameraPosition: CameraPosition(
-                target:
-                    (isEnableUpdate &&
-                        (locationProvider.pickedAddressLatitude?.isNotEmpty ??
-                            false) &&
-                        (locationProvider.pickedAddressLongitude?.isNotEmpty ??
-                            false))
-                    ? LatLng(
-                        double.parse(locationProvider.pickedAddressLatitude!),
-                        double.parse(locationProvider.pickedAddressLongitude!),
-                      )
-                    : LatLng(
-                        locationProvider.position.latitude.toInt() == 0
-                            ? double.parse(branch.latitude!)
-                            : locationProvider.position.latitude,
-                        locationProvider.position.longitude.toInt() == 0
-                            ? double.parse(branch.longitude!)
-                            : locationProvider.position.longitude,
-                      ),
-                zoom: 8,
+                target: LatLng(initLat, initLon),
+                zoom: 14,
               ),
               zoomControlsEnabled: false,
               compassEnabled: false,
               indoorViewEnabled: true,
               mapToolbarEnabled: false,
               onCameraIdle: () {
-                if (address != null && !fromCheckout) {
-                  locationProvider.updatePosition(
-                    locationProvider.cameraPosition,
-                    true,
-                    null,
-                  );
-                  locationProvider.isUpdateAddress = true;
-                } else {
-                  if (locationProvider.isUpdateAddress) {
+                if (locationProvider.cameraPosition != null &&
+                    (locationProvider.cameraPosition!.target.latitude != 0 ||
+                     locationProvider.cameraPosition!.target.longitude != 0)) {
+                  if (address != null && !fromCheckout) {
                     locationProvider.updatePosition(
                       locationProvider.cameraPosition,
                       true,
                       null,
                     );
-                  } else {
                     locationProvider.isUpdateAddress = true;
+                  } else {
+                    if (locationProvider.isUpdateAddress) {
+                      locationProvider.updatePosition(
+                        locationProvider.cameraPosition,
+                        true,
+                        null,
+                      );
+                    } else {
+                      locationProvider.isUpdateAddress = true;
+                    }
                   }
                 }
               },
               onCameraMove: ((position) =>
                   locationProvider.cameraPosition = position),
               onMapCreated: (GoogleMapController controller) {
-                if (!isEnableUpdate && locationProvider.mapController != null) {
-                  AddressHelper.checkPermission(
-                    () => locationProvider.getCurrentLocation(
-                      context,
-                      true,
-                      mapController: locationProvider.mapController,
-                    ),
-                  );
-                }
-
                 locationProvider.mapController = controller;
 
-                if (!isEnableUpdate && locationProvider.mapController != null) {
+                if (!isEnableUpdate) {
                   if (locationProvider.pickedAddressLatitude == null &&
                       locationProvider.pickedAddressLongitude == null) {
                     AddressHelper.checkPermission(
@@ -116,51 +116,49 @@ class MapWidget extends StatelessWidget {
                       ),
                     );
                   } else {
-                    Future.delayed(const Duration(milliseconds: 800)).then((
-                      value,
-                    ) {
-                      locationProvider.mapController = controller;
-                      locationProvider.mapController!.moveCamera(
+                    double targetLat = double.tryParse(locationProvider.pickedAddressLatitude ?? '') ?? 0;
+                    double targetLon = double.tryParse(locationProvider.pickedAddressLongitude ?? '') ?? 0;
+                    if (targetLat == 0 && targetLon == 0) {
+                      targetLat = branchLat;
+                      targetLon = branchLon;
+                    }
+                    if (targetLat != 0 || targetLon != 0) {
+                      Future.delayed(const Duration(milliseconds: 800)).then((value) {
+                        locationProvider.mapController?.moveCamera(
+                          CameraUpdate.newCameraPosition(
+                            CameraPosition(
+                              target: LatLng(targetLat, targetLon),
+                              zoom: 17,
+                            ),
+                          ),
+                        );
+                      });
+                    }
+                  }
+                } else {
+                  double targetLat = double.tryParse(locationProvider.pickedAddressLatitude ?? '') ?? 0;
+                  double targetLon = double.tryParse(locationProvider.pickedAddressLongitude ?? '') ?? 0;
+                  if (targetLat == 0 && targetLon == 0) {
+                    if (locationProvider.position.latitude != 0 || locationProvider.position.longitude != 0) {
+                      targetLat = locationProvider.position.latitude;
+                      targetLon = locationProvider.position.longitude;
+                    } else {
+                      targetLat = branchLat;
+                      targetLon = branchLon;
+                    }
+                  }
+                  if (targetLat != 0 || targetLon != 0) {
+                    Future.delayed(const Duration(milliseconds: 800)).then((value) {
+                      locationProvider.mapController?.moveCamera(
                         CameraUpdate.newCameraPosition(
                           CameraPosition(
-                            target: LatLng(
-                              double.parse(
-                                locationProvider.pickedAddressLatitude ?? '0',
-                              ),
-                              double.parse(
-                                locationProvider.pickedAddressLongitude ?? '0',
-                              ),
-                            ),
+                            target: LatLng(targetLat, targetLon),
                             zoom: 17,
                           ),
                         ),
                       );
                     });
                   }
-                } else {
-                  Future.delayed(const Duration(milliseconds: 800)).then((
-                    value,
-                  ) {
-                    locationProvider.mapController = controller;
-                    double latitude =
-                        double.tryParse(
-                          locationProvider.pickedAddressLatitude ?? '',
-                        ) ??
-                        0;
-                    double longitude =
-                        double.tryParse(
-                          locationProvider.pickedAddressLongitude ?? '',
-                        ) ??
-                        0;
-                    locationProvider.mapController!.moveCamera(
-                      CameraUpdate.newCameraPosition(
-                        CameraPosition(
-                          target: LatLng(latitude, longitude),
-                          zoom: 17,
-                        ),
-                      ),
-                    );
-                  });
                 }
               },
             ),

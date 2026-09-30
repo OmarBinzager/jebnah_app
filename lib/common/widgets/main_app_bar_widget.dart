@@ -15,10 +15,14 @@ class MainAppBarWidget extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
+    final double screenWidth = MediaQuery.of(context).size.width;
+    final bool isSmall = screenWidth < 750;
+
     return Center(
       child: Container(
         color: Theme.of(context).cardColor,
-        width: 1170.0,
+        constraints: const BoxConstraints(maxWidth: 1170.0),
+        padding: const EdgeInsets.symmetric(horizontal: 8.0),
         height: 55.0,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -34,7 +38,7 @@ class MainAppBarWidget extends StatelessWidget implements PreferredSizeWidget {
                         themeProvider.darkTheme
                             ? Images.darkAppLogo
                             : Images.webBarLogoPlaceHolder,
-                        height: 46,
+                        height: 40,
                         fit: BoxFit.contain,
                       ),
                     ),
@@ -49,7 +53,59 @@ class MainAppBarWidget extends StatelessWidget implements PreferredSizeWidget {
                 ),
               ),
             ),
-            const _MenuBarWidget(),
+            if (isSmall)
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    icon: Icon(Icons.search, color: Theme.of(context).primaryColor),
+                    onPressed: () => RouteHelper.getSearchProduct(),
+                  ),
+                  IconButton(
+                    icon: Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        Icon(
+                          Icons.shopping_cart,
+                          color: Theme.of(context).primaryColor,
+                        ),
+                        Consumer<CartProvider>(
+                          builder: (context, cart, _) =>
+                              cart.cartList.isNotEmpty
+                                  ? Positioned(
+                                      top: -4,
+                                      right: -4,
+                                      child: Container(
+                                        padding: const EdgeInsets.all(3),
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .error,
+                                        ),
+                                        child: Text(
+                                          '${cart.cartList.length}',
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 9,
+                                          ),
+                                        ),
+                                      ),
+                                    )
+                                  : const SizedBox(),
+                        ),
+                      ],
+                    ),
+                    onPressed: () => RouteHelper.getCartScreen(),
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.menu, color: Theme.of(context).primaryColor),
+                    onPressed: () => RouteHelper.getProfileMenus(),
+                  ),
+                ],
+              )
+            else
+              const _MenuBarWidget(),
           ],
         ),
       ),
@@ -141,8 +197,8 @@ class _MenuBarWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: 800,
+    return Container(
+      constraints: const BoxConstraints(maxWidth: 800),
       child: PlutoMenuBarWidget(
         backgroundColor: Theme.of(context).cardColor,
         gradient: false,

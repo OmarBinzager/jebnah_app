@@ -29,7 +29,11 @@ class CustomImageWidget extends StatelessWidget {
         ? placeholder
         : Images.placeHolder;
 
-    if (image.isEmpty) {
+    final cleanImage = image.trim();
+    if (cleanImage.isEmpty ||
+        cleanImage.endsWith('/') ||
+        cleanImage.endsWith('/null') ||
+        cleanImage == 'null') {
       return CustomAssetImageWidget(
         placeholderImage,
         height: height,
@@ -44,7 +48,7 @@ class CustomImageWidget extends StatelessWidget {
         width: width,
         color: Theme.of(context).cardColor,
         child: Image.network(
-          image,
+          cleanImage,
           height: height,
           width: width,
           fit: fit,
@@ -81,7 +85,7 @@ class CustomImageWidget extends StatelessWidget {
       width: width,
       color: Theme.of(context).cardColor,
       child: CachedNetworkImage(
-        imageUrl: image,
+        imageUrl: cleanImage,
         height: height,
         width: width,
         fit: fit,

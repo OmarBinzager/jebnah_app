@@ -13,8 +13,10 @@ import '../../../utill/app_constants.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../splash/providers/splash_provider.dart';
 import '../domain/models/prediction_model.dart';
 
 class LocationProvider with ChangeNotifier {
@@ -99,6 +101,24 @@ class LocationProvider with ChangeNotifier {
   CameraPosition? cameraPosition;
   bool isUpdateAddress = true;
 
+  void setDefaultLocation({required double latitude, required double longitude}) {
+    if ((_position.latitude == 0 && _position.longitude == 0) && (latitude != 0 || longitude != 0)) {
+      _position = Position(
+        latitude: latitude,
+        longitude: longitude,
+        timestamp: DateTime.now(),
+        accuracy: 1,
+        altitude: 1,
+        heading: 1,
+        speed: 1,
+        speedAccuracy: 1,
+        altitudeAccuracy: 0,
+        headingAccuracy: 0,
+      );
+      _pickPosition = _position;
+    }
+  }
+
   // for get current location
   void getCurrentLocation(
     BuildContext context,
@@ -108,14 +128,29 @@ class LocationProvider with ChangeNotifier {
     _loading = true;
     notifyListeners();
 
+    double branchLat = 0;
+    double branchLon = 0;
+    try {
+      final branches = Provider.of<SplashProvider>(context, listen: false).configModel?.branches;
+      if (branches != null && branches.isNotEmpty) {
+        branchLat = double.tryParse(branches[0].latitude ?? '') ?? 0;
+        branchLon = double.tryParse(branches[0].longitude ?? '') ?? 0;
+      }
+    } catch (_) {}
+
     Position myPosition;
     try {
       Position newLocalData = await Geolocator.getCurrentPosition();
       myPosition = newLocalData;
     } catch (e) {
+      if (branchLat == 0 && branchLon == 0 && _position.latitude != 0) {
+        branchLat = _position.latitude;
+        branchLon = _position.longitude;
+      }
+
       myPosition = Position(
-        latitude: double.parse('0'),
-        longitude: double.parse('0'),
+        latitude: branchLat,
+        longitude: branchLon,
         timestamp: DateTime.now(),
         accuracy: 1,
         altitude: 1,
@@ -132,7 +167,7 @@ class LocationProvider with ChangeNotifier {
       _pickPosition = myPosition;
     }
 
-    if (mapController != null) {
+    if (mapController != null && (myPosition.latitude != 0 || myPosition.longitude != 0)) {
       mapController.animateCamera(
         CameraUpdate.newCameraPosition(
           CameraPosition(
@@ -143,12 +178,14 @@ class LocationProvider with ChangeNotifier {
       );
     }
     // String _myPlaceMark;
-    String getAddress = await getAddressFromGeocode(
-      LatLng(myPosition.latitude, myPosition.longitude),
-    );
+    if (myPosition.latitude != 0 || myPosition.longitude != 0) {
+      String getAddress = await getAddressFromGeocode(
+        LatLng(myPosition.latitude, myPosition.longitude),
+      );
 
-    if (fromAddress) {
-      _address = placeMarkToAddress(getAddress);
+      if (fromAddress) {
+        _address = placeMarkToAddress(getAddress);
+      }
     }
     _loading = false;
     notifyListeners();

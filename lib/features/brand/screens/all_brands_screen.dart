@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import '../../../common/widgets/custom_loader_widget.dart';
 import '../../../common/widgets/custom_pop_scope_handel_deep_link_widget.dart';
@@ -8,6 +9,7 @@ import '../../brand/providers/brand_provider.dart';
 import '../../brand/widgets/brand_item_widget.dart';
 import '../../brand/widgets/brand_products_shimmer_widget.dart';
 import '../../../helper/responsive_helper.dart';
+import '../../../helper/route_helper.dart';
 
 import '../../../localization/language_constraints.dart';
 import '../../../utill/dimensions.dart';
@@ -27,23 +29,14 @@ class _AllBrandsScreenState extends State<AllBrandsScreen> {
   @override
   void initState() {
     super.initState();
-    if (Provider.of<BrandProvider>(context, listen: false).brandList != null &&
-        Provider.of<BrandProvider>(
-          context,
-          listen: false,
-        ).brandList!.isNotEmpty) {
+    final brandProvider = Provider.of<BrandProvider>(context, listen: false);
+    if (brandProvider.brandList != null && brandProvider.brandList!.isNotEmpty) {
       _load();
     } else {
-      Provider.of<BrandProvider>(
-        context,
-        listen: false,
-      ).getBrandList(context, true).then((_) {
-        if (Provider.of<BrandProvider>(context, listen: false).brandList !=
-                null &&
-            Provider.of<BrandProvider>(
-              context,
-              listen: false,
-            ).brandList!.isNotEmpty) {
+      brandProvider.getBrandList(context, true).then((_) {
+        if (!mounted) return;
+        if (brandProvider.brandList != null &&
+            brandProvider.brandList!.isNotEmpty) {
           _load();
         }
       });
@@ -52,14 +45,19 @@ class _AllBrandsScreenState extends State<AllBrandsScreen> {
 
   Future<void> _load() async {
     final brandProvider = Provider.of<BrandProvider>(context, listen: false);
-    brandProvider.onChangeBrandIndex(0, notify: false);
+    int selectedIndex = brandProvider.brandIndex;
+    if (selectedIndex < 0 ||
+        selectedIndex >= (brandProvider.brandList?.length ?? 0)) {
+      selectedIndex = 0;
+      brandProvider.onChangeBrandIndex(0, notify: false);
+    }
 
     if (brandProvider.brandList?.isNotEmpty ?? false) {
-      // يمكن إضافة دالة لجلب منتجات العلامة التجارية إذا احتجت
-      // brandProvider.getBrandProducts(
-      //   context,
-      //   brandProvider.brandList![0].id.toString(),
-      // );
+      brandProvider.getBrandProducts(
+        context,
+        brandProvider.brandList![selectedIndex].id.toString(),
+        reload: true,
+      );
     }
   }
 
@@ -67,7 +65,7 @@ class _AllBrandsScreenState extends State<AllBrandsScreen> {
   Widget build(BuildContext context) {
     return CustomPopScopeHandelDeepLinkWidget(
       child: Scaffold(
-        appBar: ResponsiveHelper.isDesktop(context)
+        appBar: (ResponsiveHelper.isDesktop(context) || kIsWeb)
             ? const MainAppBarWidget()
             : null,
         body: Center(
@@ -155,10 +153,9 @@ class _AllBrandsScreenState extends State<AllBrandsScreen> {
                                           },
                                           title: Text(
                                             getTranslated(
-                                                  'all_products',
-                                                  context,
-                                                ) ??
-                                                'All Products',
+                                              'all_products',
+                                              context,
+                                            ),
                                             style: poppinsMedium.copyWith(
                                               fontSize: 14,
                                               fontWeight: FontWeight.w600,
@@ -180,6 +177,13 @@ class _AllBrandsScreenState extends State<AllBrandsScreen> {
                                           brandProvider.onChangeSelectIndex(
                                             productIndex,
                                           );
+                                          if (product.id != null) {
+                                            Navigator.of(context).pushNamed(
+                                              RouteHelper.getProductDetailsRoute(
+                                                productId: product.id,
+                                              ),
+                                            );
+                                          }
                                         },
                                         title: Text(
                                           product.name ?? '',

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:jebnah/features/brand/providers/brand_provider.dart';
 import '../../../common/enums/data_source_enum.dart';
@@ -141,9 +142,9 @@ class _HomeScreenState extends State<HomeScreen> {
       },
       backgroundColor: Theme.of(context).primaryColor,
       child: Scaffold(
-        appBar: ResponsiveHelper.isDesktop(context)
+        appBar: (ResponsiveHelper.isDesktop(context) || kIsWeb)
             ? const PreferredSize(
-                preferredSize: Size.fromHeight(120),
+                preferredSize: Size.fromHeight(130),
                 child: WebAppBarWidget(),
               )
             : null,

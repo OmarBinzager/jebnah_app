@@ -135,21 +135,11 @@ class MapWithLabelWidget extends StatelessWidget {
 
               if (locationProvider.pickedAddressLatitude != null &&
                   locationProvider.pickedAddressLongitude != null) ...[
-                if (ResponsiveHelper.isDesktop(context))
-                  Expanded(
-                    child: MapWidget(
-                      fromCheckout: fromCheckout,
-                      isEnableUpdate: isEnableUpdate,
-                      address: address,
-                    ),
-                  ),
-
-                if (!ResponsiveHelper.isDesktop(context))
-                  MapWidget(
-                    fromCheckout: fromCheckout,
-                    isEnableUpdate: isEnableUpdate,
-                    address: address,
-                  ),
+                MapWidget(
+                  fromCheckout: fromCheckout,
+                  isEnableUpdate: isEnableUpdate,
+                  address: address,
+                ),
 
                 Padding(
                   padding: const EdgeInsets.only(top: 10),
@@ -167,21 +157,11 @@ class MapWithLabelWidget extends StatelessWidget {
             ],
 
             if (address == null) ...[
-              if (ResponsiveHelper.isDesktop(context))
-                Expanded(
-                  child: MapWidget(
-                    fromCheckout: fromCheckout,
-                    isEnableUpdate: isEnableUpdate,
-                    address: address,
-                  ),
-                ),
-
-              if (!ResponsiveHelper.isDesktop(context))
-                MapWidget(
-                  fromCheckout: fromCheckout,
-                  isEnableUpdate: isEnableUpdate,
-                  address: address,
-                ),
+              MapWidget(
+                fromCheckout: fromCheckout,
+                isEnableUpdate: isEnableUpdate,
+                address: address,
+              ),
 
               Padding(
                 padding: const EdgeInsets.only(top: 10),

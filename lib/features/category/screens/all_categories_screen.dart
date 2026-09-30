@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import '../../../common/widgets/custom_loader_widget.dart';
 import '../../../common/widgets/custom_pop_scope_handel_deep_link_widget.dart';
@@ -63,7 +64,7 @@ class _AllCategoriesScreenState extends State<AllCategoriesScreen> {
   Widget build(BuildContext context) {
     return CustomPopScopeHandelDeepLinkWidget(
       child: Scaffold(
-        appBar: ResponsiveHelper.isDesktop(context)
+        appBar: (ResponsiveHelper.isDesktop(context) || kIsWeb)
             ? const MainAppBarWidget()
             : null,
         body: Center(

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import '../../../common/enums/footer_type_enum.dart';
 import '../../../common/widgets/custom_pop_scope_handel_deep_link_widget.dart';
@@ -65,9 +66,9 @@ class _CartScreenState extends State<CartScreen> {
       child: Scaffold(
         appBar: ResponsiveHelper.isMobilePhone()
             ? null
-            : (ResponsiveHelper.isDesktop(context)
+            : ((ResponsiveHelper.isDesktop(context) || kIsWeb)
                       ? const PreferredSize(
-                          preferredSize: Size.fromHeight(120),
+                          preferredSize: Size.fromHeight(130),
                           child: WebAppBarWidget(),
                         )
                       : const AppBarBaseWidget())

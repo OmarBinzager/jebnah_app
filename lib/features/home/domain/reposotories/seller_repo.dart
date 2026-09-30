@@ -33,7 +33,7 @@ class SellerRepo extends DataSyncRepo {
   Future<ApiResponseModel> getSellerProducts(String sellerId, {int page = 1, int limit = 15}) async {
     try {
       final response = await dioClient.get(
-        '${AppConstants.sellerProductsUri}$sellerId/products?page=$page&limit=$limit',
+        '${AppConstants.sellerProductsUri}products/$sellerId?page=$page&limit=$limit&per_page=$limit',
       );
       return ApiResponseModel.withSuccess(response);
     } catch (e) {

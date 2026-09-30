@@ -64,13 +64,14 @@ class _MainScreenState extends State<MainScreen> {
                 builder: (context, locationProvider, child) => InkWell(
                   onTap: () {
                     if (!ResponsiveHelper.isDesktop(context) &&
+                        !kIsWeb &&
                         widget.drawerController.isOpen()) {
                       widget.drawerController.toggle();
                     }
                   },
                   child: Scaffold(
                     // Floating Action Button لسلة المشتريات مع تعديل المسافة
-                    floatingActionButton: !isDesktop
+                    floatingActionButton: (!kIsWeb && !isDesktop)
                         ? Padding(
                             padding: const EdgeInsets.only(bottom: 10),
                             child: _buildFloatingCartButton(
@@ -84,7 +85,7 @@ class _MainScreenState extends State<MainScreen> {
                     floatingActionButtonAnimator:
                         FloatingActionButtonAnimator.scaling,
 
-                    appBar: ResponsiveHelper.isDesktop(context)
+                    appBar: (ResponsiveHelper.isDesktop(context) || kIsWeb)
                         ? null
                         : AppBar(
                             toolbarHeight: 63,
@@ -170,7 +171,7 @@ class _MainScreenState extends State<MainScreen> {
                           ),
 
                     // قائمة سفلية متباعدة مع مسافة من زر السلة
-                    bottomNavigationBar: !isDesktop
+                    bottomNavigationBar: (!kIsWeb && !isDesktop)
                         ? _buildBottomNavigationBar(splash)
                         : null,
 

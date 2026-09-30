@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import '../../../common/providers/localization_provider.dart';
 import '../../../common/widgets/custom_asset_image_widget.dart';
@@ -99,18 +100,19 @@ class MenuWidget extends StatelessWidget {
       child: Scaffold(
         backgroundColor:
             Provider.of<ThemeProvider>(context).darkTheme ||
-                ResponsiveHelper.isDesktop(context)
-            ? Theme.of(context).hintColor.withValues(alpha: 0.1)
-            : Theme.of(context).primaryColor,
+                    ResponsiveHelper.isDesktop(context) ||
+                    kIsWeb
+                ? Theme.of(context).hintColor.withValues(alpha: 0.1)
+                : Theme.of(context).primaryColor,
 
-        appBar: ResponsiveHelper.isDesktop(context)
+        appBar: (ResponsiveHelper.isDesktop(context) || kIsWeb)
             ? const PreferredSize(
-                preferredSize: Size.fromHeight(120),
+                preferredSize: Size.fromHeight(130),
                 child: WebAppBarWidget(),
               )
             : null,
         body: SafeArea(
-          child: ResponsiveHelper.isDesktop(context)
+          child: (ResponsiveHelper.isDesktop(context) || kIsWeb)
               ? Consumer<SplashProvider>(
                   builder: (context, splashProvider, _) {
                     return MenuListWebWidget(isLoggedIn: isLoggedIn);

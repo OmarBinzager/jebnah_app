@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import '../../../common/enums/footer_type_enum.dart';
 import '../../../common/widgets/custom_loader_widget.dart';
@@ -70,9 +71,9 @@ class _CouponScreenState extends State<CouponScreen> {
       child: Scaffold(
         appBar: ResponsiveHelper.isMobilePhone()
             ? null
-            : (ResponsiveHelper.isDesktop(context)
+            : ((ResponsiveHelper.isDesktop(context) || kIsWeb)
                       ? const PreferredSize(
-                          preferredSize: Size.fromHeight(120),
+                          preferredSize: Size.fromHeight(130),
                           child: WebAppBarWidget(),
                         )
                       : const AppBarBaseWidget())

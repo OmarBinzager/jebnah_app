@@ -153,257 +153,381 @@ class MenuListWebWidget extends StatelessWidget {
       ),
     ];
 
+    final double screenWidth = MediaQuery.of(context).size.width;
+    final bool isNarrow = screenWidth < 850;
+    final int crossAxisCount = screenWidth < 500
+        ? 2
+        : (screenWidth < 850
+            ? 3
+            : (screenWidth < 1170 ? 4 : 6));
+
     return CustomScrollView(
       slivers: [
         SliverToBoxAdapter(
           child: Center(
-            child: Consumer<ProfileProvider>(
-              builder: (context, profileProvider, child) {
-                if ((splashProvider.configModel?.referEarnStatus ?? false) &&
-                    profileProvider.userInfoModel?.referCode != null) {
-                  final MenuModel referMenu = MenuModel(
-                    icon: Images.referralIcon,
-                    title: getTranslated('referAndEarn', context),
-                    route: () => RouteHelper.getReferAndEarnRoute(),
-                  );
-                  menuList.removeWhere((menu) => menu.route == referMenu.route);
-                  menuList.insert(6, referMenu);
+            child: Container(
+              constraints: const BoxConstraints(
+                maxWidth: Dimensions.webScreenWidth,
+              ),
+              padding: const EdgeInsets.symmetric(
+                horizontal: Dimensions.paddingSizeDefault,
+                vertical: Dimensions.paddingSizeDefault,
+              ),
+              child: Consumer<ProfileProvider>(
+                builder: (context, profileProvider, child) {
+                  if ((splashProvider.configModel?.referEarnStatus ?? false) &&
+                      profileProvider.userInfoModel?.referCode != null) {
+                    final MenuModel referMenu = MenuModel(
+                      icon: Images.referralIcon,
+                      title: getTranslated('referAndEarn', context),
+                      route: () => RouteHelper.getReferAndEarnRoute(),
+                    );
+                    menuList.removeWhere(
+                      (menu) => menu.route == referMenu.route,
+                    );
+                    menuList.insert(6, referMenu);
+                  }
 
-                  if (!menuList.contains(referMenu)) {}
-                }
-
-                return SizedBox(
-                  width: Dimensions.webScreenWidth,
-                  child: Stack(
+                  return Column(
                     children: [
-                      Column(
-                        children: [
-                          Container(
-                            height: 150,
-                            color: Theme.of(
-                              context,
-                            ).primaryColor.withValues(alpha: 0.5),
-                            alignment: Alignment.centerLeft,
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 240.0,
-                            ),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                isLoggedIn
-                                    ? profileProvider.userInfoModel != null
-                                          ? Text(
-                                              '${profileProvider.userInfoModel!.fName ?? ''} ${profileProvider.userInfoModel!.lName ?? ''}',
-                                              style: poppinsRegular.copyWith(
-                                                fontSize: Dimensions
-                                                    .fontSizeExtraLarge,
-                                                color: Theme.of(context)
-                                                    .textTheme
-                                                    .bodyLarge
-                                                    ?.color
-                                                    ?.withValues(alpha: 0.6),
-                                              ),
-                                            )
-                                          : const SizedBox(
-                                              height:
-                                                  Dimensions.paddingSizeDefault,
-                                              width: 150,
-                                            )
-                                    : Column(
-                                        children: [
-                                          const SizedBox(height: 80),
-
-                                          Text(
-                                            getTranslated('guest', context),
-                                            style: poppinsRegular.copyWith(
-                                              fontSize:
-                                                  Dimensions.fontSizeExtraLarge,
-                                              color: Theme.of(context)
-                                                  .textTheme
-                                                  .bodyLarge
-                                                  ?.color
-                                                  ?.withValues(alpha: 0.6),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-
-                                if (isLoggedIn)
-                                  Column(
-                                    children: [
-                                      const SizedBox(
-                                        height: Dimensions.paddingSizeSmall,
-                                      ),
-
-                                      Text(
-                                        profileProvider.userInfoModel?.email ??
-                                            '',
-                                        style: poppinsRegular.copyWith(
-                                          color: Theme.of(context)
-                                              .textTheme
-                                              .bodyLarge
-                                              ?.color
-                                              ?.withValues(alpha: 0.6),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(height: 100),
-
-                          Builder(
-                            builder: (context) {
-                              return GridView.builder(
-                                physics: const NeverScrollableScrollPhysics(),
-                                shrinkWrap: true,
-                                gridDelegate:
-                                    const SliverGridDelegateWithFixedCrossAxisCount(
-                                      crossAxisCount: 6,
-                                      crossAxisSpacing:
-                                          Dimensions.paddingSizeExtraLarge,
-                                      mainAxisSpacing:
-                                          Dimensions.paddingSizeExtraLarge,
-                                    ),
-                                itemCount: menuList.length,
-                                itemBuilder: (context, index) =>
-                                    MenuItemWebWidget(menu: menuList[index]),
-                              );
-                            },
-                          ),
-                          const SizedBox(
-                            height: Dimensions.paddingSizeExtraLarge,
-                          ),
-                        ],
-                      ),
-
-                      Positioned(
-                        left: 30,
-                        top: 45,
-                        child: Container(
-                          height: 180,
-                          width: 180,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(color: Colors.white, width: 4),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.white.withValues(alpha: 0.1),
-                                blurRadius: 22,
-                                offset: const Offset(0, 8.8),
-                              ),
-                            ],
-                            color: Theme.of(context).secondaryHeaderColor,
-                          ),
-                          // decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: Colors.white, width: 4),
-                          //     boxShadow: [BoxShadow(color: Colors.white.withValues(alpha: 0.1), blurRadius: 22, offset: const Offset(0, 8.8) )]),
-                          child: ClipOval(
-                            child: isLoggedIn
-                                ? CustomImageWidget(
-                                    placeholder: Images.placeHolder,
-                                    height: 170,
-                                    width: 170,
-                                    fit: BoxFit.cover,
-                                    image:
-                                        '${splashProvider.baseUrls?.customerImageUrl}/'
-                                        '${profileProvider.userInfoModel?.image ?? ''}',
-                                  )
-                                : const CustomAssetImageWidget(
-                                    Images.placeHolder,
-                                    height: 170,
-                                    width: 170,
-                                    fit: BoxFit.cover,
-                                  ),
-                          ),
+                      if (isNarrow)
+                        _buildNarrowProfileCard(
+                          context,
+                          profileProvider,
+                          splashProvider,
+                          isLoggedIn,
+                        )
+                      else
+                        _buildDesktopProfileHeader(
+                          context,
+                          profileProvider,
+                          splashProvider,
+                          isLoggedIn,
                         ),
+
+                      SizedBox(
+                        height: isNarrow
+                            ? Dimensions.paddingSizeDefault
+                            : Dimensions.paddingSizeExtraLarge,
                       ),
 
-                      Positioned(
-                        right: 0,
-                        top: 140,
-                        child: isLoggedIn
-                            ? Padding(
-                                padding: const EdgeInsets.all(
-                                  Dimensions.paddingSizeDefault,
-                                ),
-                                child: InkWell(
-                                  onTap: () {
-                                    showDialogHelper(
-                                      context,
-                                      AccountDeleteDialogWidget(
-                                        icon: Icons.question_mark_sharp,
-                                        title: getTranslated(
-                                          'are_you_sure_to_delete_account',
-                                          context,
-                                        ),
-                                        description: getTranslated(
-                                          'it_will_remove_your_all_information',
-                                          context,
-                                        ),
-                                        onTapFalseText: getTranslated(
-                                          'no',
-                                          context,
-                                        ),
-                                        onTapTrueText: getTranslated(
-                                          'yes',
-                                          context,
-                                        ),
-                                        isFailed: true,
-                                        onTapFalse: () =>
-                                            Navigator.of(context).pop(),
-                                        onTapTrue: () =>
-                                            Provider.of<AuthProvider>(
-                                              context,
-                                              listen: false,
-                                            ).deleteUser(context),
-                                      ),
-                                      dismissible: false,
-                                      isFlip: true,
-                                    );
-                                  },
-                                  child: Row(
-                                    children: [
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal:
-                                              Dimensions.paddingSizeExtraSmall,
-                                        ),
-                                        child: Icon(
-                                          Icons.delete,
-                                          color: Theme.of(context).primaryColor,
-                                          size: 16,
-                                        ),
-                                      ),
-
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal:
-                                              Dimensions.paddingSizeExtraSmall,
-                                        ),
-                                        child: Text(
-                                          getTranslated(
-                                            'delete_account',
-                                            context,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              )
-                            : const SizedBox(),
+                      GridView.builder(
+                        physics: const NeverScrollableScrollPhysics(),
+                        shrinkWrap: true,
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: crossAxisCount,
+                          crossAxisSpacing: Dimensions.paddingSizeDefault,
+                          mainAxisSpacing: Dimensions.paddingSizeDefault,
+                          childAspectRatio: isNarrow ? 1.25 : 1.0,
+                        ),
+                        itemCount: menuList.length,
+                        itemBuilder: (context, index) =>
+                            MenuItemWebWidget(menu: menuList[index]),
+                      ),
+                      const SizedBox(
+                        height: Dimensions.paddingSizeExtraLarge,
                       ),
                     ],
-                  ),
-                );
-              },
+                  );
+                },
+              ),
             ),
           ),
         ),
 
         const FooterWebWidget(footerType: FooterType.sliver),
+      ],
+    );
+  }
+
+  Widget _buildNarrowProfileCard(
+    BuildContext context,
+    ProfileProvider profileProvider,
+    SplashProvider splashProvider,
+    bool isLoggedIn,
+  ) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(Dimensions.paddingSizeLarge),
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
+        borderRadius: BorderRadius.circular(Dimensions.radiusSizeDefault),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 10,
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          ClipOval(
+            child: isLoggedIn
+                ? CustomImageWidget(
+                    placeholder: Images.placeHolder,
+                    height: 80,
+                    width: 80,
+                    fit: BoxFit.cover,
+                    image: (profileProvider.userInfoModel?.image != null &&
+                            profileProvider.userInfoModel!.image!.isNotEmpty)
+                        ? '${splashProvider.baseUrls?.customerImageUrl}/${profileProvider.userInfoModel!.image}'
+                        : '',
+                  )
+                : const CustomAssetImageWidget(
+                    Images.placeHolder,
+                    height: 80,
+                    width: 80,
+                    fit: BoxFit.cover,
+                  ),
+          ),
+          const SizedBox(height: Dimensions.paddingSizeSmall),
+          Text(
+            isLoggedIn
+                ? (profileProvider.userInfoModel != null
+                    ? '${profileProvider.userInfoModel!.fName ?? ''} ${profileProvider.userInfoModel!.lName ?? ''}'
+                    : '')
+                : getTranslated('guest', context),
+            style: poppinsBold.copyWith(
+              fontSize: Dimensions.fontSizeLarge,
+              color: Theme.of(context).textTheme.bodyLarge?.color,
+            ),
+          ),
+          if (isLoggedIn && profileProvider.userInfoModel?.email != null) ...[
+            const SizedBox(height: 4),
+            Text(
+              profileProvider.userInfoModel!.email!,
+              style: poppinsRegular.copyWith(
+                fontSize: Dimensions.fontSizeSmall,
+                color: Theme.of(context).disabledColor,
+              ),
+            ),
+          ],
+          if (isLoggedIn) ...[
+            const SizedBox(height: Dimensions.paddingSizeSmall),
+            InkWell(
+              onTap: () {
+                showDialogHelper(
+                  context,
+                  AccountDeleteDialogWidget(
+                    icon: Icons.question_mark_sharp,
+                    title: getTranslated(
+                      'are_you_sure_to_delete_account',
+                      context,
+                    ),
+                    description: getTranslated(
+                      'it_will_remove_your_all_information',
+                      context,
+                    ),
+                    onTapFalseText: getTranslated('no', context),
+                    onTapTrueText: getTranslated('yes', context),
+                    isFailed: true,
+                    onTapFalse: () => Navigator.of(context).pop(),
+                    onTapTrue: () => Provider.of<AuthProvider>(
+                      context,
+                      listen: false,
+                    ).deleteUser(context),
+                  ),
+                  dismissible: false,
+                  isFlip: true,
+                );
+              },
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.delete,
+                    color: Theme.of(context).colorScheme.error,
+                    size: 16,
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    getTranslated('delete_account', context),
+                    style: poppinsRegular.copyWith(
+                      color: Theme.of(context).colorScheme.error,
+                      fontSize: Dimensions.fontSizeSmall,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDesktopProfileHeader(
+    BuildContext context,
+    ProfileProvider profileProvider,
+    SplashProvider splashProvider,
+    bool isLoggedIn,
+  ) {
+    return Stack(
+      children: [
+        Column(
+          children: [
+            Container(
+              height: 150,
+              color: Theme.of(context).primaryColor.withValues(alpha: 0.5),
+              alignment: Alignment.centerLeft,
+              padding: const EdgeInsets.symmetric(horizontal: 240.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  isLoggedIn
+                      ? profileProvider.userInfoModel != null
+                          ? Text(
+                              '${profileProvider.userInfoModel!.fName ?? ''} ${profileProvider.userInfoModel!.lName ?? ''}',
+                              style: poppinsRegular.copyWith(
+                                fontSize: Dimensions.fontSizeExtraLarge,
+                                color: Theme.of(context)
+                                    .textTheme
+                                    .bodyLarge
+                                    ?.color
+                                    ?.withValues(alpha: 0.6),
+                              ),
+                            )
+                          : const SizedBox(
+                              height: Dimensions.paddingSizeDefault,
+                              width: 150,
+                            )
+                      : Column(
+                          children: [
+                            const SizedBox(height: 80),
+                            Text(
+                              getTranslated('guest', context),
+                              style: poppinsRegular.copyWith(
+                                fontSize: Dimensions.fontSizeExtraLarge,
+                                color: Theme.of(context)
+                                    .textTheme
+                                    .bodyLarge
+                                    ?.color
+                                    ?.withValues(alpha: 0.6),
+                              ),
+                            ),
+                          ],
+                        ),
+                  if (isLoggedIn)
+                    Column(
+                      children: [
+                        const SizedBox(height: Dimensions.paddingSizeSmall),
+                        Text(
+                          profileProvider.userInfoModel?.email ?? '',
+                          style: poppinsRegular.copyWith(
+                            color: Theme.of(context)
+                                .textTheme
+                                .bodyLarge
+                                ?.color
+                                ?.withValues(alpha: 0.6),
+                          ),
+                        ),
+                      ],
+                    ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 40),
+          ],
+        ),
+        Positioned(
+          left: 30,
+          top: 45,
+          child: Container(
+            height: 180,
+            width: 180,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(color: Colors.white, width: 4),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.white.withValues(alpha: 0.1),
+                  blurRadius: 22,
+                  offset: const Offset(0, 8.8),
+                ),
+              ],
+              color: Theme.of(context).secondaryHeaderColor,
+            ),
+            child: ClipOval(
+              child: isLoggedIn
+                  ? CustomImageWidget(
+                      placeholder: Images.placeHolder,
+                      height: 170,
+                      width: 170,
+                      fit: BoxFit.cover,
+                      image: (profileProvider.userInfoModel?.image != null &&
+                              profileProvider.userInfoModel!.image!.isNotEmpty)
+                          ? '${splashProvider.baseUrls?.customerImageUrl}/${profileProvider.userInfoModel!.image}'
+                          : '',
+                    )
+                  : const CustomAssetImageWidget(
+                      Images.placeHolder,
+                      height: 170,
+                      width: 170,
+                      fit: BoxFit.cover,
+                    ),
+            ),
+          ),
+        ),
+        Positioned(
+          right: 0,
+          top: 140,
+          child: isLoggedIn
+              ? Padding(
+                  padding: const EdgeInsets.all(Dimensions.paddingSizeDefault),
+                  child: InkWell(
+                    onTap: () {
+                      showDialogHelper(
+                        context,
+                        AccountDeleteDialogWidget(
+                          icon: Icons.question_mark_sharp,
+                          title: getTranslated(
+                            'are_you_sure_to_delete_account',
+                            context,
+                          ),
+                          description: getTranslated(
+                            'it_will_remove_your_all_information',
+                            context,
+                          ),
+                          onTapFalseText: getTranslated('no', context),
+                          onTapTrueText: getTranslated('yes', context),
+                          isFailed: true,
+                          onTapFalse: () => Navigator.of(context).pop(),
+                          onTapTrue: () => Provider.of<AuthProvider>(
+                            context,
+                            listen: false,
+                          ).deleteUser(context),
+                        ),
+                        dismissible: false,
+                        isFlip: true,
+                      );
+                    },
+                    child: Row(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: Dimensions.paddingSizeExtraSmall,
+                          ),
+                          child: Icon(
+                            Icons.delete,
+                            color: Theme.of(context).primaryColor,
+                            size: 16,
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: Dimensions.paddingSizeExtraSmall,
+                          ),
+                          child: Text(
+                            getTranslated('delete_account', context),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                )
+              : const SizedBox(),
+        ),
       ],
     );
   }
