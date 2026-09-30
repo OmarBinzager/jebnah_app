@@ -1158,8 +1158,9 @@ class RouteHelper {
       return null;
     } else {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (ctx.mounted) {
-          Provider.of<SplashProvider>(ctx, listen: false).setPageIndex(index);
+        final context = Get.context ?? (ctx.mounted ? ctx : null);
+        if (context != null && context.mounted) {
+          Provider.of<SplashProvider>(context, listen: false).setPageIndex(index);
         }
       });
       return '/';

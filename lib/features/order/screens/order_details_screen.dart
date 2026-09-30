@@ -21,7 +21,6 @@ import '../../../helper/route_helper.dart';
 import '../../../helper/string_parser.dart';
 import '../../../localization/app_localization.dart';
 import '../../../localization/language_constraints.dart';
-import '../../../main.dart';
 import '../../../utill/dimensions.dart';
 import '../../../utill/images.dart';
 import 'package:provider/provider.dart';
@@ -47,15 +46,17 @@ class OrderDetailsScreen extends StatefulWidget {
 }
 
 class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
-  void _loadData(BuildContext context) async {
+  void _loadData() async {
     final splashProvider = Provider.of<SplashProvider>(context, listen: false);
     final orderProvider = Provider.of<OrderProvider>(context, listen: false);
 
     if (widget.orderModel == null) {
       await splashProvider.initConfig(context);
+      if (!mounted) return;
     }
     splashProvider.getOfflinePaymentMethod(true);
     await orderProvider.initializeTimeSlot();
+    if (!mounted) return;
 
     if (widget.orderId != null) {
       orderProvider.getOrderDetails(
@@ -65,7 +66,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
       orderProvider.trackOrder(
         widget.orderId.toString(),
         null,
-        Get.context!,
+        context,
         false,
         phoneNumber: widget.phoneNumber,
         isUpdate: false,
@@ -73,9 +74,10 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
     } else if (_isValidToken(widget.token)) {
       String transactionId = _extractTransactionId(widget.token!);
       PaymentResponseModel? paymentResponse = await Provider.of<OrderProvider>(
-        Get.context!,
+        context,
         listen: false,
       ).getDigitalPaymentResponse(transactionId: transactionId);
+      if (!mounted) return;
       if (paymentResponse?.orderId != null) {
         orderProvider.getOrderDetails(
           orderID: paymentResponse!.orderId!,
@@ -84,21 +86,22 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
         orderProvider.trackOrder(
           paymentResponse.orderId!,
           null,
-          Get.context!,
+          context,
           false,
           phoneNumber: widget.phoneNumber,
           isUpdate: false,
         );
 
-        Future.delayed(Duration(microseconds: 500), () {
+        Future.delayed(const Duration(milliseconds: 500), () {
+          if (!mounted) return;
           if (widget.flag == "success") {
             showCustomSnackBarHelper(
-              getTranslated('your_payment_confirm_successfully', Get.context!),
+              getTranslated('your_payment_confirm_successfully', context),
               isError: false,
             );
           } else {
             showCustomSnackBarHelper(
-              getTranslated('payment_failed', Get.context!),
+              getTranslated('payment_failed', context),
             );
           }
         });
@@ -109,7 +112,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
   @override
   void initState() {
     super.initState();
-    _loadData(context);
+    _loadData();
   }
 
   bool _isValidToken(String? token) {

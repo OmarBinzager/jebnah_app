@@ -1,9 +1,10 @@
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import '../../../common/widgets/custom_app_bar_widget.dart';
 import '../../../common/widgets/custom_loader_widget.dart';
 import '../../../common/widgets/custom_pop_scope_handel_deep_link_widget.dart';
-import '../../../common/widgets/main_app_bar_widget.dart';
 import '../../../common/widgets/no_data_widget.dart';
+import '../../../common/widgets/web_app_bar_widget.dart';
 import '../../brand/domain/models/brand_model.dart';
 import '../../brand/providers/brand_provider.dart';
 import '../../brand/widgets/brand_item_widget.dart';
@@ -29,21 +30,25 @@ class _AllBrandsScreenState extends State<AllBrandsScreen> {
   @override
   void initState() {
     super.initState();
-    final brandProvider = Provider.of<BrandProvider>(context, listen: false);
-    if (brandProvider.brandList != null && brandProvider.brandList!.isNotEmpty) {
-      _load();
-    } else {
-      brandProvider.getBrandList(context, true).then((_) {
-        if (!mounted) return;
-        if (brandProvider.brandList != null &&
-            brandProvider.brandList!.isNotEmpty) {
-          _load();
-        }
-      });
-    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final brandProvider = Provider.of<BrandProvider>(context, listen: false);
+      if (brandProvider.brandList != null && brandProvider.brandList!.isNotEmpty) {
+        _load();
+      } else {
+        brandProvider.getBrandList(context, true).then((_) {
+          if (!mounted) return;
+          if (brandProvider.brandList != null &&
+              brandProvider.brandList!.isNotEmpty) {
+            _load();
+          }
+        });
+      }
+    });
   }
 
   Future<void> _load() async {
+    if (!mounted) return;
     final brandProvider = Provider.of<BrandProvider>(context, listen: false);
     int selectedIndex = brandProvider.brandIndex;
     if (selectedIndex < 0 ||
@@ -66,8 +71,13 @@ class _AllBrandsScreenState extends State<AllBrandsScreen> {
     return CustomPopScopeHandelDeepLinkWidget(
       child: Scaffold(
         appBar: (ResponsiveHelper.isDesktop(context) || kIsWeb)
-            ? const MainAppBarWidget()
-            : null,
+            ? const PreferredSize(
+                preferredSize: Size.fromHeight(120),
+                child: WebAppBarWidget(),
+              )
+            : CustomAppBarWidget(
+                title: getTranslated('brands', context),
+              ) as PreferredSizeWidget?,
         body: Center(
           child: SizedBox(
             width: Dimensions.webScreenWidth,

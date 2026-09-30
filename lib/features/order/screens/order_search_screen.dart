@@ -47,6 +47,15 @@ class _OrderSearchScreenState extends State<OrderSearchScreen> {
   }
 
   @override
+  void dispose() {
+    orderIdTextController.dispose();
+    phoneNumberTextController.dispose();
+    orderIdFocusNode.dispose();
+    phoneFocusNode.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return CustomPopScopeHandelDeepLinkWidget(
       child: Scaffold(

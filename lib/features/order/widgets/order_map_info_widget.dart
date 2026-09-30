@@ -125,20 +125,20 @@ class _OrderMapInfoWidgetState extends State<OrderMapInfoWidget> {
   }
 
   void _setMarker() async {
-    await BitmapDescriptor.asset(
+    final marker = await BitmapDescriptor.asset(
       const ImageConfiguration(size: Size(30, 50)),
       Images.restaurantMarker,
-    ).then((marker) {
-      _markers = {};
-      _markers.add(
-        Marker(
-          markerId: const MarkerId('marker'),
-          position: _latLng,
-          icon: marker,
-        ),
-      );
+    );
+    if (!mounted) return;
+    _markers = {};
+    _markers.add(
+      Marker(
+        markerId: const MarkerId('marker'),
+        position: _latLng,
+        icon: marker,
+      ),
+    );
 
-      setState(() {});
-    });
+    setState(() {});
   }
 }

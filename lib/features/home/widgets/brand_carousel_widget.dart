@@ -89,10 +89,14 @@ class BrandCarouselWidget extends StatelessWidget {
                                       enlargeFactor: 0.2,
                                       disableCenter: false,
                                       onPageChanged: (index, reason) {
-                                        Provider.of<BrandProvider>(
-                                          context,
-                                          listen: false,
-                                        ).setCurrentCarouselIndex(index);
+                                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                                          if (context.mounted) {
+                                            Provider.of<BrandProvider>(
+                                              context,
+                                              listen: false,
+                                            ).setCurrentCarouselIndex(index);
+                                          }
+                                        });
                                       },
                                     ),
                                     itemCount: brandProvider.brandList!.isEmpty
@@ -106,11 +110,6 @@ class BrandCarouselWidget extends StatelessWidget {
                                           brandProvider.brandList!.isNotEmpty &&
                                           index < brandProvider.brandList!.length) {
                                         brandProvider.onChangeBrandIndex(index);
-                                        brandProvider.getBrandProducts(
-                                          context,
-                                          brandProvider.brandList![index].id.toString(),
-                                          reload: true,
-                                        );
                                         RouteHelper.getAllBrandsScreen();
                                       }
                                     },

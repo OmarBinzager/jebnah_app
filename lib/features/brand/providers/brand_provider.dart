@@ -41,6 +41,7 @@ class BrandProvider extends ChangeNotifier {
   int get selectedProductIndex => _selectedProductIndex;
 
   void setCurrentCarouselIndex(int index) {
+    if (_currentCarouselIndex == index) return;
     _currentCarouselIndex = index;
     notifyListeners();
   }
@@ -111,9 +112,6 @@ class BrandProvider extends ChangeNotifier {
         onResponse: (data, _) {
           _featuredBrandList = [];
 
-          print('Data type: ${data.runtimeType}');
-          print('Data: $data');
-
           // التحقق من نوع البيانات - البيانات المرسلة هي List مباشرة
           if (data is List) {
             // إذا كانت البيانات قائمة مباشرة (مثل البيانات التي ترسلها)
@@ -136,7 +134,6 @@ class BrandProvider extends ChangeNotifier {
             }
           }
 
-          print('Loaded ${_featuredBrandList?.length} featured brands');
           notifyListeners();
         },
       );

@@ -25,6 +25,12 @@ class _BringChangeInputWidgetState extends State<BringChangeInputWidget> {
   final FocusNode _amountFocus = FocusNode();
 
   @override
+  void dispose() {
+    _amountFocus.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final ConfigModel configModel = Provider.of<SplashProvider>(
       context,

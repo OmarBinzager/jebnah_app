@@ -7,7 +7,6 @@ import '../../../helper/responsive_helper.dart';
 import '../../../helper/route_helper.dart';
 import '../../../localization/app_localization.dart';
 import '../../../localization/language_constraints.dart';
-import '../../../main.dart';
 import '../../../features/order/providers/order_provider.dart';
 import '../../../common/providers/product_provider.dart';
 import '../../../utill/color_resources.dart';
@@ -279,10 +278,11 @@ class _TrackOrderView extends StatelessWidget {
                 List<CartModel>? cartList = await orderProvider.reorderProduct(
                   '${orderList![index].id}',
                 );
+                if (!context.mounted) return;
                 if (cartList != null && cartList.isNotEmpty) {
                   showDialog(
-                    context: Get.context!,
-                    builder: (context) => const ReOrderDialogWidget(),
+                    context: context,
+                    builder: (ctx) => const ReOrderDialogWidget(),
                   );
                 }
               }

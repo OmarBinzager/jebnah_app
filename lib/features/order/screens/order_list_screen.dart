@@ -27,6 +27,8 @@ class _OrderListScreenState extends State<OrderListScreen>
 
   @override
   void initState() {
+    super.initState();
+
     final bool isLoggedIn = Provider.of<AuthProvider>(
       context,
       listen: false,
@@ -36,27 +38,32 @@ class _OrderListScreenState extends State<OrderListScreen>
       listen: false,
     ).changeActiveOrderStatus(true, isUpdate: false);
 
-    if (isLoggedIn) {
-      _tabController = TabController(
-        length: 2,
-        initialIndex: 0,
-        vsync: this,
-        animationDuration: const Duration(milliseconds: 100),
-      );
-      Provider.of<OrderProvider>(context, listen: false).getOrderList(context);
-    }
+    _tabController = TabController(
+      length: 2,
+      initialIndex: 0,
+      vsync: this,
+      animationDuration: const Duration(milliseconds: 100),
+    );
 
     _tabController?.addListener(() {
-      setState(() {
-        final OrderProvider orderProvider = Provider.of<OrderProvider>(
+      if (!mounted) return;
+      if (_tabController != null && !_tabController!.indexIsChanging) {
+        Provider.of<OrderProvider>(
           context,
           listen: false,
-        );
-        orderProvider.changeActiveOrderStatus(_tabController?.index == 0);
-      });
+        ).changeActiveOrderStatus(_tabController!.index == 0);
+      }
     });
 
-    super.initState();
+    if (isLoggedIn) {
+      Provider.of<OrderProvider>(context, listen: false).getOrderList(context);
+    }
+  }
+
+  @override
+  void dispose() {
+    _tabController?.dispose();
+    super.dispose();
   }
 
   @override
