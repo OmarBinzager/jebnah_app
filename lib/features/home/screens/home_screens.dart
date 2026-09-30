@@ -31,10 +31,8 @@ import '../../../utill/product_type.dart';
 import 'package:provider/provider.dart';
 
 import '../widgets/brand_carousel_widget.dart';
-import '../widgets/carousel_horizontal_banners_widget.dart';
 import '../widgets/category_grid2x2_widget.dart';
-import '../widgets/grid2x2_banners_widget.dart';
-import '../widgets/top_banners_widget.dart';
+import '../widgets/dynamic_banner_widget.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -184,34 +182,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         child: const CategoryWidget(),
                       ),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Consumer<BannerProvider>(
-                          builder: (context, banner, child) {
-                            return (banner.bannerList?.isEmpty ?? false)
-                                ? const SizedBox()
-                                : const TopBannersWidget();
-                          },
-                        ),
-                      ),
-
-                      SizedBox(height: Dimensions.paddingSizeSmall),
-                      Consumer<BannerProvider>(
-                        builder: (context, banner, child) {
-                          return (banner.bannerList?.isEmpty ?? false)
-                              ? const SizedBox()
-                              : const CarouselHorizontalBannersWidget();
-                        },
-                      ),
-
-                      SizedBox(height: Dimensions.paddingSizeSmall),
-                      Consumer<BannerProvider>(
-                        builder: (context, banner, child) {
-                          return (banner.bannerList?.isEmpty ?? false)
-                              ? const SizedBox()
-                              : const Grid2x2BannersWidget();
-                        },
-                      ),
+                      const DynamicBannerWidget(section: 'home_top'),
 
                       Padding(
                         padding: EdgeInsets.only(
@@ -234,6 +205,8 @@ class _HomeScreenState extends State<HomeScreen> {
                               : const SizedBox();
                         },
                       ),
+
+                      const DynamicBannerWidget(section: 'home_middle'),
 
                       Consumer<ProductProvider>(
                         builder: (context, productProvider, child) {
@@ -316,6 +289,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       ResponsiveHelper.isMobilePhone()
                           ? const SizedBox(height: 10)
                           : const SizedBox.shrink(),
+
+                      const DynamicBannerWidget(section: 'home_bottom'),
 
                       AllProductListWidget(scrollController: scrollController),
                     ],

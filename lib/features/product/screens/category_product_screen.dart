@@ -16,6 +16,7 @@ import '../../../utill/color_resources.dart';
 import '../../../utill/dimensions.dart';
 import '../../../utill/styles.dart';
 import 'package:provider/provider.dart';
+import '../../../features/home/widgets/dynamic_banner_widget.dart';
 import 'package:shimmer_animation/shimmer_animation.dart';
 
 class CategoryProductScreen extends StatefulWidget {
@@ -309,6 +310,9 @@ class _CategoryProductScreenState extends State<CategoryProductScreen> {
                   child: CustomScrollView(
                     controller: scrollController,
                     slivers: [
+                      const SliverToBoxAdapter(
+                        child: DynamicBannerWidget(section: 'category_page'),
+                      ),
                       SliverToBoxAdapter(
                         child:
                             (productProvider.subCategoryProductList?.products ??

@@ -1,6 +1,7 @@
 import 'dart:collection';
 import 'dart:ui';
 import 'package:dropdown_button2/dropdown_button2.dart';
+import '../../../features/home/widgets/dynamic_banner_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../../common/enums/footer_type_enum.dart';
@@ -1036,6 +1037,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                                                     ),
                                                   ),
 
+                                                  const DynamicBannerWidget(section: 'checkout_page'),
                                                   if (!ResponsiveHelper.isDesktop(
                                                     context,
                                                   ))

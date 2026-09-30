@@ -28,6 +28,25 @@ class BannerProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// فلترة البانرات حسب القسم مع ترتيبها تصاعدياً حسب sortOrder
+  List<BannerModel> getBannersForSection(String sectionName) {
+    if (_bannerList == null) return [];
+    final filtered = _bannerList!.where((banner) {
+      if (banner.sections == null || banner.sections!.isEmpty) return false;
+      return banner.sections!.contains(sectionName);
+    }).toList();
+
+    filtered.sort((a, b) {
+      final orderA = a.sortOrder ?? 999999;
+      final orderB = b.sortOrder ?? 999999;
+      final compare = orderA.compareTo(orderB);
+      if (compare != 0) return compare;
+      return (b.id ?? 0).compareTo(a.id ?? 0);
+    });
+
+    return filtered;
+  }
+
   Future<void> getBannerList(BuildContext context, bool reload) async {
     if (bannerList == null || reload) {
       DataSyncHelper.fetchAndSyncData(

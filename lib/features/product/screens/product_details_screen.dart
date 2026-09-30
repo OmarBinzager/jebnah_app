@@ -22,6 +22,7 @@ import '../../../features/product/widgets/selected_product_widget.dart';
 import '../../../features/product/widgets/variation_widget.dart';
 
 import '../../../features/splash/providers/splash_provider.dart';
+import '../../../features/home/widgets/dynamic_banner_widget.dart';
 import '../../../helper/cart_helper.dart';
 import '../../../helper/custom_snackbar_helper.dart';
 import '../../../helper/price_converter_helper.dart';
@@ -238,6 +239,8 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen>
                                               height:
                                                   Dimensions.paddingSizeDefault,
                                             ),
+                                            const DynamicBannerWidget(section: 'product_page'),
+                                            const SizedBox(height: Dimensions.paddingSizeDefault),
                                             RelatedProductsWidget(
                                               productId: widget.productId!,
                                             ),

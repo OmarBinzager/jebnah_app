@@ -21,6 +21,7 @@ import '../../../utill/styles.dart';
 import 'package:provider/provider.dart';
 
 import '../widgets/cart_details_widget.dart';
+import '../../../features/home/widgets/dynamic_banner_widget.dart';
 
 class CartScreen extends StatefulWidget {
   const CartScreen({super.key});
@@ -190,6 +191,7 @@ class _CartScreenState extends State<CartScreen> {
                                               ),
 
                                               const CartProductListWidget(),
+                                               const DynamicBannerWidget(section: 'cart_page'),
 
                                               CartDetailsWidget(
                                                 couponController:
