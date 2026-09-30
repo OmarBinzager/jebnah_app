@@ -6,6 +6,7 @@ import '../../../../common/providers/language_provider.dart';
 import '../../../../common/providers/localization_provider.dart';
 import '../../../../common/providers/theme_provider.dart';
 import '../../../../common/widgets/custom_image_widget.dart';
+import '../../../../common/widgets/custom_asset_image_widget.dart';
 import '../../../../common/widgets/custom_text_field_widget.dart';
 import '../../../../common/widgets/language_hover_widget.dart';
 import '../../../../common/widgets/on_hover_widget.dart';
@@ -197,7 +198,7 @@ class _WebAppBarWidgetState extends State<WebAppBarWidget> {
                                         height: 70,
                                         child: Consumer<ThemeProvider>(
                                           builder: (context, themeProvider, child) =>
-                                              Image.asset(
+                                              CustomAssetImageWidget(
                                                 themeProvider.darkTheme
                                                     ? Images.darkAppLogo
                                                     : Images.webBarLogoPlaceHolder,
@@ -514,7 +515,7 @@ class _WebAppBarWidgetState extends State<WebAppBarWidget> {
                 child: SizedBox(
                   height: 38,
                   child: Consumer<ThemeProvider>(
-                    builder: (context, themeProvider, child) => Image.asset(
+                    builder: (context, themeProvider, child) => CustomAssetImageWidget(
                       themeProvider.darkTheme
                           ? Images.darkAppLogo
                           : Images.webBarLogoPlaceHolder,

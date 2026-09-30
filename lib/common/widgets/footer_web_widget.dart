@@ -16,6 +16,7 @@ import '../../../../utill/images.dart';
 import '../../../../utill/styles.dart';
 import '../../../../helper/custom_snackbar_helper.dart';
 import '../../../../common/widgets/text_hover_widget.dart';
+import '../../../../common/widgets/custom_asset_image_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
@@ -155,7 +156,7 @@ class FooterWebWidget extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Consumer<ThemeProvider>(
-          builder: (context, themeProvider, child) => Image.asset(
+          builder: (context, themeProvider, child) => CustomAssetImageWidget(
             themeProvider.darkTheme
                 ? Images.darkAppLogo
                 : Images.webBarLogoPlaceHolder,

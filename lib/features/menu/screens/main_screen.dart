@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../../../common/widgets/custom_pop_scope_widget.dart';
+import '../../../common/widgets/custom_asset_image_widget.dart';
 import '../../../features/menu/domain/models/custom_drawer_controller_model.dart';
 import '../../../features/refer_and_earn/screens/refer_hint_widget.dart';
 import '../../../helper/responsive_helper.dart';
@@ -105,7 +106,7 @@ class _MainScreenState extends State<MainScreen> {
                             title: splash.pageIndex == 0
                                 ? Row(
                                     children: [
-                                      Image.asset(
+                                      CustomAssetImageWidget(
                                         isDarkTheme
                                             ? Images.darkAppLogo
                                             : Images.webBarLogoPlaceHolder,

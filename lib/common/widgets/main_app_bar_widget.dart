@@ -8,6 +8,7 @@ import '../../../../utill/app_constants.dart';
 import '../../../../utill/dimensions.dart';
 import '../../../../utill/images.dart';
 import '../../../../utill/styles.dart';
+import '../../../../common/widgets/custom_asset_image_widget.dart';
 import 'package:provider/provider.dart';
 
 class MainAppBarWidget extends StatelessWidget implements PreferredSizeWidget {
@@ -34,7 +35,7 @@ class MainAppBarWidget extends StatelessWidget implements PreferredSizeWidget {
                 child: Row(
                   children: [
                     Consumer<ThemeProvider>(
-                      builder: (context, themeProvider, child) => Image.asset(
+                      builder: (context, themeProvider, child) => CustomAssetImageWidget(
                         themeProvider.darkTheme
                             ? Images.darkAppLogo
                             : Images.webBarLogoPlaceHolder,
