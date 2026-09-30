@@ -259,7 +259,8 @@ class Product {
 
       _maximumOrderQuantity =
           int.tryParse(json['maximum_order_quantity']?.toString() ?? '1') ?? 1;
-      _categoryDiscount = json['category_discount'] != null
+      _categoryDiscount = (json['category_discount'] != null &&
+              json['category_discount'] is Map<String, dynamic>)
           ? CategoryDiscount.fromJson(json['category_discount'])
           : null;
 
