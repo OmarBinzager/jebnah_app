@@ -48,6 +48,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Future<void> _initializeData() async {
+    if (!mounted) return;
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final isLoggedIn = authProvider.isLoggedIn();
 
@@ -58,20 +59,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
 
     if (isLoggedIn) {
-      await Provider.of<ProfileProvider>(
-        context,
-        listen: false,
-      ).getUserInfo(true);
-      await Provider.of<LocationProvider>(
-        context,
-        listen: false,
-      ).initAddressList();
+      final profileProvider = Provider.of<ProfileProvider>(context, listen: false);
+      final locationProvider = Provider.of<LocationProvider>(context, listen: false);
+
+      await profileProvider.getUserInfo(true);
+      if (!mounted) return;
+      await locationProvider.initAddressList();
     } else {
+      if (!mounted) return;
       Provider.of<CartProvider>(context, listen: false).getCartData();
     }
   }
 
   void _updateUserData() {
+    if (!mounted) return;
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final isLoggedIn = authProvider.isLoggedIn();
 
@@ -82,7 +83,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         });
       }
 
-      if (isLoggedIn) {
+      if (isLoggedIn && mounted) {
         Provider.of<ProfileProvider>(context, listen: false).getUserInfo(true);
       }
     }

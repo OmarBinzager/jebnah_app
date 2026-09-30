@@ -586,6 +586,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
 
     if (profileProvider.userInfoModel == null) {
       await profileProvider.getUserInfo(true, isUpdate: false).then((_) {
+        if (!mounted) return;
         _firstNameController?.text = profileProvider.userInfoModel?.fName ?? '';
         _lastNameController?.text = profileProvider.userInfoModel?.lName ?? '';
         _emailController?.text = profileProvider.userInfoModel?.email ?? '';

@@ -124,14 +124,20 @@ class MapWidget extends StatelessWidget {
                     }
                     if (targetLat != 0 || targetLon != 0) {
                       Future.delayed(const Duration(milliseconds: 800)).then((value) {
-                        locationProvider.mapController?.moveCamera(
-                          CameraUpdate.newCameraPosition(
-                            CameraPosition(
-                              target: LatLng(targetLat, targetLon),
-                              zoom: 17,
+                        try {
+                          locationProvider.mapController?.moveCamera(
+                            CameraUpdate.newCameraPosition(
+                              CameraPosition(
+                                target: LatLng(targetLat, targetLon),
+                                zoom: 17,
+                              ),
                             ),
-                          ),
-                        );
+                          );
+                        } catch (e) {
+                          debugPrint('mapController moveCamera error: $e');
+                        }
+                      }).catchError((e) {
+                        debugPrint('mapController moveCamera error: $e');
                       });
                     }
                   }
@@ -149,14 +155,20 @@ class MapWidget extends StatelessWidget {
                   }
                   if (targetLat != 0 || targetLon != 0) {
                     Future.delayed(const Duration(milliseconds: 800)).then((value) {
-                      locationProvider.mapController?.moveCamera(
-                        CameraUpdate.newCameraPosition(
-                          CameraPosition(
-                            target: LatLng(targetLat, targetLon),
-                            zoom: 17,
+                      try {
+                        locationProvider.mapController?.moveCamera(
+                          CameraUpdate.newCameraPosition(
+                            CameraPosition(
+                              target: LatLng(targetLat, targetLon),
+                              zoom: 17,
+                            ),
                           ),
-                        ),
-                      );
+                        );
+                      } catch (e) {
+                        debugPrint('mapController moveCamera error: $e');
+                      }
+                    }).catchError((e) {
+                      debugPrint('mapController moveCamera error: $e');
                     });
                   }
                 }

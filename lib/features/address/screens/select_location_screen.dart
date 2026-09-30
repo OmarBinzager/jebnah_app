@@ -135,25 +135,29 @@ class _SelectLocationScreenState extends State<SelectLocationScreen> {
                         value,
                       ) {
                         _controller = controller;
-                        _controller!.moveCamera(
-                          CameraUpdate.newCameraPosition(
-                            CameraPosition(
-                              target:
-                                  locationProvider.pickPosition.longitude
-                                              .toInt() ==
-                                          0 &&
-                                      locationProvider.pickPosition.latitude
-                                              .toInt() ==
-                                          0
-                                  ? _initialPosition
-                                  : LatLng(
-                                      locationProvider.pickPosition.latitude,
-                                      locationProvider.pickPosition.longitude,
-                                    ),
-                              zoom: 15,
+                        try {
+                          _controller?.moveCamera(
+                            CameraUpdate.newCameraPosition(
+                              CameraPosition(
+                                target:
+                                    locationProvider.pickPosition.longitude
+                                                .toInt() ==
+                                            0 &&
+                                        locationProvider.pickPosition.latitude
+                                                .toInt() ==
+                                            0
+                                    ? _initialPosition
+                                    : LatLng(
+                                        locationProvider.pickPosition.latitude,
+                                        locationProvider.pickPosition.longitude,
+                                      ),
+                                zoom: 15,
+                              ),
                             ),
-                          ),
-                        );
+                          );
+                        } catch (e) {
+                          debugPrint('select_location moveCamera error: $e');
+                        }
                       });
                     },
                     style: '[]',
@@ -228,27 +232,33 @@ class _SelectLocationScreenState extends State<SelectLocationScreen> {
                                         Future.delayed(
                                           const Duration(milliseconds: 800),
                                         ).then((value) {
-                                          widget.googleMapController!
-                                              .animateCamera(
-                                                CameraUpdate.newCameraPosition(
-                                                  CameraPosition(
-                                                    target: LatLng(
-                                                      locationProvider
-                                                          .pickPosition
-                                                          .latitude,
-                                                      locationProvider
-                                                          .pickPosition
-                                                          .longitude,
+                                          try {
+                                            widget.googleMapController
+                                                ?.animateCamera(
+                                                  CameraUpdate.newCameraPosition(
+                                                    CameraPosition(
+                                                      target: LatLng(
+                                                        locationProvider
+                                                            .pickPosition
+                                                            .latitude,
+                                                        locationProvider
+                                                            .pickPosition
+                                                            .longitude,
+                                                      ),
+                                                      zoom: 16,
                                                     ),
-                                                    zoom: 16,
                                                   ),
-                                                ),
-                                              );
+                                                );
+                                          } catch (e) {
+                                            debugPrint('googleMapController animateCamera error: $e');
+                                          }
                                           if (ResponsiveHelper.isWeb()) {
                                             locationProvider.setAddAddressData(
                                               true,
                                             );
                                           }
+                                        }).catchError((e) {
+                                          debugPrint('googleMapController animateCamera error: $e');
                                         });
                                       } else {
                                         if (locationProvider.mapController !=
@@ -256,26 +266,32 @@ class _SelectLocationScreenState extends State<SelectLocationScreen> {
                                           Future.delayed(
                                             const Duration(milliseconds: 800),
                                           ).then((value) {
-                                            locationProvider.mapController!
-                                                .animateCamera(
-                                                  CameraUpdate.newCameraPosition(
-                                                    CameraPosition(
-                                                      target: LatLng(
-                                                        double.parse(
-                                                          locationProvider
-                                                                  .pickedAddressLatitude ??
-                                                              '0',
+                                            try {
+                                              locationProvider.mapController
+                                                  ?.animateCamera(
+                                                    CameraUpdate.newCameraPosition(
+                                                      CameraPosition(
+                                                        target: LatLng(
+                                                          double.parse(
+                                                            locationProvider
+                                                                    .pickedAddressLatitude ??
+                                                                '0',
+                                                          ),
+                                                          double.parse(
+                                                            locationProvider
+                                                                    .pickedAddressLongitude ??
+                                                                '0',
+                                                          ),
                                                         ),
-                                                        double.parse(
-                                                          locationProvider
-                                                                  .pickedAddressLongitude ??
-                                                              '0',
-                                                        ),
+                                                        zoom: 16,
                                                       ),
-                                                      zoom: 16,
                                                     ),
-                                                  ),
-                                                );
+                                                  );
+                                            } catch (e) {
+                                              debugPrint('mapController animateCamera error: $e');
+                                            }
+                                          }).catchError((e) {
+                                            debugPrint('mapController animateCamera error: $e');
                                           });
                                         }
                                       }

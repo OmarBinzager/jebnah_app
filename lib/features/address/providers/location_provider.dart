@@ -101,6 +101,10 @@ class LocationProvider with ChangeNotifier {
   CameraPosition? cameraPosition;
   bool isUpdateAddress = true;
 
+  void resetMapController() {
+    mapController = null;
+  }
+
   void setDefaultLocation({required double latitude, required double longitude}) {
     if ((_position.latitude == 0 && _position.longitude == 0) && (latitude != 0 || longitude != 0)) {
       _position = Position(
@@ -168,14 +172,18 @@ class LocationProvider with ChangeNotifier {
     }
 
     if (mapController != null && (myPosition.latitude != 0 || myPosition.longitude != 0)) {
-      mapController.animateCamera(
-        CameraUpdate.newCameraPosition(
-          CameraPosition(
-            target: LatLng(myPosition.latitude, myPosition.longitude),
-            zoom: 17,
+      try {
+        await mapController.animateCamera(
+          CameraUpdate.newCameraPosition(
+            CameraPosition(
+              target: LatLng(myPosition.latitude, myPosition.longitude),
+              zoom: 17,
+            ),
           ),
-        ),
-      );
+        );
+      } catch (e) {
+        debugPrint('mapController animateCamera error: $e');
+      }
     }
     // String _myPlaceMark;
     if (myPosition.latitude != 0 || myPosition.longitude != 0) {
@@ -448,17 +456,21 @@ class LocationProvider with ChangeNotifier {
     _changeAddress = false;
 
     if (mapController != null) {
-      mapController.animateCamera(
-        CameraUpdate.newCameraPosition(
-          CameraPosition(
-            target: LatLng(
-              detail.location!.latitude!,
-              detail.location!.longitude!,
+      try {
+        await mapController.animateCamera(
+          CameraUpdate.newCameraPosition(
+            CameraPosition(
+              target: LatLng(
+                detail.location!.latitude!,
+                detail.location!.longitude!,
+              ),
+              zoom: 16,
             ),
-            zoom: 16,
           ),
-        ),
-      );
+        );
+      } catch (e) {
+        debugPrint('mapController setLocation animateCamera error: $e');
+      }
     }
     _loading = false;
     notifyListeners();

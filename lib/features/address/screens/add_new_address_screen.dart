@@ -253,7 +253,8 @@ class _AddNewAddressScreenState extends State<AddNewAddressScreen> {
       }
     }
 
-    await locationProvider.initializeAllAddressType(context: context);
+    locationProvider.initializeAllAddressType(context: context);
+    if (!mounted) return;
     locationProvider.updateAddressStatusMessage(message: '');
     locationProvider.onChangeErrorMessage(message: '');
 
