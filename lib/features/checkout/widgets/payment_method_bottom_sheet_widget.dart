@@ -651,8 +651,11 @@ class _PaymentMethodBottomSheetWidgetState
         discountAmount: cartList[index].discountedPrice,
         quantity: cartList[index].quantity,
         taxAmount: cartList[index].tax,
-        variant: '',
-        variation: [Variation(type: cartList[index].variation?.type)],
+        variant: cartList[index].variation?.type ?? '',
+        variation: (cartList[index].variation?.type != null &&
+                cartList[index].variation!.type!.trim().isNotEmpty)
+            ? [Variation(type: cartList[index].variation?.type)]
+            : [],
       );
       carts.add(cart);
     }

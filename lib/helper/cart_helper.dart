@@ -19,18 +19,19 @@ class CartHelper {
     double? priceWithDiscount;
 
     for (int index = 0; index < (product.choiceOptions?.length ?? 0); index++) {
-      if (product.choiceOptions?[index].options?.isNotEmpty ?? false) {
-        if ((product.choiceOptions?[index].options?.length ?? 0) > index) {
-          if (variationIndexList != null) {
-            variationList.add(
-              product.choiceOptions?[index].options?[variationIndexList[index]]
-                  .replaceAll(' ', ''),
-            );
-          } else {
-            variationList.add(
-              product.choiceOptions?[index].options?[index].replaceAll(' ', ''),
-            );
-          }
+      final options = product.choiceOptions?[index].options;
+      if (options != null && options.isNotEmpty) {
+        if (variationIndexList != null &&
+            variationIndexList.length > index &&
+            variationIndexList[index] >= 0 &&
+            variationIndexList[index] < options.length) {
+          variationList.add(
+            options[variationIndexList[index]].replaceAll(' ', ''),
+          );
+        } else {
+          variationList.add(
+            options[0].replaceAll(' ', ''),
+          );
         }
       }
     }
