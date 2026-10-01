@@ -253,11 +253,6 @@ class PlaceOrderButtonWidget extends StatelessWidget {
                             String protocol = html.window.location.protocol;
                             String port = html.window.location.port;
 
-                            if (authProvider.isLoggedIn() &&
-                                (profileProvider.userInfoModel?.id == null)) {
-                              await profileProvider.getUserInfo(true);
-                            }
-
                             List<CartModel> cartList =
                                 Provider.of<CartProvider>(
                                   context,
@@ -339,7 +334,7 @@ class PlaceOrderButtonWidget extends StatelessWidget {
                                   orderProvider.bringChangeAmount,
                               isGuest: authProvider.isLoggedIn() ? "0" : "1",
                               customerId: authProvider.isLoggedIn()
-                                  ? (profileProvider.userInfoModel?.id?.toString() ?? '')
+                                  ? profileProvider.userInfoModel?.id.toString()
                                   : '',
                               paymentPlatform: kIsWeb ? 'web' : 'app',
                               callBack: ResponsiveHelper.isWeb()

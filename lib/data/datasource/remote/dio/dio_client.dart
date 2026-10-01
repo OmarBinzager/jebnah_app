@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
@@ -112,43 +111,23 @@ class DioClient {
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    if (files == null || files.isEmpty) {
-      return await post(
-        uri,
-        data: data,
-        queryParameters: queryParameters,
-        options: options,
-        cancelToken: cancelToken,
-        onSendProgress: onSendProgress,
-        onReceiveProgress: onReceiveProgress,
-      );
-    }
-
     debugPrint('apiCall ==> url=> $uri \nparams---> $queryParameters\nheader=> ${dio!.options.headers}');
 
     try{
       List<MultipartFile> fileList = [];
 
-      for(int i = 0; i < files.length; i++) {
-        fileList.add(MultipartFile.fromBytes(
-          await files[i]!.readAsBytes(),
-          filename: files[i]!.name,
-        ));
+      if(files != null) {
+        for(int i = 0; i < files.length; i++) {
+          fileList.add(MultipartFile.fromBytes(
+            await files[i]!.readAsBytes(),
+            filename: files[i]!.name,
+          ));
+        }
       }
 
       if(fileList.isNotEmpty) {
         data?.addAll({
           '${fileKey ?? 'image'}[]' : fileList,
-        });
-      }
-
-      if (kIsWeb && data != null) {
-        data.forEach((key, value) {
-          if (value is List && value is! List<MultipartFile>) {
-            data[key] = jsonEncode(value);
-          } else if (value is Map) {
-            data[key] = jsonEncode(value);
-          }
         });
       }
 

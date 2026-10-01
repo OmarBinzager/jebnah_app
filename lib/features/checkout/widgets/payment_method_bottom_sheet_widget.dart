@@ -620,7 +620,7 @@ class _PaymentMethodBottomSheetWidgetState
     required OrderProvider orderProvider,
     required double? weight,
     required BuildContext context,
-  }) async {
+  }) {
     final AuthProvider authProvider = Provider.of<AuthProvider>(
       context,
       listen: false,
@@ -652,18 +652,12 @@ class _PaymentMethodBottomSheetWidgetState
         quantity: cartList[index].quantity,
         taxAmount: cartList[index].tax,
         variant: cartList[index].variation?.type ?? '',
-        variation:
-            (cartList[index].variation?.type != null &&
+        variation: (cartList[index].variation?.type != null &&
                 cartList[index].variation!.type!.trim().isNotEmpty)
             ? [Variation(type: cartList[index].variation?.type)]
             : [],
       );
       carts.add(cart);
-    }
-
-    if (authProvider.isLoggedIn() &&
-        (profileProvider.userInfoModel?.id == null)) {
-      await profileProvider.getUserInfo(true);
     }
 
     PlaceOrderModel placeOrderBody = PlaceOrderModel(
@@ -696,7 +690,7 @@ class _PaymentMethodBottomSheetWidgetState
       bringChangeAmount: orderProvider.bringChangeAmount,
       isGuest: authProvider.isLoggedIn() ? "0" : "1",
       customerId: authProvider.isLoggedIn()
-          ? (profileProvider.userInfoModel?.id?.toString() ?? '')
+          ? profileProvider.userInfoModel?.id.toString()
           : '',
     );
     orderProvider.placeOrder(placeOrderBody, _callback);

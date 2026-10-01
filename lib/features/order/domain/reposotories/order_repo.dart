@@ -80,17 +80,12 @@ class OrderRepo {
     List<XFile?>? imageNote,
   }) async {
     try {
-      final response = (imageNote != null && imageNote.isNotEmpty)
-          ? await dioClient!.postMultipart(
-              AppConstants.placeOrderUri,
-              files: imageNote,
-              fileKey: 'order_images',
-              data: orderBody.toJson(),
-            )
-          : await dioClient!.post(
-              AppConstants.placeOrderUri,
-              data: orderBody.toJson(),
-            );
+      final response = await dioClient!.postMultipart(
+        AppConstants.placeOrderUri,
+        files: imageNote ?? [],
+        fileKey: 'order_images',
+        data: orderBody.toJson(),
+      );
       return ApiResponseModel.withSuccess(response);
     } catch (e) {
       return ApiResponseModel.withError(ApiErrorHandler.getMessage(e));

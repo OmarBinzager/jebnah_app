@@ -20,7 +20,6 @@ import '../../../common/widgets/web_app_bar_widget.dart';
 import '../../../features/address/domain/models/address_model.dart';
 import '../../../features/address/providers/location_provider.dart';
 import '../../../features/auth/providers/auth_provider.dart';
-import '../../../features/profile/providers/profile_provider.dart';
 import '../../../features/checkout/domain/models/check_out_model.dart';
 import '../../../features/checkout/widgets/delivery_address_widget.dart';
 import '../../../features/checkout/widgets/details_widget.dart';
@@ -1156,9 +1155,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     splashProvider.getOfflinePaymentMethod(true);
 
     _isLoggedIn = authProvider.isLoggedIn();
-    if (_isLoggedIn) {
-      Provider.of<ProfileProvider>(context, listen: false).getUserInfo(true);
-    }
 
     selfPickup = CheckOutHelper.isSelfPickup(orderType: widget.orderType ?? '');
     orderProvider.setOrderType(widget.orderType, notify: false);
