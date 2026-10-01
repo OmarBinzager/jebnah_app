@@ -513,13 +513,13 @@ class _WebAppBarWidgetState extends State<WebAppBarWidget> {
                   }
                 },
                 child: SizedBox(
-                  height: 38,
+                  height: 42,
                   child: Consumer<ThemeProvider>(
                     builder: (context, themeProvider, child) => CustomAssetImageWidget(
                       themeProvider.darkTheme
                           ? Images.darkAppLogo
                           : Images.webBarLogoPlaceHolder,
-                      height: 38,
+                      height: 42,
                       fit: BoxFit.contain,
                     ),
                   ),

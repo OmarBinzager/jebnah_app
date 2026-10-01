@@ -110,7 +110,7 @@ class _MainScreenState extends State<MainScreen> {
                                         isDarkTheme
                                             ? Images.darkAppLogo
                                             : Images.webBarLogoPlaceHolder,
-                                        height: 138,
+                                        height: 42,
                                         fit: BoxFit.contain,
                                       ),
                                       const SizedBox(

@@ -160,7 +160,7 @@ class FooterWebWidget extends StatelessWidget {
             themeProvider.darkTheme
                 ? Images.darkAppLogo
                 : Images.webBarLogoPlaceHolder,
-            width: 125,
+            width: 140,
             fit: BoxFit.contain,
           ),
         ),
