@@ -198,7 +198,9 @@ class PlaceOrderModel {
     }
     data['is_partial'] = _isPartial;
     data['bring_change_amount'] = _bringChangeAmount;
-    data['customer_id'] = _customerId;
+    if (_customerId != null && _customerId!.trim().isNotEmpty && _customerId != 'null') {
+      data['customer_id'] = _customerId;
+    }
     data['is_guest'] = _isGuest;
     data['payment_platform'] = _paymentPlatform;
     data['call_back'] = _callBack;
