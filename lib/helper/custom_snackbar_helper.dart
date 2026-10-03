@@ -12,6 +12,28 @@ enum SnackBarStatus { error, success, alert, info }
 
 enum SnackBarWebPosition { topLeft, topRight, bottomLeft, bottomRight, center }
 
+/// Sanitizes a message before showing it in any snackbar/toast.
+/// Prevents raw HTML or excessively long server error strings from being
+/// displayed to the user.
+String? _sanitizeMessage(String? message) {
+  if (message == null || message.trim().isEmpty) return message;
+  final trimmed = message.trim();
+  // If the message looks like HTML (starts with < or contains HTML tags)
+  // replace it with a generic error message.
+  if (trimmed.startsWith('<') ||
+      trimmed.startsWith('<!') ||
+      trimmed.toLowerCase().startsWith('<html') ||
+      trimmed.contains('<body') ||
+      trimmed.contains('<head')) {
+    return 'something_went_wrong';
+  }
+  // Truncate extremely long messages that are likely raw server errors
+  if (trimmed.length > 300) {
+    return '${trimmed.substring(0, 200)}...';
+  }
+  return message;
+}
+
 void showCustomSnackBarHelper(
   String? message, {
   bool isError = true,
@@ -19,11 +41,12 @@ void showCustomSnackBarHelper(
   SnackBarStatus? snackBarStatus,
   SnackBarWebPosition? snackBarWebPosition = SnackBarWebPosition.topRight,
 }) {
+  final String? safeMessage = _sanitizeMessage(message);
   final Size size = MediaQuery.of(Get.context!).size;
 
   if (ResponsiveHelper.isDesktop(Get.context!)) {
     CustomToast().show(
-      message ?? '',
+      safeMessage ?? '',
       isError: isError,
       snackBarStatus: snackBarStatus,
       navigatorKey: navigatorKey,
@@ -77,7 +100,7 @@ void showCustomSnackBarHelper(
 
                     Flexible(
                       child: Text(
-                        message ?? '',
+                        safeMessage ?? '',
                         style: poppinsRegular.copyWith(
                           color: Colors.white,
                           fontSize: Dimensions.fontSizeDefault,
@@ -101,8 +124,9 @@ EdgeInsets? snackBarMargin(
   SnackBarWebPosition? snackBarWebPosition,
   Size size,
 ) {
-  if (!ResponsiveHelper.isDesktop(Get.context!))
+  if (!ResponsiveHelper.isDesktop(Get.context!)) {
     return EdgeInsets.only(bottom: size.height * 0.1);
+  }
 
   switch (snackBarWebPosition) {
     case SnackBarWebPosition.bottomLeft:

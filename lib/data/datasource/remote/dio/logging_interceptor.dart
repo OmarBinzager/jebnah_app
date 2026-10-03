@@ -12,7 +12,6 @@ class LoggingInterceptor extends InterceptorsWrapper {
       print("<-- END HTTP");
     }
 
-
     return super.onRequest(options, handler);
   }
 
@@ -22,8 +21,35 @@ class LoggingInterceptor extends InterceptorsWrapper {
       print("<-- ${response.statusCode} ${response.requestOptions.method} ${response.requestOptions.path}");
     }
 
-    String responseAsString = response.data.toString();
+    // Detect HTML responses that should be JSON — reject them before they
+    // propagate into the app and appear as raw HTML text in error messages.
+    final contentType = response.headers.value('content-type') ?? '';
+    final isHtmlContentType = contentType.contains('text/html');
+    final dataStr = response.data is String ? (response.data as String).trimLeft() : '';
+    final startsWithHtml = dataStr.startsWith('<!') ||
+        dataStr.toLowerCase().startsWith('<html') ||
+        dataStr.startsWith('<?xml');
 
+    if (isHtmlContentType || startsWithHtml) {
+      if (kDebugMode) {
+        print(
+          'LoggingInterceptor: HTML response detected for ${response.requestOptions.path}. '
+          'Expected JSON. Rejecting response.',
+        );
+      }
+      return handler.reject(
+        DioException(
+          requestOptions: response.requestOptions,
+          response: response,
+          type: DioExceptionType.badResponse,
+          message:
+              'Server returned an HTML page instead of JSON. '
+              'The API endpoint may be unavailable or redirecting to the website.',
+        ),
+      );
+    }
+
+    String responseAsString = response.data.toString();
     if (responseAsString.length > maxCharactersPerLine) {
       int iterations = (responseAsString.length / maxCharactersPerLine).floor();
       for (int i = 0; i <= iterations; i++) {
@@ -31,7 +57,6 @@ class LoggingInterceptor extends InterceptorsWrapper {
         if (endingIndex > responseAsString.length) {
           endingIndex = responseAsString.length;
         }
-
       }
     }
 

@@ -84,22 +84,44 @@ class SplashProvider extends ChangeNotifier {
           .getConfig(source: DataSourceEnum.local);
 
       if (responseModel.isSuccess) {
-        _configModel = ConfigModel.fromJson(
-          jsonDecode(responseModel.response!.response),
-        );
-        _baseUrls = _configModel?.baseUrls;
-        if (context.mounted) {
-          _onConfigAction(context, fromNotification);
-        }
+        try {
+          final decoded = jsonDecode(responseModel.response!.response);
+          if (decoded is Map<String, dynamic>) {
+            _configModel = ConfigModel.fromJson(decoded);
+            _baseUrls = _configModel?.baseUrls;
+            if (context.mounted) {
+              _onConfigAction(context, fromNotification);
+            }
 
+            if (context.mounted) {
+              initConfig(
+                context,
+                fromNotification: fromNotification,
+                source: DataSourceEnum.client,
+              );
+            }
+            return _configModel;
+          } else {
+            if (kDebugMode) {
+              print(
+                'SplashProvider: Local cache contained unexpected data type '
+                '(${decoded.runtimeType}). Falling back to API fetch.',
+              );
+            }
+          }
+        } catch (e) {
+          if (kDebugMode) {
+            print('SplashProvider: Failed to parse local cache config: $e');
+          }
+        }
+        // Fall through to fresh API fetch if local parse failed
         if (context.mounted) {
-          initConfig(
+          return await initConfig(
             context,
             fromNotification: fromNotification,
             source: DataSourceEnum.client,
           );
         }
-        return _configModel;
       } else {
         if (context.mounted) {
           return await initConfig(
@@ -109,20 +131,35 @@ class SplashProvider extends ChangeNotifier {
           );
         }
       }
+
     } else {
       ApiResponseModel<Response> apiResponseModel = await splashRepo!.getConfig(
         source: DataSourceEnum.client,
       );
 
       if (apiResponseModel.isSuccess) {
-        _configModel = ConfigModel.fromJson(apiResponseModel.response?.data);
-        _baseUrls = _configModel?.baseUrls;
+        // Guard against the server returning an HTML page instead of JSON.
+        // If the response data is not a Map, we cannot parse it as a config.
+        final responseData = apiResponseModel.response?.data;
+        if (responseData is Map<String, dynamic>) {
+          _configModel = ConfigModel.fromJson(responseData);
+          _baseUrls = _configModel?.baseUrls;
 
-        if (context.mounted) {
-          await _onConfigAction(context, fromNotification);
+          if (context.mounted) {
+            await _onConfigAction(context, fromNotification);
+          }
+        } else {
+          if (kDebugMode) {
+            print(
+              'SplashProvider.initConfig: Unexpected response type '
+              '(${responseData.runtimeType}) from config API. '
+              'Expected Map<String, dynamic>. The server may have returned an HTML page.',
+            );
+          }
         }
       }
     }
+
 
     return _configModel;
   }
