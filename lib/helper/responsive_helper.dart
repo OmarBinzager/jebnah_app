@@ -15,31 +15,30 @@ class ResponsiveHelper {
     return kIsWeb;
   }
 
+  /// Returns true for screens that should use mobile layout.
+  /// On native platforms (iOS/Android), ALL devices — including iPad —
+  /// use the mobile layout. On web, only screens narrower than 650px.
   static bool isMobile() {
+    if (!kIsWeb) return true;
     final size = MediaQuery.of(Get.context!).size.width;
-    if (size < 650 || !kIsWeb) {
-      return true;
-    } else {
-      return false;
-    }
+    return size < 650;
   }
 
+  /// Returns true for tablet-sized screens (660–1299 px wide).
+  /// Note: On native iOS/Android builds this always returns false because
+  /// [isMobile] takes precedence. Use [isTab] only in web contexts.
   static bool isTab(BuildContext context) {
+    if (!kIsWeb) return false;
     final size = MediaQuery.of(context).size.width;
-    if (size < 1300 && size >= 660) {
-      return true;
-    } else {
-      return false;
-    }
+    return size >= 660 && size < 1300;
   }
 
+  /// Returns true only for wide desktop screens (≥ 1300 px).
+  /// On native iOS/Android builds this always returns false.
   static bool isDesktop(BuildContext context) {
+    if (!kIsWeb) return false;
     final size = MediaQuery.of(context).size.width;
-    if (size >= 1300) {
-      return true;
-    } else {
-      return false;
-    }
+    return size >= 1300;
   }
 
   Future<void> showDialogOrBottomSheet(

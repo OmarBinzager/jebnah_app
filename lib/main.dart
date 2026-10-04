@@ -269,6 +269,9 @@ class _MyAppState extends State<MyApp> {
   }
 
   void _onRemoveLoader() {
+    // Only relevant on web — html.document is a no-op on native platforms
+    // but guarding explicitly avoids any unexpected behavior on iOS/Android.
+    if (!kIsWeb) return;
     final preloader = html.document.querySelector('.preloader');
     if (preloader != null) {
       Future.delayed(const Duration(seconds: 1)).then((_) {
@@ -333,7 +336,8 @@ class _MyAppState extends State<MyApp> {
                       child: Stack(
                         children: [
                           child ?? const SizedBox.shrink(),
-                          if (ResponsiveHelper.isDesktop(context))
+                          if (ResponsiveHelper.isDesktop(context) &&
+                              splashProvider.configModel != null)
                             Positioned.fill(
                               child: Align(
                                 alignment: Alignment.bottomRight,
