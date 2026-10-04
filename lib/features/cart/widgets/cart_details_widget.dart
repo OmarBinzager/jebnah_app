@@ -78,12 +78,10 @@ class CartDetailsWidget extends StatelessWidget {
                   ),
                   const SizedBox(width: Dimensions.paddingSizeSmall),
 
-                  if (configModel.selfPickup == 1) ...[
-                    DeliveryOptionWidget(
-                      value: 'self_pickup',
-                      title: getTranslated('self_pickup', context),
-                    ),
-                  ],
+                  DeliveryOptionWidget(
+                    value: 'self_pickup',
+                    title: getTranslated('self_pickup', context),
+                  ),
                 ],
               ),
             ],

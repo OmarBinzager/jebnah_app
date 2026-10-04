@@ -38,9 +38,15 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   @override
   void initState() {
     super.initState();
-    _countryDialCode = CountryCode.fromCountryCode(
-      Provider.of<SplashProvider>(context, listen: false).configModel!.country!,
-    ).dialCode;
+    try {
+      final config =
+          Provider.of<SplashProvider>(context, listen: false).configModel;
+      if (config?.country != null) {
+        _countryDialCode =
+            CountryCode.fromCountryCode(config!.country!).dialCode;
+      }
+    } catch (_) {}
+    _countryDialCode ??= '+967';
   }
 
   @override
@@ -55,15 +61,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     ).configModel!;
     double width = MediaQuery.of(context).size.width;
 
-    String forgotPasswordMethod = "phone";
-
-    if ((configModel.forgetPassword?.phone == 1 ||
-            configModel.forgetPassword?.firebase == 1) &&
-        (configModel.forgetPassword?.email == 1)) {
-      forgotPasswordMethod = "both";
-    } else if ((configModel.forgetPassword?.email == 1)) {
-      forgotPasswordMethod = "email";
-    }
+    String forgotPasswordMethod = "both";
 
     return CustomPopScopeHandelDeepLinkWidget(
       child: Scaffold(
@@ -222,22 +220,44 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                                         authProvider.isLoading,
                                     buttonText: getTranslated('send', context),
                                     onPressed: () {
-                                      String userInput = _emailOrPhoneController
-                                          .text
-                                          .trim();
+                                      String rawInput =
+                                          _emailOrPhoneController.text.trim();
                                       bool isNumber =
                                           EmailCheckerHelper.isNotValid(
-                                            userInput,
+                                            rawInput,
                                           );
+                                      String userInput = rawInput;
                                       bool isNumberValid = true;
 
                                       if (isNumber) {
-                                        userInput =
-                                            _countryDialCode! + userInput;
+                                        String cleanNumber = rawInput
+                                            .replaceAll(' ', '')
+                                            .replaceAll('-', '');
+                                        if (cleanNumber.startsWith('+')) {
+                                          userInput = cleanNumber;
+                                        } else if (_countryDialCode != null &&
+                                            cleanNumber.startsWith(
+                                              _countryDialCode!.replaceAll(
+                                                '+',
+                                                '',
+                                              ),
+                                            )) {
+                                          userInput = '+$cleanNumber';
+                                        } else {
+                                          if (cleanNumber.startsWith('0')) {
+                                           cleanNumber =
+                                               cleanNumber.substring(1);
+                                          }
+                                          userInput =
+                                              '${_countryDialCode ?? ''}$cleanNumber';
+                                        }
                                         isNumberValid =
-                                            PhoneNumberCheckerHelper.isPhoneValidWithCountryCode(
-                                              userInput,
-                                            );
+                                            PhoneNumberCheckerHelper
+                                                .isPhoneValidWithCountryCode(
+                                                  userInput,
+                                                ) ||
+                                            PhoneNumberCheckerHelper
+                                                .isValidPhone(cleanNumber);
                                       }
 
                                       if (_emailOrPhoneController

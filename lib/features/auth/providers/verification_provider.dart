@@ -175,19 +175,16 @@ class VerificationProvider with ChangeNotifier {
       phoneNumber: phoneNumber,
       verificationCompleted: (PhoneAuthCredential credential) {},
       verificationFailed: (FirebaseAuthException e) {
-        if (Navigator.canPop(context)) {
-          if (!(ModalRoute.of(context)?.settings.name ==
-                  RouteHelper.profileEdit) &&
-              !(ModalRoute.of(context)?.settings.name == RouteHelper.sendOtp)) {
-            Navigator.pop(Get.context!);
+        if (fromPage == FromPage.profile.name) {
+          if (Navigator.canPop(context)) {
+            Navigator.pop(context);
           }
         }
         _isLoading = false;
-        if (fromPage == FromPage.profile.name) {
-          Navigator.pop(context);
-        }
         notifyListeners();
-        showCustomSnackBarHelper(getTranslated('${e.message}', Get.context!));
+        String errorMessage =
+            e.message ?? getTranslated('something_went_wrong', Get.context!);
+        showCustomSnackBarHelper(errorMessage);
       },
       codeSent: (String vId, int? resendToken) {
         bool isReplaceRoute =

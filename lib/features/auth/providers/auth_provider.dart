@@ -599,7 +599,11 @@ class AuthProvider with ChangeNotifier {
       }
 
       if (isForgetPassword) {
-        RouteHelper.getNewPassRoute(phoneNumber, otp);
+        RouteHelper.getNewPassRoute(
+          phoneNumber,
+          otp,
+          action: RouteAction.pushReplacement,
+        );
       } else {
         if (token != null) {
           String? countryCode = PhoneNumberCheckerHelper.getCountryCode(

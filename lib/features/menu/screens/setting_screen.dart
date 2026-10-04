@@ -164,11 +164,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
           'title': getTranslated('return_policy', context),
           'route': 'return_policy',
         },
-      if (splashProvider.configModel?.refundPolicyStatus ?? true)
-        {
-          'title': getTranslated('refund_policy', context),
-          'route': 'refund_policy',
-        },
       if (splashProvider.configModel?.cancellationPolicyStatus ?? true)
         {
           'title': getTranslated('cancellation_policy', context),
@@ -261,11 +256,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   // 7. أزرار شبكات التواصل الاجتماعي
                   _buildSocialIconsRow(activeSocialMediaList, textColor),
                 ],
-
-                const SizedBox(height: 20),
-
-                // 8. زر الفروع
-                _buildBranchButton(context, primaryColor, cardBackgroundColor),
 
                 const SizedBox(height: 16),
 
@@ -674,40 +664,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
-  // ===================== زر زيارة الفروع =====================
-  Widget _buildBranchButton(
-    BuildContext context,
-    Color primaryColor,
-    Color cardBackgroundColor,
-  ) {
-    return Container(
-      width: double.infinity,
-      height: 48,
-      decoration: BoxDecoration(
-        color: cardBackgroundColor,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: primaryColor, width: 1.2),
-      ),
-      child: InkWell(
-        onTap: () {},
-        borderRadius: BorderRadius.circular(24),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.location_on, color: primaryColor, size: 20),
-            const SizedBox(width: 8),
-            Text(
-              getTranslated('visit_our_branches', context),
-              style: poppinsBold.copyWith(
-                fontSize: Dimensions.fontSizeDefault,
-                color: primaryColor,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 
   // ===================== زر تسجيل الخروج =====================
   Widget _buildLogoutButton(BuildContext context, bool isLoggedIn) {
