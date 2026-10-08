@@ -726,14 +726,17 @@
   "exceeds_maximum_allowed_size": "يتجاوز الحد الأقصى للحجم المسموح به",
   "failed_to_validate_file_size": "فشل التحقق من حجم الملف",
   "total_files_size": "إجمالي حجم الملفات",
-  "brand": "Brand",
-  "seller": "Seller",
-  "view": "View",
-  "loading_brand": "Loading brand...",
-  "loading_seller": "Loading seller...",
+  "brand": "الماركة",
+  "seller": "البائع",
+  "view": "عرض",
+  "loading_brand": "جاري التحميل...",
+  "loading_seller": "جاري التحميل...",
   "shop_with_best_categories": "تسوق مع افضل الفئات",
   "brands": "العلامات التجارية",
   "products_count": "منتج",
   "e_commerce_store": "Jebnah Store",
-  "best_online_shopping_experience": "أفضل تجربة تسوق إلكتروني"
+  "best_online_shopping_experience": "أفضل تجربة تسوق إلكتروني",
+  "all_products": "عرض جميع المنتجات",
+  "year_warranty": "سنة ضمان",
+  "years_warranty": "سنوات ضمان"
 }

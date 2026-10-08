@@ -1,5 +1,6 @@
 import 'dart:convert';
 import '../features/brand/screens/all_brands_screen.dart';
+import '../features/brand/screens/brand_product_screen.dart';
 import '../features/order/widgets/order_map_info_widget.dart';
 import '../features/product/screens/preview_screen.dart';
 import '../features/wallet_and_loyalty/screens/game_screen.dart';
@@ -432,9 +433,21 @@ class RouteHelper {
 
   static const String brandDetails = '/brand-details';
   static const String allBrands = '/brands';
+  static const String brandProducts = '/brand-products';
   static const String brandProductsUri = '/products';
   static String getAllBrandsScreen({RouteAction? action}) =>
       _navigateRoute(allBrands, route: action);
+
+  static String getBrandProductsRoute({
+    required String brandId,
+    String? brandName,
+    RouteAction? action,
+  }) {
+    return _navigateRoute(
+      '$brandProducts?brand_id=$brandId&brand_name=${Uri.encodeComponent(brandName ?? '')}',
+      route: action,
+    );
+  }
 
   ///Routes Declear here.
   static final goRoutes = GoRouter(
@@ -850,6 +863,16 @@ class RouteHelper {
             _routeHandler(context, child: const AllBrandsScreen()),
       ),
       GoRoute(
+        path: brandProducts,
+        builder: (context, state) => _routeHandler(
+          context,
+          child: BrandProductScreen(
+            brandId: state.uri.queryParameters['brand_id'] ?? '',
+            brandName: state.uri.queryParameters['brand_name'] ?? '',
+          ),
+        ),
+      ),
+      GoRoute(
         path: profileMenus,
         builder: (context, state) =>
             _routeHandler(context, child: const MenuWidget()),
@@ -1166,9 +1189,4 @@ class RouteHelper {
       return '/';
     }
   }
-
-  static void getBrandProductsRoute({
-    required String brandId,
-    String? brandName,
-  }) {}
 }

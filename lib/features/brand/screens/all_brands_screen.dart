@@ -157,6 +157,17 @@ class _AllBrandsScreenState extends State<AllBrandsScreen> {
                                                 brandProvider.onChangeSelectIndex(
                                                   -1,
                                                 );
+                                                if (brandProvider.brandList != null &&
+                                                    brandProvider.brandList!.isNotEmpty &&
+                                                    brandProvider.brandIndex <
+                                                        brandProvider.brandList!.length) {
+                                                  final currentBrand = brandProvider
+                                                      .brandList![brandProvider.brandIndex];
+                                                  RouteHelper.getBrandProductsRoute(
+                                                    brandId: currentBrand.id.toString(),
+                                                    brandName: currentBrand.name,
+                                                  );
+                                                }
                                               },
                                               title: Text(
                                                 getTranslated(

@@ -83,6 +83,7 @@ class Product {
   // أضف هذين الحقلين
   int? _brandId;
   int? _sellerId;
+  int? _warrantyYears;
   Brand? _brand;
   Seller? _seller;
 
@@ -112,6 +113,7 @@ class Product {
     CategoryDiscount? categoryDiscount,
     int? brandId,
     int? sellerId,
+    int? warrantyYears,
   }) {
     _id = id;
     _name = name;
@@ -138,6 +140,7 @@ class Product {
     _categoryDiscount = categoryDiscount;
     _brandId = brandId;
     _sellerId = sellerId;
+    _warrantyYears = warrantyYears;
   }
 
   int? get id => _id;
@@ -172,6 +175,7 @@ class Product {
   // 🔴 هذ هما التعديل المهم 🔴
   int? get sellerId => _sellerId;
   int? get brandId => _brandId;
+  int? get warrantyYears => _warrantyYears;
   String? get addedBy => _seller != null ? 'seller' : 'admin';
 
   Product.fromJson(Map<String, dynamic> json) {
@@ -272,6 +276,9 @@ class Product {
       _sellerId = json['seller_id'] is int
           ? json['seller_id']
           : int.tryParse(json['seller_id'].toString());
+      _warrantyYears = json['warranty_years'] is int
+          ? json['warranty_years']
+          : int.tryParse(json['warranty_years']?.toString() ?? '');
       _brand = json['brand'] != null ? Brand.fromJson(json['brand']) : null;
       if (json['brand'] != null) {
         _brand = Brand.fromJson(json['brand']);
@@ -334,6 +341,7 @@ class Product {
 
     data['brand_id'] = _brandId;
     data['seller_id'] = _sellerId;
+    data['warranty_years'] = _warrantyYears;
 
     return data;
   }

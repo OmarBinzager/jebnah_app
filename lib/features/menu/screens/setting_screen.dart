@@ -732,8 +732,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
         break;
 
       case 'favorites':
-        splashProvider.setPageIndex(3);
-        RouteHelper.getMainRoute(action: RouteAction.pushNamedAndRemoveUntil);
+        if (ResponsiveHelper.isDesktop(context)) {
+          RouteHelper.getFavoriteRoute();
+        } else {
+          splashProvider.setPageIndex(3);
+        }
         break;
 
       case 'my_order':

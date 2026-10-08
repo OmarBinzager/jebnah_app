@@ -185,43 +185,44 @@ class ProductWidget extends StatelessWidget {
                               ),
 
                               // Warranty Badge - Bottom Left inside image
-                              Positioned(
-                                bottom: 8,
-                                left: 8,
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 8,
-                                    vertical: 4,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: Colors.black.withValues(alpha: 0.7),
-                                    borderRadius: BorderRadius.circular(15),
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      const Icon(
-                                        Icons.verified,
-                                        color: Colors.white,
-                                        size: 12,
-                                      ),
-                                      const SizedBox(width: 4),
-                                      Text(
-                                        '3 ضمان',
-                                        style: poppinsMedium.copyWith(
-                                          fontSize: 10,
+                              if (product.warrantyYears != null && product.warrantyYears! > 0)
+                                Positioned(
+                                  bottom: 8,
+                                  left: 8,
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 4,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Colors.black.withValues(alpha: 0.7),
+                                      borderRadius: BorderRadius.circular(15),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        const Icon(
+                                          Icons.verified,
                                           color: Colors.white,
+                                          size: 12,
                                         ),
-                                      ),
-                                    ],
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          '${product.warrantyYears} ${getTranslated(product.warrantyYears == 1 ? "year_warranty" : "years_warranty", context)}',
+                                          style: poppinsMedium.copyWith(
+                                            fontSize: 10,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
-                              ),
 
-                              // Discount Tag - Bottom Left inside image (next to warranty)
+                              // Discount Tag - Bottom Left inside image (next to warranty if present)
                               if (product.price != discountValue.discount)
                                 Positioned(
                                   bottom: 8,
-                                  left: 70,
+                                  left: (product.warrantyYears != null && product.warrantyYears! > 0) ? 75 : 8,
                                   child: Container(
                                     padding: const EdgeInsets.symmetric(
                                       horizontal: 8,
@@ -656,37 +657,38 @@ class _ProductGridWidget extends StatelessWidget {
                     ),
 
                   // Warranty Badge - Bottom Left inside image
-                  Positioned(
-                    bottom: 8,
-                    left: 8,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 6,
-                        vertical: 3,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.black.withValues(alpha: 0.7),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Row(
-                        children: [
-                          const Icon(
-                            Icons.verified,
-                            color: Colors.white,
-                            size: 10,
-                          ),
-                          const SizedBox(width: 3),
-                          Text(
-                            '3 ضمان',
-                            style: poppinsMedium.copyWith(
-                              fontSize: 12,
+                  if (product.warrantyYears != null && product.warrantyYears! > 0)
+                    Positioned(
+                      bottom: 8,
+                      left: 8,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 3,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withValues(alpha: 0.7),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(
+                              Icons.verified,
                               color: Colors.white,
+                              size: 10,
                             ),
-                          ),
-                        ],
+                            const SizedBox(width: 3),
+                            Text(
+                              '${product.warrantyYears} ${getTranslated(product.warrantyYears == 1 ? "year_warranty" : "years_warranty", context)}',
+                              style: poppinsMedium.copyWith(
+                                fontSize: 12,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
 
                   // Wish Button - Top Right inside image
                   Positioned(
