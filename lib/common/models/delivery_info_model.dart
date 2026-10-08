@@ -73,6 +73,8 @@ class DeliveryChargeSetup {
   double? minimumDeliveryCharge;
   double? minimumDistanceForFreeDelivery;
   double? fixedDeliveryCharge;
+  double? convenientDeliveryCharge;
+  double? fastDeliveryCharge;
   String? createdAt;
   String? updatedAt;
 
@@ -84,6 +86,8 @@ class DeliveryChargeSetup {
     this.minimumDeliveryCharge,
     this.minimumDistanceForFreeDelivery,
     this.fixedDeliveryCharge,
+    this.convenientDeliveryCharge,
+    this.fastDeliveryCharge,
     this.createdAt,
     this.updatedAt,
   });
@@ -96,6 +100,8 @@ class DeliveryChargeSetup {
         minimumDeliveryCharge = double.tryParse(json['minimum_delivery_charge'].toString()),
         minimumDistanceForFreeDelivery = double.tryParse(json['minimum_distance_for_free_delivery'].toString()),
         fixedDeliveryCharge = double.tryParse(json['fixed_delivery_charge'].toString()),
+        convenientDeliveryCharge = double.tryParse(json['convenient_delivery_charge'].toString()),
+        fastDeliveryCharge = double.tryParse(json['fast_delivery_charge'].toString()),
         createdAt = json['created_at'],
         updatedAt = json['updated_at'];
 
@@ -107,6 +113,8 @@ class DeliveryChargeSetup {
     'minimum_delivery_charge': minimumDeliveryCharge,
     'minimum_distance_for_free_delivery': minimumDistanceForFreeDelivery,
     'fixed_delivery_charge': fixedDeliveryCharge,
+    'convenient_delivery_charge': convenientDeliveryCharge,
+    'fast_delivery_charge': fastDeliveryCharge,
     'created_at': createdAt,
     'updated_at': updatedAt,
   };

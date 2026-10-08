@@ -7,10 +7,12 @@ import 'package:provider/provider.dart';
 class DeliveryOptionWidget extends StatelessWidget {
   final String value;
   final String? title;
+  final String? subTitle;
   const DeliveryOptionWidget({
     super.key,
     required this.value,
     required this.title,
+    this.subTitle,
   });
 
   @override
@@ -33,23 +35,50 @@ class DeliveryOptionWidget extends StatelessWidget {
             },
             child: InkWell(
               onTap: () => order.setOrderType(value),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Radio<String>(value: value),
-
-                  Text(
-                    title!,
-                    style: order.orderType == value
-                        ? poppinsSemiBold.copyWith(
-                            fontSize: Dimensions.fontSizeSmall,
-                          )
-                        : poppinsRegular.copyWith(
-                            fontSize: Dimensions.fontSizeSmall,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 4,
+                  vertical: 6,
+                ),
+                child: Row(
+                  children: [
+                    Radio<String>(
+                      value: value,
+                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
+                    const SizedBox(width: 4),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            title!,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: order.orderType == value
+                                ? poppinsSemiBold.copyWith(
+                                    fontSize: Dimensions.fontSizeSmall,
+                                  )
+                                : poppinsRegular.copyWith(
+                                    fontSize: Dimensions.fontSizeSmall,
+                                  ),
                           ),
-                  ),
-                  const SizedBox(width: Dimensions.paddingSizeDefault),
-                ],
+                          if (subTitle != null) ...[
+                            const SizedBox(height: 2),
+                            Text(
+                              subTitle!,
+                              style: poppinsMedium.copyWith(
+                                fontSize: Dimensions.fontSizeExtraSmall,
+                                color: Theme.of(context).primaryColor,
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           );

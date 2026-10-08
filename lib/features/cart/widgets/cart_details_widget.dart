@@ -70,19 +70,60 @@ class CartDetailsWidget extends StatelessWidget {
                 color: Theme.of(context).hintColor.withValues(alpha: 0.1),
               ),
 
-              Row(
-                children: [
-                  DeliveryOptionWidget(
-                    value: 'delivery',
-                    title: getTranslated('home_delivery', context),
-                  ),
-                  const SizedBox(width: Dimensions.paddingSizeSmall),
+              Consumer<OrderProvider>(
+                builder: (context, orderProvider, _) {
+                  final splashProvider =
+                      Provider.of<SplashProvider>(context, listen: false);
+                  final setup = (splashProvider.deliveryInfoModelList != null &&
+                          splashProvider.deliveryInfoModelList!.isNotEmpty &&
+                          orderProvider.branchIndex <
+                              splashProvider.deliveryInfoModelList!.length)
+                      ? splashProvider
+                          .deliveryInfoModelList![orderProvider.branchIndex]
+                          .deliveryChargeSetup
+                      : null;
 
-                  DeliveryOptionWidget(
-                    value: 'self_pickup',
-                    title: getTranslated('self_pickup', context),
-                  ),
-                ],
+                  double convenientPrice = 0.0;
+                  double fastPrice = 0.0;
+
+                  if (setup?.deliveryChargeType == 'fixed') {
+                    convenientPrice =
+                        setup?.convenientDeliveryCharge?.toDouble() ?? 0.0;
+                    fastPrice = setup?.fastDeliveryCharge?.toDouble() ??
+                        (setup?.fixedDeliveryCharge?.toDouble() ??
+                            (configModel.deliveryCharge ?? 0.0));
+                  } else {
+                    fastPrice = setup?.minimumDeliveryCharge?.toDouble() ??
+                        (configModel.deliveryCharge ?? 0.0);
+                  }
+
+                  String convenientPriceStr = convenientPrice <= 0
+                      ? getTranslated('free', context)
+                      : PriceConverterHelper.convertPrice(context, convenientPrice);
+                  String fastPriceStr = fastPrice <= 0
+                      ? getTranslated('free', context)
+                      : PriceConverterHelper.convertPrice(context, fastPrice);
+
+                  return Row(
+                    children: [
+                      Expanded(
+                        child: DeliveryOptionWidget(
+                          value: 'delivery',
+                          title: getTranslated('fast_delivery', context),
+                          subTitle: fastPriceStr,
+                        ),
+                      ),
+                      const SizedBox(width: Dimensions.paddingSizeSmall),
+                      Expanded(
+                        child: DeliveryOptionWidget(
+                          value: 'self_pickup',
+                          title: getTranslated('convenient_delivery', context),
+                          subTitle: convenientPriceStr,
+                        ),
+                      ),
+                    ],
+                  );
+                },
               ),
             ],
           ),
@@ -168,8 +209,7 @@ class CartDetailsWidget extends StatelessWidget {
                       Provider.of<SplashProvider>(context, listen: false);
                   double deliveryCharge = 0.0;
 
-                  if (orderProvider.orderType == 'self_pickup' ||
-                      _isFreeDelivery) {
+                  if (_isFreeDelivery) {
                     deliveryCharge = 0.0;
                   } else {
                     if (splashProvider.deliveryInfoModelList != null &&
@@ -180,9 +220,21 @@ class CartDetailsWidget extends StatelessWidget {
                           .deliveryInfoModelList![orderProvider.branchIndex]
                           .deliveryChargeSetup;
                       if (setup?.deliveryChargeType == 'fixed') {
-                        deliveryCharge =
-                            setup?.fixedDeliveryCharge?.toDouble() ??
-                                (configModel.deliveryCharge ?? 0.0);
+                        if (orderProvider.orderType == 'self_pickup' ||
+                            orderProvider.orderType == 'convenient_delivery') {
+                          deliveryCharge =
+                              setup?.convenientDeliveryCharge?.toDouble() ?? 0.0;
+                        } else if (orderProvider.orderType == 'fast_delivery' ||
+                            orderProvider.orderType == 'delivery') {
+                          deliveryCharge =
+                              setup?.fastDeliveryCharge?.toDouble() ??
+                                  (setup?.fixedDeliveryCharge?.toDouble() ??
+                                      (configModel.deliveryCharge ?? 0.0));
+                        } else {
+                          deliveryCharge =
+                              setup?.fixedDeliveryCharge?.toDouble() ??
+                                  (configModel.deliveryCharge ?? 0.0);
+                        }
                       } else {
                         deliveryCharge =
                             setup?.minimumDeliveryCharge?.toDouble() ??

@@ -935,27 +935,36 @@ class _OrderTypeWidget extends StatelessWidget {
       listen: false,
     );
 
-    return orderProvider.trackModel?.orderType != 'delivery'
-        ? Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: Dimensions.paddingSizeSmall,
-              vertical: Dimensions.paddingSizeExtraSmall,
-            ),
-            decoration: BoxDecoration(
-              color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(Dimensions.radiusSizeTen),
-            ),
-            child: Text(
-              getTranslated(
-                orderProvider.trackModel?.orderType == 'pos'
-                    ? 'pos_order'
-                    : 'self_pickup',
-                context,
-              ),
-              style: poppinsRegular,
-            ),
-          )
-        : const SizedBox();
+    final String? orderType = orderProvider.trackModel?.orderType;
+    if (orderType == null || orderType.isEmpty) {
+      return const SizedBox();
+    }
+
+    String labelText;
+    if (orderType == 'self_pickup' || orderType == 'convenient_delivery') {
+      labelText = getTranslated('convenient_delivery', context);
+    } else if (orderType == 'delivery' || orderType == 'fast_delivery') {
+      labelText = getTranslated('fast_delivery', context);
+    } else if (orderType == 'pos') {
+      labelText = getTranslated('pos_order', context);
+    } else {
+      labelText = getTranslated(orderType, context);
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: Dimensions.paddingSizeSmall,
+        vertical: Dimensions.paddingSizeExtraSmall,
+      ),
+      decoration: BoxDecoration(
+        color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(Dimensions.radiusSizeTen),
+      ),
+      child: Text(
+        labelText,
+        style: poppinsRegular,
+      ),
+    );
   }
 }
 

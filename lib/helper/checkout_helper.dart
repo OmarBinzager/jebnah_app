@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../common/enums/order_type_enum.dart';
 import '../common/models/delivery_info_model.dart';
 import '../features/address/domain/models/address_model.dart';
 import '../common/models/config_model.dart';
@@ -80,17 +79,21 @@ class CheckOutHelper {
 
     if (freeDeliveryType == 'free_delivery') {
       deliveryCharge = 0;
-    } else if (orderProvider.orderType == OrderType.self_pickup.name) {
-      deliveryCharge = 0;
     } else {
       if (getDeliveryChargeType() == DeliveryChargeType.fixed.name) {
-        deliveryCharge =
-            splashProvider
-                .deliveryInfoModelList?[orderProvider.branchIndex]
-                .deliveryChargeSetup
-                ?.fixedDeliveryCharge
-                ?.toDouble() ??
-            0.0;
+        final setup = splashProvider
+            .deliveryInfoModelList?[orderProvider.branchIndex]
+            .deliveryChargeSetup;
+        if (orderProvider.orderType == 'self_pickup' ||
+            orderProvider.orderType == 'convenient_delivery') {
+          deliveryCharge = setup?.convenientDeliveryCharge?.toDouble() ?? 0.0;
+        } else if (orderProvider.orderType == 'fast_delivery' ||
+            orderProvider.orderType == 'delivery') {
+          deliveryCharge = setup?.fastDeliveryCharge?.toDouble() ??
+              (setup?.fixedDeliveryCharge?.toDouble() ?? 0.0);
+        } else {
+          deliveryCharge = setup?.fixedDeliveryCharge?.toDouble() ?? 0.0;
+        }
       } else if (getDeliveryChargeType() == DeliveryChargeType.distance.name &&
           distance != -1 &&
           distance > getMinimumDistanceForFreeDelivery()) {
