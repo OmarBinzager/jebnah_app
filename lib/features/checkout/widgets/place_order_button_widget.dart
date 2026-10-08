@@ -232,12 +232,7 @@ class PlaceOrderButtonWidget extends StatelessWidget {
                               ),
                               isScrollControlled: true,
                             );
-                          } else if (orderProvider.timeSlots == null ||
-                              orderProvider.timeSlots!.isEmpty) {
-                            showCustomSnackBarHelper(
-                              getTranslated('select_a_time', context),
-                              isError: true,
-                            );
+
                           } else if (!isSelfPickup &&
                               isKmWiseCharge &&
                               orderProvider.distance == -1) {
@@ -308,9 +303,14 @@ class PlaceOrderButtonWidget extends StatelessWidget {
                                 context,
                                 listen: false,
                               ).discount,
-                              timeSlotId: orderProvider
-                                  .timeSlots![orderProvider.selectTimeSlot]
-                                  .id,
+                              timeSlotId: (orderProvider.timeSlots != null &&
+                                      orderProvider.timeSlots!.isNotEmpty &&
+                                      orderProvider.selectTimeSlot <
+                                          orderProvider.timeSlots!.length)
+                                  ? orderProvider
+                                      .timeSlots![orderProvider.selectTimeSlot]
+                                      .id
+                                  : null,
                               paymentMethod:
                                   orderProvider.selectedOfflineValue != null
                                   ? 'offline_payment'

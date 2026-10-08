@@ -28,12 +28,7 @@ class PaymentSectionWidget extends StatelessWidget {
         getTranslated('select_delivery_address', context),
         isError: true,
       );
-    } else if (orderProvider.timeSlots == null ||
-        orderProvider.timeSlots!.isEmpty) {
-      showCustomSnackBarHelper(
-        getTranslated('select_a_time', context),
-        isError: true,
-      );
+
     } else {
       ResponsiveHelper().showDialogOrBottomSheet(
         context,

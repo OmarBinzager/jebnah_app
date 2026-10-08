@@ -677,7 +677,11 @@ class _PaymentMethodBottomSheetWidgetState
         context,
         listen: false,
       ).discount,
-      timeSlotId: orderProvider.timeSlots![orderProvider.selectTimeSlot].id,
+      timeSlotId: (orderProvider.timeSlots != null &&
+              orderProvider.timeSlots!.isNotEmpty &&
+              orderProvider.selectTimeSlot < orderProvider.timeSlots!.length)
+          ? orderProvider.timeSlots![orderProvider.selectTimeSlot].id
+          : null,
       paymentMethod: 'offline_payment',
       deliveryDate: orderProvider.getDateList()[orderProvider.selectDateSlot],
       couponDiscountTitle: '',
