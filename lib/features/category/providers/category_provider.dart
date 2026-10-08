@@ -147,11 +147,23 @@ class CategoryProvider extends ChangeNotifier {
   List<String?> _allSortBy = [];
   List<String?> get allSortBy => _allSortBy;
   bool? get hasData => _hasData;
+  String? _activeCategoryProductId;
+  String? get activeCategoryProductId => _activeCategoryProductId;
 
   void initCategoryProductList(String id, int offset) async {
+    _activeCategoryProductId = id;
     _hasData = true;
+    if (offset == 1) {
+      _subCategoryProductList = null;
+      notifyListeners();
+    }
     ApiResponseModel apiResponse = await productRepo
         .getBrandOrCategoryProductList(id, offset);
+
+    if (_activeCategoryProductId != id) {
+      return;
+    }
+
     if (apiResponse.response != null &&
         apiResponse.response!.statusCode == 200) {
       if (offset == 1) {
@@ -159,15 +171,19 @@ class CategoryProvider extends ChangeNotifier {
           apiResponse.response!.data,
         );
       } else {
-        _subCategoryProductList?.products?.addAll(
-          CategoryProductModel.fromJson(apiResponse.response!.data).products!,
+        final newModel = CategoryProductModel.fromJson(
+          apiResponse.response!.data,
         );
-        _subCategoryProductList?.offset = CategoryProductModel.fromJson(
-          apiResponse.response!.data,
-        ).offset;
-        _subCategoryProductList?.totalSize = CategoryProductModel.fromJson(
-          apiResponse.response!.data,
-        ).totalSize;
+        final newProducts = newModel.products ?? [];
+        final existingIds = _subCategoryProductList?.products?.map((p) => p.id).toSet() ?? {};
+        for (var product in newProducts) {
+          if (!existingIds.contains(product.id)) {
+            _subCategoryProductList?.products?.add(product);
+            existingIds.add(product.id);
+          }
+        }
+        _subCategoryProductList?.offset = newModel.offset;
+        _subCategoryProductList?.totalSize = newModel.totalSize;
       }
 
       _hasData = (_subCategoryProductList?.products?.length ?? 0) > 1;

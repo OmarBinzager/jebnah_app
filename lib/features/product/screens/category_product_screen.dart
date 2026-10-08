@@ -35,17 +35,33 @@ class CategoryProductScreen extends StatefulWidget {
 class _CategoryProductScreenState extends State<CategoryProductScreen> {
   final ScrollController scrollController = ScrollController();
 
+  String _getActiveCategoryId(CategoryProvider categoryProvider) {
+    if (categoryProvider.selectedCategoryIndex != -1 &&
+        categoryProvider.subCategoryList != null &&
+        categoryProvider.subCategoryList!.isNotEmpty &&
+        categoryProvider.selectedCategoryIndex <
+            categoryProvider.subCategoryList!.length) {
+      return '${categoryProvider.subCategoryList![categoryProvider.selectedCategoryIndex].id}';
+    }
+    return widget.categoryId;
+  }
+
   void _loadData(BuildContext context) async {
     final CategoryProvider categoryProvider = Provider.of<CategoryProvider>(
       context,
       listen: false,
     );
 
-    if (categoryProvider.selectedCategoryIndex == -1) {
-      categoryProvider.getCategory(int.tryParse(widget.categoryId), context);
+    categoryProvider.getCategory(int.tryParse(widget.categoryId), context);
 
+    if (categoryProvider.subCategoryList == null ||
+        categoryProvider.categoryModel?.id?.toString() != widget.categoryId) {
       categoryProvider.getSubCategoryList(context, widget.categoryId);
+    }
 
+    if (categoryProvider.selectedCategoryIndex == -1 ||
+        categoryProvider.categoryModel?.id?.toString() != widget.categoryId) {
+      categoryProvider.onChangeSelectIndex(-1, notify: false);
       categoryProvider.initCategoryProductList(widget.categoryId, 1);
     }
   }
@@ -53,6 +69,11 @@ class _CategoryProductScreenState extends State<CategoryProductScreen> {
   @override
   void dispose() {
     scrollController.dispose();
+    final categoryProvider = Provider.of<CategoryProvider>(
+      context,
+      listen: false,
+    );
+    categoryProvider.onChangeSelectIndex(-1, notify: false);
     super.dispose();
   }
 
@@ -132,6 +153,9 @@ class _CategoryProductScreenState extends State<CategoryProductScreen> {
                                                         widget.categoryId,
                                                         1,
                                                       );
+                                                  if (scrollController.hasClients) {
+                                                    scrollController.jumpTo(0);
+                                                  }
                                                 },
                                                 hoverColor: Colors.transparent,
                                                 child: Container(
@@ -203,6 +227,9 @@ class _CategoryProductScreenState extends State<CategoryProductScreen> {
                                                           '${categoryProvider.subCategoryList![index].id}',
                                                           1,
                                                         );
+                                                    if (scrollController.hasClients) {
+                                                      scrollController.jumpTo(0);
+                                                    }
                                                   },
                                                   hoverColor:
                                                       Colors.transparent,
@@ -320,10 +347,13 @@ class _CategoryProductScreenState extends State<CategoryProductScreen> {
                                 .isNotEmpty
                             ? Center(
                                 child: PaginatedListWidget(
+                                  key: ValueKey(
+                                    'category_products_${_getActiveCategoryId(productProvider)}',
+                                  ),
                                   scrollController: scrollController,
                                   onPaginate: (pageIndex) {
                                     productProvider.initCategoryProductList(
-                                      widget.categoryId,
+                                      _getActiveCategoryId(productProvider),
                                       pageIndex ?? 1,
                                     );
                                   },
