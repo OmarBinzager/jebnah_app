@@ -59,11 +59,8 @@ class _CategoryProductScreenState extends State<CategoryProductScreen> {
       categoryProvider.getSubCategoryList(context, widget.categoryId);
     }
 
-    if (categoryProvider.selectedCategoryIndex == -1 ||
-        categoryProvider.categoryModel?.id?.toString() != widget.categoryId) {
-      categoryProvider.onChangeSelectIndex(-1, notify: false);
-      categoryProvider.initCategoryProductList(widget.categoryId, 1);
-    }
+    String activeId = _getActiveCategoryId(categoryProvider);
+    categoryProvider.initCategoryProductList(activeId, 1);
   }
 
   @override
@@ -79,8 +76,12 @@ class _CategoryProductScreenState extends State<CategoryProductScreen> {
 
   @override
   void initState() {
-    _loadData(context);
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        _loadData(context);
+      }
+    });
   }
 
   @override
@@ -206,84 +207,79 @@ class _CategoryProductScreenState extends State<CategoryProductScreen> {
                                                 ),
                                               ),
                                             ),
-                                            ListView.builder(
-                                              physics:
-                                                  const NeverScrollableScrollPhysics(),
-                                              itemCount: categoryProvider
-                                                  .subCategoryList!
-                                                  .length,
-                                              shrinkWrap: true,
-                                              scrollDirection: Axis.horizontal,
-                                              itemBuilder: (BuildContext context, int index) {
-                                                return InkWell(
-                                                  onTap: () {
-                                                    categoryProvider
-                                                        .onChangeSelectIndex(
-                                                          index,
-                                                        );
+                                            ...?categoryProvider
+                                                .subCategoryList
+                                                ?.asMap()
+                                                .entries
+                                                .map((entry) {
+                                              int index = entry.key;
+                                              final subCategory = entry.value;
+                                              return InkWell(
+                                                onTap: () {
+                                                  categoryProvider
+                                                      .onChangeSelectIndex(
+                                                        index,
+                                                      );
 
-                                                    productProvider
-                                                        .initCategoryProductList(
-                                                          '${categoryProvider.subCategoryList![index].id}',
-                                                          1,
-                                                        );
-                                                    if (scrollController.hasClients) {
-                                                      scrollController.jumpTo(0);
-                                                    }
-                                                  },
-                                                  hoverColor:
-                                                      Colors.transparent,
-                                                  child: Container(
-                                                    padding:
-                                                        const EdgeInsets.symmetric(
-                                                          horizontal: Dimensions
-                                                              .paddingSizeLarge,
-                                                          vertical: Dimensions
-                                                              .paddingSizeExtraSmall,
+                                                  categoryProvider
+                                                      .initCategoryProductList(
+                                                        '${subCategory.id}',
+                                                        1,
+                                                      );
+                                                  if (scrollController
+                                                      .hasClients) {
+                                                    scrollController.jumpTo(0);
+                                                  }
+                                                },
+                                                hoverColor:
+                                                    Colors.transparent,
+                                                child: Container(
+                                                  padding:
+                                                      const EdgeInsets.symmetric(
+                                                        horizontal: Dimensions
+                                                            .paddingSizeLarge,
+                                                        vertical: Dimensions
+                                                            .paddingSizeExtraSmall,
+                                                      ),
+                                                  alignment: Alignment.center,
+                                                  margin:
+                                                      const EdgeInsets.only(
+                                                        right: Dimensions
+                                                            .paddingSizeSmall,
+                                                      ),
+                                                  decoration: BoxDecoration(
+                                                    color:
+                                                        categoryProvider
+                                                                    .selectedCategoryIndex ==
+                                                                index
+                                                            ? Theme.of(
+                                                                context,
+                                                              ).primaryColor
+                                                            : ColorResources.getGreyColor(
+                                                                context,
+                                                              ),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          7,
                                                         ),
-                                                    alignment: Alignment.center,
-                                                    margin:
-                                                        const EdgeInsets.only(
-                                                          right: Dimensions
-                                                              .paddingSizeSmall,
-                                                        ),
-                                                    decoration: BoxDecoration(
-                                                      color:
-                                                          categoryProvider
-                                                                  .selectedCategoryIndex ==
-                                                              index
-                                                          ? Theme.of(
-                                                              context,
-                                                            ).primaryColor
-                                                          : ColorResources.getGreyColor(
-                                                              context,
-                                                            ),
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                            7,
-                                                          ),
-                                                    ),
-                                                    child: Text(
-                                                      categoryProvider
-                                                              .subCategoryList?[index]
-                                                              .name ??
-                                                          '',
-                                                      style: poppinsRegular
-                                                          .copyWith(
-                                                            color:
-                                                                categoryProvider
-                                                                        .selectedCategoryIndex ==
-                                                                    index
-                                                                ? Theme.of(
-                                                                    context,
-                                                                  ).canvasColor
-                                                                : Colors.black,
-                                                          ),
-                                                    ),
                                                   ),
-                                                );
-                                              },
-                                            ),
+                                                  child: Text(
+                                                    subCategory.name ?? '',
+                                                    style: poppinsRegular
+                                                        .copyWith(
+                                                          color:
+                                                              categoryProvider
+                                                                          .selectedCategoryIndex ==
+                                                                      index
+                                                                  ? Theme.of(
+                                                                      context,
+                                                                    ).canvasColor
+                                                                  : Colors.black,
+                                                        ),
+                                                  ),
+                                                ),
+                                              );
+                                            }),
                                           ],
                                         ),
                                       ),

@@ -26,23 +26,24 @@ class _AllCategoriesScreenState extends State<AllCategoriesScreen> {
   @override
   void initState() {
     super.initState();
-    if (Provider.of<CategoryProvider>(context, listen: false).categoryList !=
-            null &&
-        Provider.of<CategoryProvider>(
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        final categoryProvider = Provider.of<CategoryProvider>(
           context,
           listen: false,
-        ).categoryList!.isNotEmpty) {
-      _load();
-    } else {
-      Provider.of<CategoryProvider>(
-        context,
-        listen: false,
-      ).getCategoryList(context, true).then((list) {
-        if (list != null) {
+        );
+        if (categoryProvider.categoryList != null &&
+            categoryProvider.categoryList!.isNotEmpty) {
           _load();
+        } else {
+          categoryProvider.getCategoryList(context, true).then((list) {
+            if (list != null && mounted) {
+              _load();
+            }
+          });
         }
-      });
-    }
+      }
+    });
   }
 
   Future<void> _load() async {
@@ -50,12 +51,16 @@ class _AllCategoriesScreenState extends State<AllCategoriesScreen> {
       context,
       listen: false,
     );
-    categoryProvider.onChangeCategoryIndex(0, notify: false);
-
+    int currentIndex = categoryProvider.categoryIndex;
     if (categoryProvider.categoryList?.isNotEmpty ?? false) {
+      if (currentIndex < 0 ||
+          currentIndex >= categoryProvider.categoryList!.length) {
+        currentIndex = 0;
+        categoryProvider.onChangeCategoryIndex(0, notify: false);
+      }
       categoryProvider.getSubCategoryList(
         context,
-        categoryProvider.categoryList![0].id.toString(),
+        categoryProvider.categoryList![currentIndex].id.toString(),
       );
     }
   }
@@ -139,15 +144,6 @@ class _AllCategoriesScreenState extends State<AllCategoriesScreen> {
                                           onTap: () {
                                             categoryProvider
                                                 .onChangeSelectIndex(-1);
-                                            categoryProvider
-                                                .initCategoryProductList(
-                                                  categoryProvider
-                                                      .categoryList![categoryProvider
-                                                          .categoryIndex]
-                                                      .id
-                                                      .toString(),
-                                                  1,
-                                                );
                                             RouteHelper.getCategoryProductsRoute(
                                               categoryId:
                                                   '${categoryProvider.categoryList![categoryProvider.categoryIndex].id}',
@@ -170,16 +166,6 @@ class _AllCategoriesScreenState extends State<AllCategoriesScreen> {
                                           categoryProvider.onChangeSelectIndex(
                                             index - 1,
                                           );
-                                          if (ResponsiveHelper.isMobilePhone()) {}
-                                          categoryProvider
-                                              .initCategoryProductList(
-                                                categoryProvider
-                                                    .subCategoryList![index - 1]
-                                                    .id
-                                                    .toString(),
-                                                1,
-                                              );
-
                                           RouteHelper.getCategoryProductsRoute(
                                             categoryId:
                                                 '${categoryProvider.categoryList![categoryProvider.categoryIndex].id}',

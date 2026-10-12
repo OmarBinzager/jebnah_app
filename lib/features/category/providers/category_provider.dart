@@ -86,6 +86,7 @@ class CategoryProvider extends ChangeNotifier {
 
   void getSubCategoryList(BuildContext context, String categoryID) async {
     _subCategoryList = null;
+    Future.microtask(() => notifyListeners());
 
     ApiResponseModel apiResponse = await categoryRepo.getSubCategoryList(
       categoryID,
@@ -96,8 +97,8 @@ class CategoryProvider extends ChangeNotifier {
       apiResponse.response!.data.forEach(
         (category) => _subCategoryList!.add(CategoryModel.fromJson(category)),
       );
-      getCategoryProductList(categoryID, 1);
     } else {
+      _subCategoryList = [];
       ApiCheckerHelper.checkApi(apiResponse);
     }
     notifyListeners();
@@ -155,7 +156,7 @@ class CategoryProvider extends ChangeNotifier {
     _hasData = true;
     if (offset == 1) {
       _subCategoryProductList = null;
-      notifyListeners();
+      Future.microtask(() => notifyListeners());
     }
     ApiResponseModel apiResponse = await productRepo
         .getBrandOrCategoryProductList(id, offset);
@@ -186,18 +187,22 @@ class CategoryProvider extends ChangeNotifier {
         _subCategoryProductList?.totalSize = newModel.totalSize;
       }
 
-      _hasData = (_subCategoryProductList?.products?.length ?? 0) > 1;
+      _hasData = (_subCategoryProductList?.products?.length ?? 0) > 0;
       List<Product> products = [];
       products.addAll(_subCategoryProductList?.products ?? []);
       List<double> prices = [];
       for (var product in products) {
-        prices.add(double.parse(product.price.toString()));
+        if (product.price != null) {
+          prices.add(double.tryParse(product.price.toString()) ?? 0);
+        }
       }
       prices.sort();
-      if ((subCategoryProductList?.products ?? []).isNotEmpty) {
+      if (prices.isNotEmpty) {
         _maxValue = prices[prices.length - 1];
       }
     } else {
+      _hasData = false;
+      _subCategoryProductList ??= CategoryProductModel(products: [], totalSize: 0, offset: 1);
       ApiCheckerHelper.checkApi(apiResponse);
     }
     notifyListeners();
