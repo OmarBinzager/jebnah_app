@@ -63,14 +63,18 @@ class _CategoryProductScreenState extends State<CategoryProductScreen> {
     categoryProvider.initCategoryProductList(activeId, 1);
   }
 
+  CategoryProvider? _categoryProvider;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _categoryProvider = Provider.of<CategoryProvider>(context, listen: false);
+  }
+
   @override
   void dispose() {
     scrollController.dispose();
-    final categoryProvider = Provider.of<CategoryProvider>(
-      context,
-      listen: false,
-    );
-    categoryProvider.onChangeSelectIndex(-1, notify: false);
+    _categoryProvider?.onChangeSelectIndex(-1, notify: false);
     super.dispose();
   }
 
