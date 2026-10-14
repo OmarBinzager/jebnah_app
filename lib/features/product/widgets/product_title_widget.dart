@@ -12,7 +12,6 @@ import '../../../helper/responsive_helper.dart';
 
 import '../../../localization/language_constraints.dart';
 
-import '../../../utill/color_resources.dart';
 import '../../../utill/dimensions.dart';
 import '../../../utill/styles.dart';
 
@@ -38,7 +37,7 @@ class ProductTitleWidget extends StatelessWidget {
     double? endingPrice;
     double? endingPriceWithDiscount;
 
-    if (product!.variations!.isNotEmpty) {
+    if (product?.variations?.isNotEmpty ?? false) {
       List<double?> priceList = [];
 
       for (var variation in product!.variations!) {
@@ -94,7 +93,10 @@ class ProductTitleWidget extends StatelessWidget {
               Wrap(
                 spacing: 10,
                 runSpacing: 10,
-                children: [_buildBrandChip(context)],
+                children: [
+                  _buildBrandChip(context),
+                  _buildSellerChip(context),
+                ],
               ),
 
               const SizedBox(height: 18),
@@ -123,7 +125,7 @@ class ProductTitleWidget extends StatelessWidget {
                       padding: const EdgeInsets.only(bottom: 4),
                       child: CustomDirectionalityWidget(
                         child: Text(
-                          '${PriceConverterHelper.convertPrice(context, startingPrice)}',
+                          PriceConverterHelper.convertPrice(context, startingPrice),
                           style: poppinsMedium.copyWith(
                             fontSize: 15,
                             decoration: TextDecoration.lineThrough,

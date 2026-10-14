@@ -54,24 +54,18 @@ class ProductWidget extends StatelessWidget {
         int? cardIndex;
         CartModel? cartModel;
 
-        if (product.variations!.isNotEmpty) {
+        if (product.variations?.isNotEmpty ?? false) {
           for (int index = 0; index < product.variations!.length; index++) {
-            price = product.variations!.isNotEmpty
-                ? (product.variations![index].price ?? 0)
-                : (product.price ?? 0);
-            stock = product.variations!.isNotEmpty
-                ? product.variations![index].stock
-                : product.totalStock;
+            price = (product.variations![index].price ?? 0);
+            stock = product.variations![index].stock;
             cartModel = CartModel(
               product.id,
-              product.image!.isNotEmpty ? product.image![0] : '',
+              (product.image?.isNotEmpty ?? false) ? product.image![0] : '',
               product.name,
               price,
               discountValue.discount,
               1,
-              product.variations!.isNotEmpty
-                  ? product.variations![index]
-                  : null,
+              product.variations![index],
               (price - (discountValue.discount ?? 0)),
               ((discountValue.discount ?? 0) -
                   PriceConverterHelper.convertWithDiscount(
@@ -177,7 +171,7 @@ class ProductWidget extends StatelessWidget {
                                 ),
                                 child: CustomImageWidget(
                                   image:
-                                      '${Provider.of<SplashProvider>(context, listen: false).baseUrls!.productImageUrl}/${product.image!.isNotEmpty ? product.image![0] : ''}',
+                                      '${Provider.of<SplashProvider>(context, listen: false).baseUrls!.productImageUrl}/${(product.image?.isNotEmpty ?? false) ? product.image![0] : ''}',
                                   height: 180,
                                   width: double.infinity,
                                   fit: BoxFit.contain,
