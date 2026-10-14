@@ -91,6 +91,7 @@ class _MainScreenState extends State<MainScreen> {
                         : AppBar(
                             toolbarHeight: 63,
                             backgroundColor: Theme.of(context).cardColor,
+                            automaticallyImplyLeading: false,
                             leading: splash.pageIndex == 0
                                 ? null
                                 : IconButton(

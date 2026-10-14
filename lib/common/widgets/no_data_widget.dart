@@ -122,7 +122,9 @@ class NoDataView extends StatelessWidget {
                       context,
                       listen: false,
                     ).setPageIndex(0);
-                    RouteHelper.getMainRoute();
+                    RouteHelper.getMainRoute(
+                      action: RouteAction.pushNamedAndRemoveUntil,
+                    );
                   },
                 ),
               ),
