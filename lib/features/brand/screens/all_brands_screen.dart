@@ -9,6 +9,7 @@ import '../../brand/domain/models/brand_model.dart';
 import '../../brand/providers/brand_provider.dart';
 import '../../brand/widgets/brand_item_widget.dart';
 import '../../brand/widgets/brand_products_shimmer_widget.dart';
+import '../../../helper/price_converter_helper.dart';
 import '../../../helper/responsive_helper.dart';
 import '../../../helper/route_helper.dart';
 
@@ -215,7 +216,10 @@ class _AllBrandsScreenState extends State<AllBrandsScreen> {
                                             ),
                                             subtitle: product.price != null
                                                 ? Text(
-                                                    '${product.price} ${getTranslated('currency_symbol', context)}',
+                                                    PriceConverterHelper.convertPrice(
+                                                      context,
+                                                      product.price,
+                                                    ),
                                                     style: poppinsRegular.copyWith(
                                                       fontSize: 11,
                                                       color: Theme.of(

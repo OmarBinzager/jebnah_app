@@ -1,10 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
-import '../../../../common/enums/app_mode_enum.dart';
 import '../../../../common/models/error_response_model.dart';
-import '../../../../localization/language_constraints.dart';
-import '../../../../main.dart';
-import '../../../../utill/app_constants.dart';
 
 class ApiErrorHandler {
   static dynamic getMessage(error) {
@@ -55,40 +51,23 @@ class ApiErrorHandler {
               }
               break;
             case DioExceptionType.sendTimeout:
-              errorDescription = getTranslated(
-                'send_timeout_with_server',
-                Get.context!,
-              );
+              errorDescription = 'send_timeout_with_server';
               break;
             case DioExceptionType.connectionTimeout:
-              errorDescription = getTranslated(
-                'send_timeout_with_server',
-                Get.context!,
-              );
-
+              errorDescription = 'send_timeout_with_server';
               break;
             case DioExceptionType.badCertificate:
-              errorDescription = getTranslated(
-                'incorrect_certificate',
-                Get.context!,
-              );
-
+              errorDescription = 'incorrect_certificate';
               break;
             case DioExceptionType.connectionError:
-              errorDescription =
-                  '${getTranslated('unavailable_to_process_data', Get.context!)} ${AppMode.demo == AppConstants.appMode ? error.response?.requestOptions.path : error.response?.statusCode}';
-
+              errorDescription = 'unavailable_to_process_data';
               break;
             case DioExceptionType.unknown:
               debugPrint(
                 'error----------------== ${error.response?.requestOptions.path} || ${error.response?.statusCode} ${error.response?.data}',
               );
 
-              errorDescription = getTranslated(
-                'unavailable_to_process_data',
-                Get.context!,
-              );
-
+              errorDescription = 'unavailable_to_process_data';
               break;
           }
         } else {

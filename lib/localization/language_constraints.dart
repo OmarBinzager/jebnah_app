@@ -8,7 +8,7 @@ String getTranslated(String? key, BuildContext context) {
   try {
     text = AppLocalization.of(context)!.translate(key);
   } catch (error) {
-    if (kDebugMode) {
+    if (kDebugMode && !key.contains(' ') && RegExp(r'^[a-zA-Z0-9_]+$').hasMatch(key)) {
       print('not localized --- $error');
     }
   }
