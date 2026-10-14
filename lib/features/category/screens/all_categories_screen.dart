@@ -58,10 +58,15 @@ class _AllCategoriesScreenState extends State<AllCategoriesScreen> {
         currentIndex = 0;
         categoryProvider.onChangeCategoryIndex(0, notify: false);
       }
-      categoryProvider.getSubCategoryList(
-        context,
-        categoryProvider.categoryList![currentIndex].id.toString(),
-      );
+      final currentCategoryId =
+          categoryProvider.categoryList![currentIndex].id.toString();
+      if (categoryProvider.subCategoryParentId != currentCategoryId ||
+          categoryProvider.subCategoryList == null) {
+        categoryProvider.getSubCategoryList(
+          context,
+          currentCategoryId,
+        );
+      }
     }
   }
 
@@ -127,9 +132,29 @@ class _AllCategoriesScreenState extends State<AllCategoriesScreen> {
                             ),
                           ),
 
-                          categoryProvider.subCategoryList != null
-                              ? Expanded(
-                                  child: ListView.separated(
+                          Builder(
+                            builder: (context) {
+                              final currentCategoryId =
+                                  (categoryProvider.categoryList != null &&
+                                          categoryProvider.categoryIndex >= 0 &&
+                                          categoryProvider.categoryIndex <
+                                              categoryProvider
+                                                  .categoryList!
+                                                  .length)
+                                      ? categoryProvider
+                                          .categoryList![categoryProvider
+                                              .categoryIndex]
+                                          .id
+                                          .toString()
+                                      : null;
+                              final bool isSubsReady =
+                                  categoryProvider.subCategoryList != null &&
+                                  categoryProvider.subCategoryParentId ==
+                                      currentCategoryId;
+
+                              return isSubsReady
+                                  ? Expanded(
+                                      child: ListView.separated(
                                     padding: const EdgeInsets.all(
                                       Dimensions.paddingSizeSmall,
                                     ),
@@ -203,7 +228,9 @@ class _AllCategoriesScreenState extends State<AllCategoriesScreen> {
                                 )
                               : const Expanded(
                                   child: SubCategoriesShimmerWidget(),
-                                ),
+                                );
+                            },
+                          ),
                         ],
                       )
                     : NoDataWidget(

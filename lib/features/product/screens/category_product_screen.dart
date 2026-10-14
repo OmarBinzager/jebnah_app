@@ -36,7 +36,8 @@ class _CategoryProductScreenState extends State<CategoryProductScreen> {
   final ScrollController scrollController = ScrollController();
 
   String _getActiveCategoryId(CategoryProvider categoryProvider) {
-    if (categoryProvider.selectedCategoryIndex != -1 &&
+    if (categoryProvider.subCategoryParentId == widget.categoryId &&
+        categoryProvider.selectedCategoryIndex != -1 &&
         categoryProvider.subCategoryList != null &&
         categoryProvider.subCategoryList!.isNotEmpty &&
         categoryProvider.selectedCategoryIndex <
@@ -54,8 +55,9 @@ class _CategoryProductScreenState extends State<CategoryProductScreen> {
 
     categoryProvider.getCategory(int.tryParse(widget.categoryId), context);
 
-    if (categoryProvider.subCategoryList == null ||
-        categoryProvider.categoryModel?.id?.toString() != widget.categoryId) {
+    if (categoryProvider.subCategoryParentId != widget.categoryId ||
+        categoryProvider.subCategoryList == null) {
+      categoryProvider.onChangeSelectIndex(-1, notify: false);
       categoryProvider.getSubCategoryList(context, widget.categoryId);
     }
 
@@ -128,7 +130,11 @@ class _CategoryProductScreenState extends State<CategoryProductScreen> {
                   width: Dimensions.webScreenWidth,
                   child: Consumer<CategoryProvider>(
                     builder: (context, categoryProvider, child) {
-                      return categoryProvider.subCategoryList != null
+                      final bool isSubsReady =
+                          categoryProvider.subCategoryList != null &&
+                          categoryProvider.subCategoryParentId == widget.categoryId;
+
+                      return isSubsReady
                           ? Container(
                               margin: const EdgeInsets.symmetric(vertical: 15),
                               height: 32,

@@ -74,10 +74,10 @@ class CustomAppBarWidget extends StatelessWidget
                     context,
                     listen: false,
                   );
-                  if (splash.popPageIndex()) {
-                    return;
-                  }
                   splash.setPageIndex(0);
+                  RouteHelper.getMainRoute(
+                    action: RouteAction.pushNamedAndRemoveUntil,
+                  );
                   return;
                 }
               },

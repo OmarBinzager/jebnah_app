@@ -25,7 +25,8 @@ class CategoryProvider extends ChangeNotifier {
   int _selectedCategoryIndex = -1;
   int _categoryIndex = 0;
   List<CategoryModel>? _categoryList;
-  List<CategoryModel>? _subCategoryList = [];
+  List<CategoryModel>? _subCategoryList;
+  String? _subCategoryParentId;
   CategoryProductModel? _categoryProductList;
   final List<Product> _categoryAllProductList = [];
   CategoryModel? _categoryModel;
@@ -35,6 +36,7 @@ class CategoryProvider extends ChangeNotifier {
   int get selectedCategoryIndex => _selectedCategoryIndex;
   List<CategoryModel>? get categoryList => _categoryList;
   List<CategoryModel>? get subCategoryList => _subCategoryList;
+  String? get subCategoryParentId => _subCategoryParentId;
   CategoryProductModel? get categoryProductList => _categoryProductList;
   CategoryModel? get categoryModel => _categoryModel;
   int get selectCategory => _selectCategory;
@@ -85,12 +87,16 @@ class CategoryProvider extends ChangeNotifier {
   }
 
   void getSubCategoryList(BuildContext context, String categoryID) async {
+    _subCategoryParentId = categoryID;
     _subCategoryList = null;
     Future.microtask(() => notifyListeners());
 
     ApiResponseModel apiResponse = await categoryRepo.getSubCategoryList(
       categoryID,
     );
+    if (_subCategoryParentId != categoryID) {
+      return;
+    }
     if (apiResponse.response != null &&
         apiResponse.response!.statusCode == 200) {
       _subCategoryList = [];
@@ -101,6 +107,12 @@ class CategoryProvider extends ChangeNotifier {
       _subCategoryList = [];
       ApiCheckerHelper.checkApi(apiResponse);
     }
+    notifyListeners();
+  }
+
+  void clearSubCategoryList() {
+    _subCategoryList = null;
+    _subCategoryParentId = null;
     notifyListeners();
   }
 

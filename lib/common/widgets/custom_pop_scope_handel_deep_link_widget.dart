@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../features/splash/providers/splash_provider.dart';
 import '../../../../helper/responsive_helper.dart';
+import '../../../../helper/route_helper.dart';
 import 'package:provider/provider.dart';
 
 class CustomPopScopeHandelDeepLinkWidget extends StatefulWidget {
@@ -39,10 +40,10 @@ class _CustomPopScopeHandelDeepLinkWidgetState
           Navigator.pop(context);
           return;
         } else if (!didPop && !Navigator.canPop(context)) {
-          if (splashProvider.popPageIndex()) {
-            return;
-          }
           splashProvider.setPageIndex(0);
+          RouteHelper.getMainRoute(
+            action: RouteAction.pushNamedAndRemoveUntil,
+          );
           return;
         }
       },

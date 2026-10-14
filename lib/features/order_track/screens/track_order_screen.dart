@@ -8,6 +8,7 @@ import '../../../helper/date_converter_helper.dart';
 import '../../../helper/order_helper.dart';
 import '../../../helper/price_converter_helper.dart';
 import '../../../helper/responsive_helper.dart';
+import '../../../helper/route_helper.dart';
 import '../../../localization/language_constraints.dart';
 import '../../../features/address/providers/location_provider.dart';
 import '../../../features/order/providers/order_provider.dart';
@@ -101,6 +102,15 @@ class _TrackOrderScreenState extends State<TrackOrderScreen> {
                     : CustomAppBarWidget(
                         title: getTranslated('order_track', context),
                         isCenter: false,
+                        onBackPressed: () {
+                          if (Navigator.canPop(context)) {
+                            Navigator.pop(context);
+                          } else {
+                            RouteHelper.getMainRoute(
+                              action: RouteAction.pushNamedAndRemoveUntil,
+                            );
+                          }
+                        },
                       ))
                 as PreferredSizeWidget?,
         body: Column(
