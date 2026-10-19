@@ -202,10 +202,7 @@ class PlaceOrderButtonWidget extends StatelessWidget {
                               ),
                               isError: true,
                             );
-                          } else if (!isSelfPickup &&
-                              orderProvider.addressIndex == -1) {
-                            // showCustomSnackBarHelper(getTranslated('select_delivery_address', context),isError: true);
-
+                          } else if (orderProvider.addressIndex == -1) {
                             showDialog(
                               context: context,
                               builder: (_) => const AddAddressDialogWidget(),
@@ -287,7 +284,17 @@ class PlaceOrderButtonWidget extends StatelessWidget {
                               branchId: configModel!
                                   .branches![orderProvider.branchIndex]
                                   .id,
-                              deliveryAddressId: !isSelfPickup
+                              deliveryAddressId: (orderProvider.addressIndex != -1 &&
+                                      Provider.of<LocationProvider>(
+                                            context,
+                                            listen: false,
+                                          ).addressList !=
+                                          null &&
+                                      orderProvider.addressIndex <
+                                          Provider.of<LocationProvider>(
+                                            context,
+                                            listen: false,
+                                          ).addressList!.length)
                                   ? Provider.of<LocationProvider>(
                                           context,
                                           listen: false,
@@ -295,8 +302,8 @@ class PlaceOrderButtonWidget extends StatelessWidget {
                                         .addressList![orderProvider
                                             .addressIndex]
                                         .id
-                                  : 0,
-                              distance: isSelfPickup
+                                  : null,
+                              distance: orderProvider.distance == -1
                                   ? 0
                                   : orderProvider.distance,
                               couponDiscountAmount: Provider.of<CouponProvider>(
@@ -395,28 +402,16 @@ class PlaceOrderButtonWidget extends StatelessWidget {
   }
 
   void _callback(bool isSuccess, String message, String orderID) async {
+    Provider.of<OrderProvider>(Get.context!, listen: false).stopLoader();
     if (isSuccess) {
       Provider.of<CartProvider>(Get.context!, listen: false).clearCartList();
-      Provider.of<OrderProvider>(Get.context!, listen: false).stopLoader();
-      if (Provider.of<OrderProvider>(
-            Get.context!,
-            listen: false,
-          ).paymentMethod?.getWay !=
-          'cash_on_delivery') {
-        RouteHelper.getOrderSuccessRoute(
-          orderID,
-          'success',
-          action: RouteAction.pushReplacement,
-        );
-      } else {
-        RouteHelper.getOrderSuccessRoute(
-          orderID,
-          'success',
-          action: RouteAction.pushReplacement,
-        );
-      }
+      RouteHelper.getOrderSuccessRoute(
+        orderID,
+        'success',
+        action: RouteAction.pushReplacement,
+      );
     } else {
-      showCustomSnackBarHelper(message);
+      showCustomSnackBarHelper(message, isError: true);
     }
   }
 }

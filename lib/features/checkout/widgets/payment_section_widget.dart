@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../../helper/checkout_helper.dart';
 import '../../../helper/price_converter_helper.dart';
 import '../../../helper/responsive_helper.dart';
 import '../../../localization/language_constraints.dart';
@@ -22,8 +21,7 @@ class PaymentSectionWidget extends StatelessWidget {
       listen: false,
     );
 
-    if (!CheckOutHelper.isSelfPickup(orderType: orderProvider.orderType) &&
-        orderProvider.addressIndex == -1) {
+    if (orderProvider.addressIndex == -1) {
       showCustomSnackBarHelper(
         getTranslated('select_delivery_address', context),
         isError: true,

@@ -26,8 +26,7 @@ class DeliveryAddressWidget extends StatelessWidget {
       listen: false,
     ).configModel!;
 
-    return !selfPickup
-        ? CustomShadowWidget(
+    return CustomShadowWidget(
             margin: const EdgeInsets.symmetric(
               horizontal: Dimensions.paddingSizeDefault,
               vertical: Dimensions.paddingSizeSmall,
@@ -250,8 +249,7 @@ class DeliveryAddressWidget extends StatelessWidget {
                 },
               ),
             ),
-          )
-        : const SizedBox();
+          );
   }
 }
 

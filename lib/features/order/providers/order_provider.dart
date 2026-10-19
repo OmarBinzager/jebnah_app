@@ -334,26 +334,38 @@ class OrderProvider extends ChangeNotifier {
 
     _isLoading = true;
     notifyListeners();
-    ApiResponseModel apiResponse = await orderRepo!.placeOrder(
-      placeOrderBody,
-      imageNote: imageNoteProvider.imageFiles ?? [],
-    );
-    _isLoading = false;
-
-    if (apiResponse.response != null &&
-        apiResponse.response!.statusCode == 200) {
-      String? message = apiResponse.response!.data['message'];
-      String orderID = apiResponse.response!.data['order_id'].toString();
-      callback(true, message, orderID);
-      debugPrint('-------- Order placed successfully $orderID ----------');
-    } else {
-      callback(
-        false,
-        ApiCheckerHelper.getError(apiResponse).errors![0].message,
-        '-1',
+    try {
+      ApiResponseModel apiResponse = await orderRepo!.placeOrder(
+        placeOrderBody,
+        imageNote: imageNoteProvider.imageFiles ?? [],
       );
+
+      if (apiResponse.response != null &&
+          apiResponse.response!.statusCode == 200) {
+        String? message = apiResponse.response!.data['message'];
+        String orderID = apiResponse.response!.data['order_id'].toString();
+        callback(true, message, orderID);
+        debugPrint('-------- Order placed successfully $orderID ----------');
+      } else {
+        String? errorMessage;
+        final errorResponse = ApiCheckerHelper.getError(apiResponse);
+        if (errorResponse.errors != null && errorResponse.errors!.isNotEmpty) {
+          errorMessage = errorResponse.errors![0].message;
+        }
+        errorMessage ??= apiResponse.error?.toString() ?? 'something_went_wrong';
+        callback(
+          false,
+          errorMessage,
+          '-1',
+        );
+      }
+    } catch (e) {
+      debugPrint('-------- Place order error: $e ----------');
+      callback(false, e.toString(), '-1');
+    } finally {
+      _isLoading = false;
+      notifyListeners();
     }
-    notifyListeners();
   }
 
   void stopLoader() {
@@ -527,7 +539,7 @@ class OrderProvider extends ChangeNotifier {
     _paymentMethod = null;
     _addressIndex = -1;
     _branchIndex = 0;
-    _paymentMethodIndex = 0;
+    _paymentMethodIndex = null;
     _selectedPaymentMethod = null;
     _selectedOfflineMethod = null;
     _distance = -1;
@@ -566,7 +578,7 @@ class OrderProvider extends ChangeNotifier {
       _paymentMethod = null;
       _selectedPaymentMethod = null;
       _partialAmount = null;
-      _paymentMethodIndex = 0;
+      _paymentMethodIndex = null;
       clearOfflinePayment();
     }
     if (isUpdate) {

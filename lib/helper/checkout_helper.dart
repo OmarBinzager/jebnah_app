@@ -361,7 +361,7 @@ class CheckOutHelper {
 
     if (isLoggedIn &&
         deliveryAddress != null &&
-        orderType == 'delivery' &&
+        (orderType == 'delivery' || orderType == 'self_pickup' || orderType == 'convenient_delivery') &&
         locationProvider.getAddressIndex(deliveryAddress) != null) {
       if (((deliveryAddress.longitude != null &&
                   deliveryAddress.longitude!.isNotEmpty) &&

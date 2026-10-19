@@ -12,7 +12,6 @@ import '../../../features/coupon/providers/coupon_provider.dart';
 import '../../../features/order/domain/models/offline_payment_model.dart';
 import '../../../features/order/widgets/bring_change_input_widget.dart';
 import '../../../features/wallet_and_loyalty/widgets/add_fund_dialogue_widget.dart';
-import '../../../helper/checkout_helper.dart';
 import '../../../helper/custom_snackbar_helper.dart';
 import '../../../helper/price_converter_helper.dart';
 import '../../../helper/responsive_helper.dart';
@@ -338,6 +337,7 @@ class _PaymentMethodBottomSheetWidgetState
                                                 hideDigital: hideDigital,
                                                 hideOffline: hideOffline,
                                                 selectedPaymentMethod:
+                                                    _paymentMethod?.getWay ??
                                                     _paymentMethod?.getWayTitle,
                                                 selectedOfflineMethod:
                                                     _selectedOfflineMethod,
@@ -631,9 +631,6 @@ class _PaymentMethodBottomSheetWidgetState
     );
 
     CheckOutModel? checkOutData = orderProvider.getCheckOutData;
-    final bool isSelfPickup = CheckOutHelper.isSelfPickup(
-      orderType: checkOutData?.orderType,
-    );
     final configModel = Provider.of<SplashProvider>(
       context,
       listen: false,
@@ -666,13 +663,22 @@ class _PaymentMethodBottomSheetWidgetState
       couponCode: checkOutData?.couponCode,
       orderNote: checkOutData?.orderNote,
       branchId: configModel!.branches![orderProvider.branchIndex].id,
-      deliveryAddressId: !isSelfPickup
+      deliveryAddressId: (orderProvider.addressIndex != -1 &&
+              Provider.of<LocationProvider>(
+                context,
+                listen: false,
+              ).addressList != null &&
+              orderProvider.addressIndex <
+                  Provider.of<LocationProvider>(
+                    context,
+                    listen: false,
+                  ).addressList!.length)
           ? Provider.of<LocationProvider>(
               context,
               listen: false,
             ).addressList![orderProvider.addressIndex].id
-          : 0,
-      distance: isSelfPickup ? 0 : orderProvider.distance,
+          : null,
+      distance: orderProvider.distance == -1 ? 0 : orderProvider.distance,
       couponDiscountAmount: Provider.of<CouponProvider>(
         context,
         listen: false,
@@ -701,8 +707,8 @@ class _PaymentMethodBottomSheetWidgetState
   }
 
   void _callback(bool isSuccess, String message, String orderID) async {
+    Provider.of<OrderProvider>(Get.context!, listen: false).stopLoader();
     if (isSuccess) {
-      Provider.of<OrderProvider>(Get.context!, listen: false).stopLoader();
       Provider.of<CartProvider>(Get.context!, listen: false).clearCartList();
       double walletBalance =
           Provider.of<ProfileProvider>(

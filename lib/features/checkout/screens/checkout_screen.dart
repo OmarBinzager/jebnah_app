@@ -23,6 +23,7 @@ import '../../../features/checkout/widgets/place_order_button_widget.dart';
 import '../../../features/order/enums/delivery_charge_type.dart';
 import '../../../features/order/providers/image_note_provider.dart';
 import '../../../features/order/providers/order_provider.dart';
+import '../../../features/profile/providers/profile_provider.dart';
 import '../../../features/splash/providers/splash_provider.dart';
 import '../../../helper/checkout_helper.dart';
 import '../../../helper/price_converter_helper.dart';
@@ -845,6 +846,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     );
     final OrderImageNoteProvider orderImageNoteProvider =
         Provider.of<OrderImageNoteProvider>(context, listen: false);
+    final ProfileProvider profileProvider =
+        Provider.of<ProfileProvider>(context, listen: false);
 
     orderProvider.clearPrevData();
     orderImageNoteProvider.onPickImage(context, true, isUpdate: false);
@@ -884,7 +887,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       await locationProvider.initAddressList();
       AddressModel? lastOrderedAddress;
 
-      if (_isLoggedIn && widget.orderType == 'delivery') {
+      if (_isLoggedIn) {
+        if (profileProvider.userInfoModel == null) {
+          profileProvider.getUserInfo(false);
+        }
         lastOrderedAddress = await locationProvider.getLastOrderedAddress();
       }
 

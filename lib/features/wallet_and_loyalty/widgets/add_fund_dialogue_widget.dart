@@ -408,8 +408,11 @@ class PaymentMethodView extends StatelessWidget {
             physics: const NeverScrollableScrollPhysics(),
             padding: const EdgeInsets.only(top: Dimensions.paddingSizeSmall),
             itemBuilder: (context, index) {
-              bool isSelected =
-                  paymentList[index].getWayTitle == selectedPaymentMethod;
+              bool isSelected = selectedPaymentMethod != null &&
+                  ((paymentList[index].getWayTitle != null &&
+                    paymentList[index].getWayTitle == selectedPaymentMethod) ||
+                   (paymentList[index].getWay != null &&
+                    paymentList[index].getWay == selectedPaymentMethod));
               bool isOffline = paymentList[index].type == 'offline';
 
               return Opacity(
