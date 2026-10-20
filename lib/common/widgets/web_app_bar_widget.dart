@@ -15,7 +15,9 @@ import '../../../../common/widgets/text_hover_widget.dart';
 import '../../../../features/auth/providers/auth_provider.dart';
 import '../../../../features/category/domain/models/category_model.dart';
 import '../../../../features/category/providers/category_provider.dart';
+import '../../../../common/providers/currency_provider.dart';
 import '../../../../features/menu/widgets/currency_dialog_widget.dart';
+import '../../../../features/menu/widgets/language_dialog_widget.dart';
 import '../../../../features/profile/providers/profile_provider.dart';
 import '../../../../features/search/providers/search_provider.dart';
 import '../../../../features/splash/providers/splash_provider.dart';
@@ -122,6 +124,46 @@ class _WebAppBarWidgetState extends State<WebAppBarWidget> {
                       ),
                       const SizedBox(width: Dimensions.paddingSizeSmall),
 
+                      // Currency Selector
+                      Consumer<CurrencyProvider>(
+                        builder: (context, currencyProvider, _) {
+                          final selected = currencyProvider.selectedCurrency;
+                          return SizedBox(
+                            height: Dimensions.paddingSizeLarge,
+                            child: InkWell(
+                              onTap: () => showDialogHelper(
+                                context,
+                                const CurrencyDialogWidget(),
+                              ),
+                              child: Row(
+                                children: [
+                                  Text(
+                                    selected?.currencyCode ?? 'YER',
+                                    style: poppinsMedium.copyWith(
+                                      color: Theme.of(
+                                        context,
+                                      ).textTheme.bodyLarge?.color,
+                                    ),
+                                  ),
+                                  const SizedBox(
+                                    width: Dimensions.paddingSizeExtraSmall,
+                                  ),
+                                  Icon(
+                                    Icons.expand_more,
+                                    color: Theme.of(
+                                      context,
+                                    ).textTheme.bodyLarge?.color,
+                                    size: 16,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                      const SizedBox(width: Dimensions.paddingSizeDefault),
+
+                      // Language Selector
                       SizedBox(
                         height: Dimensions.paddingSizeLarge,
 
@@ -136,7 +178,7 @@ class _WebAppBarWidgetState extends State<WebAppBarWidget> {
                           child: InkWell(
                             onTap: () => showDialogHelper(
                               context,
-                              const CurrencyDialogWidget(),
+                              const LanguageDialogWidget(),
                             ),
                             child: Row(
                               children: [

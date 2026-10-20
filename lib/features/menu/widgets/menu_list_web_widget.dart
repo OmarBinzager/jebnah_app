@@ -17,6 +17,7 @@ import 'package:provider/provider.dart';
 
 import '../../../helper/dialog_helper.dart';
 import 'acount_delete_dialog_widget.dart';
+import 'currency_dialog_widget.dart';
 import 'menu_item_web_widget.dart';
 
 class MenuListWebWidget extends StatelessWidget {
@@ -78,6 +79,11 @@ class MenuListWebWidget extends StatelessWidget {
         icon: Images.notification,
         title: getTranslated('notification', context),
         route: () => RouteHelper.getNotificationScreen(),
+      ),
+      MenuModel(
+        icon: Images.settings,
+        title: getTranslated('currency', context),
+        route: () => showDialogHelper(context, const CurrencyDialogWidget()),
       ),
 
       if (splashProvider.configModel!.walletStatus!)
