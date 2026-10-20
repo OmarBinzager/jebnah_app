@@ -28,6 +28,7 @@ class PlaceOrderModel {
   String? _callBack;
   String? _orderId;
   String? _switchOfflineToDigital;
+  String? _currencyCode;
 
 
 
@@ -77,6 +78,7 @@ class PlaceOrderModel {
         String? callBack,
         String? orderId,
         String? shwitchToDigital,
+        String? currencyCode,
       }) {
     _cart = cart;
     _couponDiscountAmount = couponDiscountAmount;
@@ -104,8 +106,10 @@ class PlaceOrderModel {
     _callBack = callBack;
     _orderId = orderId;
     _switchOfflineToDigital = shwitchToDigital;
+    _currencyCode = currencyCode;
   }
 
+  String? get currencyCode => _currencyCode;
   List<Cart>? get cart => _cart;
   double? get couponDiscountAmount => _couponDiscountAmount;
   String? get couponDiscountTitle => _couponDiscountTitle;
@@ -206,6 +210,9 @@ class PlaceOrderModel {
     data['call_back'] = _callBack;
     data['order_id'] = _orderId;
     data['switch_offline_to_digital'] = _switchOfflineToDigital;
+    if (_currencyCode != null) {
+      data['currency_code'] = _currencyCode;
+    }
     return data;
   }
 }

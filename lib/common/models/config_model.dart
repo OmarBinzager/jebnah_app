@@ -1,3 +1,5 @@
+import 'currency_model.dart';
+
 class ConfigModel {
   String? _ecommerceName;
   String? _ecommerceLogo;
@@ -9,6 +11,8 @@ class ConfigModel {
   int? _selfPickup;
   BaseUrls? _baseUrls;
   String? _currencySymbol;
+  CurrencyModel? _currencyModel;
+  List<CurrencyModel>? _activeCurrencies;
   double? _deliveryCharge;
   bool? _cashOnDelivery;
   String? _digitalPayment;
@@ -243,6 +247,8 @@ class ConfigModel {
   int? get selfPickup => _selfPickup;
   BaseUrls? get baseUrls => _baseUrls;
   String? get currencySymbol => _currencySymbol;
+  CurrencyModel? get currencyModel => _currencyModel;
+  List<CurrencyModel>? get activeCurrencies => _activeCurrencies;
   double? get deliveryCharge => _deliveryCharge;
   bool? get cashOnDelivery => _cashOnDelivery;
   String? get digitalPayment => _digitalPayment;
@@ -326,6 +332,15 @@ class ConfigModel {
         ? BaseUrls.fromJson(json['base_urls'])
         : null;
     _currencySymbol = json['currency_symbol'];
+    _currencyModel = json['currency_model'] != null
+        ? CurrencyModel.fromJson(json['currency_model'])
+        : null;
+    if (json['active_currencies'] != null) {
+      _activeCurrencies = [];
+      json['active_currencies'].forEach((v) {
+        _activeCurrencies!.add(CurrencyModel.fromJson(v));
+      });
+    }
     _deliveryCharge = double.parse('${json['delivery_charge']}');
     _cashOnDelivery = '${json['cash_on_delivery']}'.contains('true');
     _digitalPayment = json['digital_payment'];

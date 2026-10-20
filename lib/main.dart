@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'common/enums/app_mode_enum.dart';
 import 'common/enums/data_source_enum.dart';
+import 'common/providers/currency_provider.dart';
 import 'features/auth/providers/verification_provider.dart';
 import 'features/home/providers/flash_deal_provider.dart';
 import 'features/order/providers/image_note_provider.dart';
@@ -105,6 +106,9 @@ Future<void> main() async {
         ChangeNotifierProvider(create: (context) => di.sl<ThemeProvider>()),
         ChangeNotifierProvider(
           create: (context) => di.sl<LocalizationProvider>(),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => di.sl<CurrencyProvider>(),
         ),
         ChangeNotifierProvider(create: (context) => di.sl<SplashProvider>()),
         ChangeNotifierProvider(

@@ -38,6 +38,9 @@ class OrderModel {
   double? _weightChargeAmount;
   double? _bringChangeAmount;
   OfflinePayment? _offlinePayment;
+  String? _currencyCode;
+  double? _currencyExchangeRate;
+  double? _currencyAmount;
 
   OrderModel({
     int? id,
@@ -74,6 +77,9 @@ class OrderModel {
     double? weightChargeAmount,
     double? bringChangeAmount,
     OfflinePayment? offlinePayment,
+    String? currencyCode,
+    double? currencyExchangeRate,
+    double? currencyAmount,
   }) {
     _id = id;
     _userId = userId;
@@ -109,6 +115,9 @@ class OrderModel {
     _weightChargeAmount = weightChargeAmount;
     _bringChangeAmount = bringChangeAmount;
     _offlinePayment = offlinePayment;
+    _currencyCode = currencyCode;
+    _currencyExchangeRate = currencyExchangeRate;
+    _currencyAmount = currencyAmount;
   }
 
   int? get id => _id;
@@ -152,6 +161,9 @@ class OrderModel {
   double? get weightChargeAmount => _weightChargeAmount;
   double? get bringChangeAmount => _bringChangeAmount;
   OfflinePayment? get offlinePayment => _offlinePayment;
+  String? get currencyCode => _currencyCode;
+  double? get currencyExchangeRate => _currencyExchangeRate;
+  double? get currencyAmount => _currencyAmount;
 
   OrderModel.fromJson(Map<String, dynamic> json) {
     _id = json['id'];
@@ -219,6 +231,13 @@ class OrderModel {
     _offlinePayment = json['offline_payment'] != null
         ? OfflinePayment.fromJson(json['offline_payment'])
         : null;
+    _currencyCode = json['currency_code'];
+    _currencyExchangeRate = json['currency_exchange_rate'] != null
+        ? double.tryParse(json['currency_exchange_rate'].toString())
+        : null;
+    _currencyAmount = json['currency_amount'] != null
+        ? double.tryParse(json['currency_amount'].toString())
+        : null;
   }
 
   Map<String, dynamic> toJson() {
@@ -262,6 +281,9 @@ class OrderModel {
     if (_offlinePayment != null) {
       data['offline_payment'] = _offlinePayment!.toJson();
     }
+    data['currency_code'] = _currencyCode;
+    data['currency_exchange_rate'] = _currencyExchangeRate;
+    data['currency_amount'] = _currencyAmount;
     return data;
   }
 }

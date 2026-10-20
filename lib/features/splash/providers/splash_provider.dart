@@ -8,6 +8,7 @@ import '../../../common/enums/data_source_enum.dart';
 import '../../../common/enums/html_type_enum.dart';
 import '../../../common/models/api_response_model.dart';
 import '../../../common/models/config_model.dart';
+import '../../../common/providers/currency_provider.dart';
 import '../../../common/models/delivery_info_model.dart';
 import '../../../data/datasource/local/cache_response.dart';
 import '../../../features/address/screens/address_list_screen.dart';
@@ -169,6 +170,9 @@ class SplashProvider extends ChangeNotifier {
     bool fromNotification,
   ) async {
     if (_configModel != null) {
+      if (context.mounted) {
+        Provider.of<CurrencyProvider>(context, listen: false).initCurrency(_configModel);
+      }
       if (!MaintenanceHelper.isMaintenanceModeEnable(configModel)) {
         if (MaintenanceHelper.checkWebMaintenanceMode(configModel) ||
             MaintenanceHelper.checkCustomerMaintenanceMode(configModel)) {

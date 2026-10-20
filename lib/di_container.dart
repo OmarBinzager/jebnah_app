@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:jebnah/features/brand/providers/brand_provider.dart';
 import 'package:jebnah/features/home/providers/seller_provider.dart';
+import 'common/providers/currency_provider.dart';
 import 'common/reposotories/data_sync_repo.dart';
 import 'data/datasource/local/cache_response.dart';
 import 'features/auth/domain/reposotories/auth_repo.dart';
@@ -134,6 +135,12 @@ Future<void> init() async {
       dioClient: sl(),
       sharedPreferences: sl(),
       languageRepo: sl(),
+    ),
+  );
+  sl.registerFactory(
+    () => CurrencyProvider(
+      dioClient: sl(),
+      sharedPreferences: sl(),
     ),
   );
   sl.registerFactory(() => SplashProvider(splashRepo: sl()));

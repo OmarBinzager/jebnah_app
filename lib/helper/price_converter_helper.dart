@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../common/models/config_model.dart';
 import '../common/models/product_model.dart';
+import '../common/providers/currency_provider.dart';
 import '../features/splash/providers/splash_provider.dart';
 import 'package:provider/provider.dart';
 
@@ -11,23 +12,39 @@ class PriceConverterHelper {
     double? discount,
     String? discountType,
   }) {
+    if (price == null) return '';
+
     if (discount != null && discountType != null) {
       if (discountType == 'amount') {
-        price = price! - discount;
+        price = price - discount;
       } else if (discountType == 'percent') {
-        price = price! - ((discount / 100) * price);
+        price = price - ((discount / 100) * price);
       }
     }
-    ConfigModel config = Provider.of<SplashProvider>(
-      context,
-      listen: false,
-    ).configModel!;
-    bool isLeft = config.currencySymbolPosition == 'left';
-    return !isLeft
-        ? '${price!.toStringAsFixed(config.decimalPointSettings!).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}'
-              ' ${config.currencySymbol}'
-        : '${config.currencySymbol} '
-              '${price!.toStringAsFixed(config.decimalPointSettings!).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}';
+
+    CurrencyProvider? currencyProvider;
+    try {
+      currencyProvider = Provider.of<CurrencyProvider>(context, listen: false);
+    } catch (_) {}
+
+    final selectedCurrency = currencyProvider?.selectedCurrency;
+    double exchangeRate = selectedCurrency?.exchangeRate ?? 1.0;
+    if (exchangeRate <= 0) exchangeRate = 1.0;
+
+    // Direct regional quotation: Foreign Price = Base Price / Rate
+    double convertedPrice = price / exchangeRate;
+
+    ConfigModel? config = Provider.of<SplashProvider>(context, listen: false).configModel;
+
+    String symbol = selectedCurrency?.currencySymbol ?? config?.currencySymbol ?? '﷼';
+    bool isLeft = (selectedCurrency?.symbolPosition ?? config?.currencySymbolPosition ?? 'right') == 'left';
+    int decimalDigits = selectedCurrency?.decimalDigits ?? config?.decimalPointSettings ?? 2;
+
+    String formattedNumber = convertedPrice
+        .toStringAsFixed(decimalDigits)
+        .replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},');
+
+    return !isLeft ? '$formattedNumber $symbol' : '$symbol $formattedNumber';
   }
 
   static double? convertWithDiscount(
@@ -78,7 +95,23 @@ class PriceConverterHelper {
     double? discount,
     String? discountType,
   ) {
-    return '$discount${discountType == 'percent' ? '%' : '${Provider.of<SplashProvider>(context, listen: false).configModel!.currencySymbol}'} OFF';
+    CurrencyProvider? currencyProvider;
+    try {
+      currencyProvider = Provider.of<CurrencyProvider>(context, listen: false);
+    } catch (_) {}
+    final symbol = currencyProvider?.selectedCurrency?.currencySymbol ??
+        Provider.of<SplashProvider>(context, listen: false).configModel?.currencySymbol ?? '﷼';
+    return '$discount${discountType == 'percent' ? '%' : ' $symbol'} OFF';
+  }
+
+  /// Converts a base currency numeric amount to selected currency numeric amount
+  static double convertAmount(BuildContext context, double? amount) {
+    if (amount == null) return 0;
+    CurrencyProvider? currencyProvider;
+    try {
+      currencyProvider = Provider.of<CurrencyProvider>(context, listen: false);
+    } catch (_) {}
+    return currencyProvider?.convertPrice(amount) ?? amount;
   }
 
   static ({double? discount, DiscountType type}) convertProductDiscount({

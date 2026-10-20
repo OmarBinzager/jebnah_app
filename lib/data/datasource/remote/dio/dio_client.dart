@@ -28,7 +28,7 @@ class DioClient {
 
   }
 
-  Future<void> updateHeader({String? getToken, Dio? dioC, String? languageCode})async {
+  Future<void> updateHeader({String? getToken, Dio? dioC, String? languageCode, String? currencyCode})async {
     dio?..options.baseUrl = baseUrl
       ..options.connectTimeout = const Duration(seconds: 45)
       ..options.receiveTimeout = const Duration(seconds: 45)
@@ -38,6 +38,7 @@ class DioClient {
         'Authorization': 'Bearer $getToken',
         'X-localization': languageCode ?? sharedPreferences.getString(AppConstants.languageCode)
             ?? AppConstants.languages[0].languageCode,
+        'X-Currency-Code': currencyCode ?? sharedPreferences.getString(AppConstants.currency) ?? 'YER',
         'guest-id': sharedPreferences.getString(AppConstants.guestId) ?? '',
 
       };

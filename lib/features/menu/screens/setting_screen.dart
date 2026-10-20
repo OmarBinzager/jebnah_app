@@ -10,8 +10,10 @@ import '../../../common/widgets/custom_image_widget.dart';
 import '../../../common/widgets/custom_pop_scope_handel_deep_link_widget.dart';
 import '../../../common/widgets/main_app_bar_widget.dart';
 import '../../../features/address/providers/location_provider.dart';
+import '../../../common/providers/currency_provider.dart';
 import '../../../features/auth/providers/auth_provider.dart';
 import '../../../features/menu/widgets/currency_dialog_widget.dart';
+import '../../../features/menu/widgets/language_dialog_widget.dart';
 import '../../../features/menu/widgets/sign_out_dialog_widget.dart';
 import '../../../features/profile/providers/profile_provider.dart';
 import '../../../features/splash/providers/splash_provider.dart';
@@ -119,6 +121,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final List<Map<String, String>> settingsItems = [
       {'title': getTranslated('dark_theme', context), 'route': 'dark_theme'},
       {'title': getTranslated('choose_language', context), 'route': 'language'},
+      {'title': getTranslated('currency', context), 'route': 'currency'},
       {
         'title': getTranslated('notifications', context),
         'route': 'notifications',
@@ -553,13 +556,37 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             onChanged: (_) => themeProvider.toggleTheme(),
                             activeColor: Theme.of(context).primaryColor,
                           )
-                        : Icon(
-                            Icons.arrow_forward_ios,
-                            color: isDelete
-                                ? Colors.red.shade700
-                                : textColor.withOpacity(0.5),
-                            size: 16,
-                          ),
+                        : item['route'] == 'currency'
+                            ? Consumer<CurrencyProvider>(
+                                builder: (context, currencyProvider, child) {
+                                  final curr = currencyProvider.selectedCurrency;
+                                  return Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(
+                                        '${curr?.currencyCode ?? ''} (${curr?.currencySymbol ?? ''})',
+                                        style: poppinsBold.copyWith(
+                                          fontSize: Dimensions.fontSizeSmall,
+                                          color: Theme.of(context).primaryColor,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 6),
+                                      Icon(
+                                        Icons.arrow_forward_ios,
+                                        color: textColor.withOpacity(0.5),
+                                        size: 14,
+                                      ),
+                                    ],
+                                  );
+                                },
+                              )
+                            : Icon(
+                                Icons.arrow_forward_ios,
+                                color: isDelete
+                                    ? Colors.red.shade700
+                                    : textColor.withOpacity(0.5),
+                                size: 16,
+                              ),
                   ),
                   if (idx != items.length - 1)
                     Divider(
@@ -720,6 +747,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
         break;
 
       case 'language':
+        showDialogHelper(context, const LanguageDialogWidget());
+        break;
+
+      case 'currency':
         showDialogHelper(context, const CurrencyDialogWidget());
         break;
 

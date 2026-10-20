@@ -206,6 +206,31 @@ class OrderAmountWidget extends StatelessWidget {
                 ),
               ),
 
+              if (orderModel?.currencyCode != null &&
+                  orderModel?.currencyAmount != null &&
+                  orderModel?.currencyCode != 'YER') ...[
+                const SizedBox(height: 4),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      '(${orderModel!.currencyCode})',
+                      style: poppinsRegular.copyWith(
+                        fontSize: Dimensions.fontSizeSmall,
+                        color: Theme.of(context).hintColor,
+                      ),
+                    ),
+                    Text(
+                      '${orderModel!.currencyAmount!.toStringAsFixed(2)} ${orderModel!.currencyCode}',
+                      style: poppinsMedium.copyWith(
+                        fontSize: Dimensions.fontSizeDefault,
+                        color: Theme.of(context).primaryColor,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+
               if (paymentList.isNotEmpty)
                 Padding(
                   padding: const EdgeInsets.only(

@@ -147,6 +147,7 @@ class AppConstants {
   static const String cookingManagement = 'cookies_management';
   static const String userLogData = 'user_log_data';
   static const String guestId = 'guest_id';
+  static const String currency = 'currency_code';
   static const String lastIncompleteOfflineBookingId =
       'last_incomplete_offline_order_id';
 

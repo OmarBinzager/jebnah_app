@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import '../../../common/models/cart_model.dart';
 import '../../../common/models/place_order_model.dart';
 import '../../../common/providers/cart_provider.dart';
+import '../../../common/providers/currency_provider.dart';
 import '../../../common/widgets/custom_button_widget.dart';
 import '../../../common/widgets/custom_directionality_widget.dart';
 import '../../../common/widgets/custom_loader_widget.dart';
@@ -344,6 +345,7 @@ class PlaceOrderButtonWidget extends StatelessWidget {
                                   ? profileProvider.userInfoModel?.id.toString()
                                   : '',
                               paymentPlatform: kIsWeb ? 'web' : 'app',
+                              currencyCode: Provider.of<CurrencyProvider>(context, listen: false).selectedCurrency?.currencyCode,
                               callBack: ResponsiveHelper.isWeb()
                                   ? '$protocol//$hostname${kDebugMode ? ':$port' : ''}${RouteHelper.orderWebPayment}'
                                   : '${AppConstants.baseUrl}${RouteHelper.orderSuccessful}',

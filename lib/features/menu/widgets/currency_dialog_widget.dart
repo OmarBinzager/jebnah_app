@@ -1,129 +1,216 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../../common/models/currency_model.dart';
+import '../../../common/providers/currency_provider.dart';
 import '../../../localization/language_constraints.dart';
-import '../../../common/providers/localization_provider.dart';
-import '../../../features/splash/providers/splash_provider.dart';
-import '../../../utill/app_constants.dart';
 import '../../../utill/dimensions.dart';
 import '../../../utill/styles.dart';
-import 'package:provider/provider.dart';
 
-class CurrencyDialogWidget extends StatelessWidget {
+class CurrencyDialogWidget extends StatefulWidget {
   const CurrencyDialogWidget({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    int? index = Provider.of<LocalizationProvider>(
-      context,
-      listen: false,
-    ).getCurrentLanguageIndex();
+  State<CurrencyDialogWidget> createState() => _CurrencyDialogWidgetState();
+}
 
+class _CurrencyDialogWidgetState extends State<CurrencyDialogWidget> {
+  CurrencyModel? _tempSelected;
+
+  @override
+  void initState() {
+    super.initState();
+    final provider = Provider.of<CurrencyProvider>(context, listen: false);
+    _tempSelected = provider.selectedCurrency;
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Dialog(
       backgroundColor: Theme.of(context).cardColor,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      child: SizedBox(
-        width: 300,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(Dimensions.paddingSizeDefault),
-              child: Text(
-                getTranslated('language', context),
-                style: poppinsRegular.copyWith(
-                  fontSize: Dimensions.fontSizeLarge,
-                ),
-              ),
-            ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Container(
+        width: 360,
+        padding: const EdgeInsets.symmetric(vertical: Dimensions.paddingSizeDefault),
+        child: Consumer<CurrencyProvider>(
+          builder: (context, currencyProvider, child) {
+            final currencyList = currencyProvider.currencyList;
 
-            SizedBox(
-              height: 150,
-              child: Consumer<SplashProvider>(
-                builder: (context, splash, child) {
-                  List<String?> valueList = [];
-                  for (var language in AppConstants.languages) {
-                    valueList.add(language.languageName);
-                  }
-
-                  return CupertinoPicker(
-                    itemExtent: 40,
-                    useMagnifier: true,
-                    magnification: 1.2,
-                    scrollController: FixedExtentScrollController(
-                      initialItem: index ?? 0,
-                    ),
-                    onSelectedItemChanged: (int i) {
-                      index = i;
-                    },
-                    children: valueList.map((value) {
-                      return Center(
-                        child: Text(
-                          value!,
-                          style: TextStyle(
-                            color: Theme.of(context).textTheme.bodyLarge!.color,
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeLarge),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        getTranslated('currency', context),
+                        style: poppinsBold.copyWith(
+                          fontSize: Dimensions.fontSizeLarge,
+                          color: Theme.of(context).textTheme.bodyLarge?.color,
+                        ),
+                      ),
+                      if (_tempSelected?.currencyCode != null)
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            _tempSelected!.currencyCode!,
+                            style: poppinsBold.copyWith(
+                              fontSize: Dimensions.fontSizeSmall,
+                              color: Theme.of(context).primaryColor,
+                            ),
                           ),
                         ),
-                      );
-                    }).toList(),
-                  );
-                },
-              ),
-            ),
-
-            Divider(
-              height: Dimensions.paddingSizeExtraSmall,
-              color: Theme.of(context).hintColor.withValues(alpha: 0.6),
-            ),
-
-            Row(
-              children: [
-                Expanded(
-                  child: TextButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: Text(
-                      getTranslated('cancel', context),
-                      style: poppinsRegular.copyWith(
-                        color: Theme.of(context).hintColor,
-                      ),
-                    ),
+                    ],
                   ),
                 ),
-                Container(
-                  height: 50,
-                  padding: const EdgeInsets.symmetric(
-                    vertical: Dimensions.paddingSizeExtraSmall,
-                  ),
-                  child: VerticalDivider(
-                    width: Dimensions.paddingSizeExtraSmall,
-                    color: Theme.of(context).hintColor,
-                  ),
-                ),
-                Expanded(
-                  child: TextButton(
-                    onPressed: () {
-                      Provider.of<LocalizationProvider>(
-                        context,
-                        listen: false,
-                      ).setLanguage(
-                        Locale(
-                          AppConstants.languages[index!].languageCode!,
-                          AppConstants.languages[index!].countryCode,
+                const SizedBox(height: Dimensions.paddingSizeSmall),
+                const Divider(height: 1),
+                
+                Flexible(
+                  child: currencyList.isEmpty
+                      ? Padding(
+                          padding: const EdgeInsets.all(Dimensions.paddingSizeLarge),
+                          child: Center(
+                            child: Text(
+                              getTranslated('no_currency_found', context),
+                              style: poppinsRegular,
+                            ),
+                          ),
+                        )
+                      : ListView.separated(
+                          shrinkWrap: true,
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          itemCount: currencyList.length,
+                          separatorBuilder: (context, index) => const Divider(height: 1, indent: 16, endIndent: 16),
+                          itemBuilder: (context, index) {
+                            final currency = currencyList[index];
+                            final isSelected = _tempSelected?.currencyCode?.toUpperCase() == currency.currencyCode?.toUpperCase();
+
+                            return InkWell(
+                              onTap: () {
+                                setState(() {
+                                  _tempSelected = currency;
+                                });
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                child: Row(
+                                  children: [
+                                    Container(
+                                      width: 44,
+                                      height: 44,
+                                      alignment: Alignment.center,
+                                      decoration: BoxDecoration(
+                                        color: isSelected
+                                            ? Theme.of(context).primaryColor.withValues(alpha: 0.15)
+                                            : Theme.of(context).hintColor.withValues(alpha: 0.08),
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: Text(
+                                        currency.currencySymbol ?? '',
+                                        style: poppinsBold.copyWith(
+                                          fontSize: Dimensions.fontSizeDefault,
+                                          color: isSelected ? Theme.of(context).primaryColor : Theme.of(context).textTheme.bodyLarge?.color,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 14),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            currency.currencyCode ?? '',
+                                            style: poppinsBold.copyWith(
+                                              fontSize: Dimensions.fontSizeDefault,
+                                              color: isSelected ? Theme.of(context).primaryColor : Theme.of(context).textTheme.bodyLarge?.color,
+                                            ),
+                                          ),
+                                          if (currency.country != null && currency.country!.isNotEmpty)
+                                            Text(
+                                              currency.country!,
+                                              style: poppinsRegular.copyWith(
+                                                fontSize: Dimensions.fontSizeSmall,
+                                                color: Theme.of(context).hintColor,
+                                              ),
+                                            ),
+                                        ],
+                                      ),
+                                    ),
+                                    Container(
+                                      width: 22,
+                                      height: 22,
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        border: Border.all(
+                                          color: isSelected ? Theme.of(context).primaryColor : Theme.of(context).hintColor.withValues(alpha: 0.4),
+                                          width: isSelected ? 6.5 : 2,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
                         ),
-                      );
-                      Navigator.pop(context);
-                    },
-                    child: Text(
-                      getTranslated('ok', context),
-                      style: poppinsRegular.copyWith(
-                        color: Theme.of(context).primaryColor,
+                ),
+
+                const Divider(height: 1),
+                const SizedBox(height: 10),
+
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeLarge),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed: () => Navigator.pop(context),
+                          style: OutlinedButton.styleFrom(
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                            side: BorderSide(color: Theme.of(context).hintColor.withValues(alpha: 0.4)),
+                          ),
+                          child: Text(
+                            getTranslated('cancel', context),
+                            style: poppinsRegular.copyWith(
+                              color: Theme.of(context).hintColor,
+                            ),
+                          ),
+                        ),
                       ),
-                    ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () {
+                            if (_tempSelected != null) {
+                              currencyProvider.setCurrency(_tempSelected!);
+                            }
+                            Navigator.pop(context);
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Theme.of(context).primaryColor,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                          ),
+                          child: Text(
+                            getTranslated('ok', context),
+                            style: poppinsBold.copyWith(
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
-            ),
-          ],
+            );
+          },
         ),
       ),
     );
