@@ -23,13 +23,25 @@ class _CurrencyDialogWidgetState extends State<CurrencyDialogWidget> {
     _tempSelected = provider.selectedCurrency;
   }
 
+  String _getCurrencyName(BuildContext context, CurrencyModel currency) {
+    final code = currency.currencyCode?.toUpperCase();
+    if (code == 'YER') {
+      return getTranslated('yemeni_rial', context);
+    } else if (code == 'SAR') {
+      return getTranslated('saudi_riyal', context);
+    } else if (code == 'USD') {
+      return getTranslated('us_dollar', context);
+    }
+    return currency.country ?? currency.currencyCode ?? '';
+  }
+
   @override
   Widget build(BuildContext context) {
     return Dialog(
       backgroundColor: Theme.of(context).cardColor,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Container(
-        width: 360,
+        width: 380,
         padding: const EdgeInsets.symmetric(vertical: Dimensions.paddingSizeDefault),
         child: Consumer<CurrencyProvider>(
           builder: (context, currencyProvider, child) {
@@ -44,12 +56,25 @@ class _CurrencyDialogWidgetState extends State<CurrencyDialogWidget> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        getTranslated('currency', context),
-                        style: poppinsBold.copyWith(
-                          fontSize: Dimensions.fontSizeLarge,
-                          color: Theme.of(context).textTheme.bodyLarge?.color,
-                        ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            getTranslated('select_currency', context),
+                            style: poppinsBold.copyWith(
+                              fontSize: Dimensions.fontSizeLarge,
+                              color: Theme.of(context).textTheme.bodyLarge?.color,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            getTranslated('preferred_currency_hint', context),
+                            style: poppinsRegular.copyWith(
+                              fontSize: Dimensions.fontSizeExtraSmall,
+                              color: Theme.of(context).hintColor,
+                            ),
+                          ),
+                        ],
                       ),
                       if (_tempSelected?.currencyCode != null)
                         Container(
@@ -125,21 +150,41 @@ class _CurrencyDialogWidgetState extends State<CurrencyDialogWidget> {
                                       child: Column(
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
+                                          Row(
+                                            children: [
+                                              Text(
+                                                currency.currencyCode ?? '',
+                                                style: poppinsBold.copyWith(
+                                                  fontSize: Dimensions.fontSizeDefault,
+                                                  color: isSelected ? Theme.of(context).primaryColor : Theme.of(context).textTheme.bodyLarge?.color,
+                                                ),
+                                              ),
+                                              if (currency.isBase == true) ...[
+                                                const SizedBox(width: 6),
+                                                Container(
+                                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                                                  decoration: BoxDecoration(
+                                                    color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
+                                                    borderRadius: BorderRadius.circular(4),
+                                                  ),
+                                                  child: Text(
+                                                    getTranslated('base_currency', context),
+                                                    style: poppinsMedium.copyWith(
+                                                      fontSize: 10,
+                                                      color: Theme.of(context).primaryColor,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ],
+                                          ),
                                           Text(
-                                            currency.currencyCode ?? '',
-                                            style: poppinsBold.copyWith(
-                                              fontSize: Dimensions.fontSizeDefault,
-                                              color: isSelected ? Theme.of(context).primaryColor : Theme.of(context).textTheme.bodyLarge?.color,
+                                            _getCurrencyName(context, currency),
+                                            style: poppinsRegular.copyWith(
+                                              fontSize: Dimensions.fontSizeSmall,
+                                              color: Theme.of(context).hintColor,
                                             ),
                                           ),
-                                          if (currency.country != null && currency.country!.isNotEmpty)
-                                            Text(
-                                              currency.country!,
-                                              style: poppinsRegular.copyWith(
-                                                fontSize: Dimensions.fontSizeSmall,
-                                                color: Theme.of(context).hintColor,
-                                              ),
-                                            ),
                                         ],
                                       ),
                                     ),

@@ -29,11 +29,14 @@ class OrderRepo {
     String? phoneNumber,
   ) async {
     try {
+      final String? cleanPhone = (phoneNumber == null || phoneNumber.trim().isEmpty || phoneNumber == 'null')
+          ? null
+          : phoneNumber.trim();
       final response = await dioClient!.post(
         AppConstants.orderDetailsUri,
         data: {
           'order_id': orderID,
-          'phone': phoneNumber == 'null' ? null : phoneNumber,
+          'phone': cleanPhone,
         },
       );
       return ApiResponseModel.withSuccess(response);
@@ -62,11 +65,14 @@ class OrderRepo {
     String? phoneNumber,
   ) async {
     try {
+      final String? cleanPhone = (phoneNumber == null || phoneNumber.trim().isEmpty || phoneNumber == 'null')
+          ? null
+          : phoneNumber.trim();
       final response = await dioClient!.post(
         AppConstants.trackUri,
         data: {
           'order_id': orderID,
-          'phone': phoneNumber == 'null' ? null : phoneNumber,
+          'phone': cleanPhone,
         },
       );
       return ApiResponseModel.withSuccess(response);

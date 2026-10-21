@@ -182,8 +182,11 @@ class RouteHelper {
     String? data = orderModel != null
         ? base64Url.encode(utf8.encode(jsonEncode(orderModel.toJson())))
         : null;
+    String phoneParam = (phoneNumber != null && phoneNumber.trim().isNotEmpty && phoneNumber != 'null')
+        ? '&phone=${Uri.encodeComponent(phoneNumber.trim())}'
+        : '';
     return _navigateRoute(
-      '$orderDetails?id=$id&phone=${Uri.encodeComponent('$phoneNumber')}&order_details=$data',
+      '$orderDetails?id=$id$phoneParam&order_details=$data',
       route: action,
     );
   }
@@ -277,10 +280,15 @@ class RouteHelper {
     int? id,
     String? phoneNumber, {
     RouteAction? action,
-  }) => _navigateRoute(
-    '$trackOrder?id=$id&phone=${Uri.encodeComponent('$phoneNumber')}',
-    route: action,
-  );
+  }) {
+    String phoneParam = (phoneNumber != null && phoneNumber.trim().isNotEmpty && phoneNumber != 'null')
+        ? '&phone=${Uri.encodeComponent(phoneNumber.trim())}'
+        : '';
+    return _navigateRoute(
+      '$trackOrder?id=$id$phoneParam',
+      route: action,
+    );
+  }
   static String getTrackMapScreen({
     OrderModel? order,
     int? orderId,
@@ -467,9 +475,10 @@ class RouteHelper {
         path: orderDetails,
         builder: (context, state) {
           int? orderId = int.tryParse(state.uri.queryParameters['id'] ?? '');
-          String? phone = Uri.decodeComponent(
-            state.uri.queryParameters['phone'] ?? '',
-          );
+          String? rawPhone = state.uri.queryParameters['phone'];
+          String? phone = (rawPhone == null || rawPhone.trim().isEmpty || rawPhone == 'null')
+              ? null
+              : Uri.decodeComponent(rawPhone).trim();
           String? token = state.uri.queryParameters['token'];
           String? flag = state.uri.queryParameters['flag'];
 
@@ -738,13 +747,15 @@ class RouteHelper {
       GoRoute(
         path: trackOrder,
         builder: (context, state) {
+          String? rawPhone = state.uri.queryParameters['phone'];
+          String? phone = (rawPhone == null || rawPhone.trim().isEmpty || rawPhone == 'null')
+              ? null
+              : Uri.decodeComponent(rawPhone).trim();
           return _routeHandler(
             context,
             child: TrackOrderScreen(
               orderID: state.uri.queryParameters['id'] ?? '',
-              phone: Uri.decodeComponent(
-                state.uri.queryParameters['phone'] ?? '',
-              ),
+              phone: phone,
             ),
           );
         },

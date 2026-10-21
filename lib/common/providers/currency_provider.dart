@@ -70,7 +70,10 @@ class CurrencyProvider extends ChangeNotifier {
 
   void _updateDioHeader() {
     if (dioClient != null && _selectedCurrency?.currencyCode != null) {
-      dioClient!.updateHeader(currencyCode: _selectedCurrency!.currencyCode);
+      dioClient!.updateHeader(
+        currencyCode: _selectedCurrency!.currencyCode,
+        getToken: sharedPreferences?.getString(AppConstants.token),
+      );
     }
   }
 

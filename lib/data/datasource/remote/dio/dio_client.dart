@@ -20,30 +20,54 @@ class DioClient {
         required this.loggingInterceptor,
         required this.sharedPreferences,
       }) {
-    token = sharedPreferences.getString(AppConstants.token);
+    final savedToken = sharedPreferences.getString(AppConstants.token);
+    token = (savedToken != null && savedToken.trim().isNotEmpty && savedToken != 'null')
+        ? savedToken.trim()
+        : null;
     dio = dioC ?? Dio();
 
-
     updateHeader(dioC: dioC, getToken: token);
-
   }
 
-  Future<void> updateHeader({String? getToken, Dio? dioC, String? languageCode, String? currencyCode})async {
+  Future<void> updateHeader({
+    String? getToken,
+    Dio? dioC,
+    String? languageCode,
+    String? currencyCode,
+    bool isClear = false,
+  }) async {
+    if (isClear) {
+      token = null;
+    } else if (getToken != null && getToken.trim().isNotEmpty && getToken != 'null') {
+      token = getToken.trim();
+    } else if (token == null || token!.trim().isEmpty || token == 'null') {
+      final savedToken = sharedPreferences.getString(AppConstants.token);
+      if (savedToken != null && savedToken.trim().isNotEmpty && savedToken != 'null') {
+        token = savedToken.trim();
+      }
+    }
+
+    final Map<String, dynamic> headers = {
+      'Content-Type': 'application/json; charset=UTF-8',
+      'X-localization': languageCode ?? sharedPreferences.getString(AppConstants.languageCode)
+          ?? AppConstants.languages[0].languageCode,
+      'X-Currency-Code': currencyCode ?? sharedPreferences.getString(AppConstants.currency) ?? 'YER',
+      'guest-id': sharedPreferences.getString(AppConstants.guestId) ?? '',
+    };
+
+    if (token != null && token!.trim().isNotEmpty && token != 'null') {
+      headers['Authorization'] = 'Bearer $token';
+    }
+
     dio?..options.baseUrl = baseUrl
       ..options.connectTimeout = const Duration(seconds: 45)
       ..options.receiveTimeout = const Duration(seconds: 45)
       ..httpClientAdapter
-      ..options.headers = {
-        'Content-Type': 'application/json; charset=UTF-8',
-        'Authorization': 'Bearer $getToken',
-        'X-localization': languageCode ?? sharedPreferences.getString(AppConstants.languageCode)
-            ?? AppConstants.languages[0].languageCode,
-        'X-Currency-Code': currencyCode ?? sharedPreferences.getString(AppConstants.currency) ?? 'YER',
-        'guest-id': sharedPreferences.getString(AppConstants.guestId) ?? '',
+      ..options.headers = headers;
 
-      };
-
-    dio?.interceptors.add(loggingInterceptor);
+    if (dio != null && !dio!.interceptors.contains(loggingInterceptor)) {
+      dio!.interceptors.add(loggingInterceptor);
+    }
   }
 
   Future<Response> get(String uri, {

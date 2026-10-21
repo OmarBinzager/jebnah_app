@@ -236,14 +236,9 @@ class AuthRepo {
 
   // for  user token
   Future<void> saveUserToken(String token) async {
-    dioClient!.token = token;
-    dioClient!.dio!.options.headers = {
-      'Content-Type': 'application/json; charset=UTF-8',
-      'Authorization': 'Bearer $token',
-    };
-
     try {
       await sharedPreferences!.setString(AppConstants.token, token);
+      await dioClient!.updateHeader(getToken: token);
     } catch (e) {
       rethrow;
     }
@@ -314,7 +309,8 @@ class AuthRepo {
   }
 
   bool isLoggedIn() {
-    return sharedPreferences!.containsKey(AppConstants.token);
+    final token = sharedPreferences?.getString(AppConstants.token);
+    return token != null && token.trim().isNotEmpty && token != 'null';
   }
 
   Future<bool> clearSharedData() async {
@@ -421,7 +417,7 @@ class AuthRepo {
   }
 
   Future<void> clearToken() async {
-    dioClient!.updateHeader(getToken: null);
+    await dioClient!.updateHeader(getToken: null, isClear: true);
   }
 
   Future<ApiResponseModel> existingAccountCheck({

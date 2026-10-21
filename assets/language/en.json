@@ -1,5 +1,13 @@
 {
   "currency_symbol": "YER",
+  "currency": "Currency",
+  "select_currency": "Select Currency",
+  "preferred_currency_hint": "Choose your preferred currency to display prices",
+  "no_currency_found": "No currencies available currently",
+  "base_currency": "Base Currency",
+  "yemeni_rial": "Yemeni Rial",
+  "saudi_riyal": "Saudi Riyal",
+  "us_dollar": "US Dollar",
   "onboarding_1_text": "Pick the items you want and add them to your shopping cart.",
   "onboarding_2_text": "Complete your purchase by checking out and providing payment information for the items in your shopping bag.",
   "onboarding_3_text": "Once your order is processed, our system will deliver the item(s) to you according to the selected delivery method.",
