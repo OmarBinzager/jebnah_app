@@ -650,7 +650,7 @@ class AuthProvider with ChangeNotifier {
   }
 
   Future<void> updateAuthToken(String token) async {
-    authRepo!.saveUserToken(token);
+    await authRepo!.saveUserToken(token);
     await authRepo!.updateToken();
   }
 

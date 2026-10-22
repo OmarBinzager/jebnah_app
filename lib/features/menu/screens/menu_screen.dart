@@ -87,7 +87,6 @@ class MenuWidget extends StatelessWidget {
     );
     final bool isLoggedIn = Provider.of<AuthProvider>(
       context,
-      listen: false,
     ).isLoggedIn();
     return PopScope(
       canPop: true,

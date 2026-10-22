@@ -15,9 +15,15 @@ class ApiCheckerHelper {
   static void checkApi(ApiResponseModel apiResponse) {
     ErrorResponseModel error = getError(apiResponse);
 
-    if (error.errors != null &&
-        error.errors!.isNotEmpty &&
-        (error.errors![0].code == '401' || error.errors![0].code == 'auth-001') &&
+    final bool isUnauthorized = (error.errors != null &&
+            error.errors!.isNotEmpty &&
+            (error.errors![0].code == '401' ||
+                error.errors![0].code == 'auth-001' ||
+                error.errors![0].message?.toLowerCase() == 'unauthenticated.' ||
+                error.errors![0].message?.toLowerCase() == 'unauthorized.')) ||
+        apiResponse.response?.statusCode == 401;
+
+    if (isUnauthorized &&
         ModalRoute.of(Get.context!)?.settings.name != RouteHelper.login) {
       final authProvider = Provider.of<AuthProvider>(
         Get.context!,

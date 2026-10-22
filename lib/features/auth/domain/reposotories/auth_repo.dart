@@ -315,18 +315,14 @@ class AuthRepo {
 
   Future<bool> clearSharedData() async {
     await sharedPreferences!.remove(AppConstants.token);
+    await dioClient!.updateHeader(getToken: null, isClear: true);
 
     if (!kIsWeb) {
-      await FirebaseMessaging.instance.unsubscribeFromTopic(AppConstants.topic);
-    }
-
-    try {
-      await dioClient!.post(
-        AppConstants.tokenUri,
-        data: {"_method": "put", "cm_firebase_token": '@'},
-      );
-    } catch (e) {
-      debugPrint('sign_out-> $e');
+      try {
+        await FirebaseMessaging.instance.unsubscribeFromTopic(AppConstants.topic);
+      } catch (e) {
+        debugPrint('sign_out fcm unsubscribe error: $e');
+      }
     }
 
     await sharedPreferences!.remove(AppConstants.cartList);

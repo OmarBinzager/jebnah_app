@@ -25,18 +25,16 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  late bool _isLoggedIn;
-
   @override
   void initState() {
     super.initState();
 
-    _isLoggedIn = Provider.of<AuthProvider>(
+    final bool isLoggedIn = Provider.of<AuthProvider>(
       context,
       listen: false,
     ).isLoggedIn();
 
-    if (_isLoggedIn) {
+    if (isLoggedIn) {
       Provider.of<ProfileProvider>(
         context,
         listen: false,
@@ -87,8 +85,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               ),
         body: SafeArea(
-          child: _isLoggedIn
-              ? Consumer<ProfileProvider>(
+          child: Consumer<AuthProvider>(
+            builder: (context, authProvider, _) {
+              final bool isLoggedIn = authProvider.isLoggedIn();
+              if (isLoggedIn) {
+                return Consumer<ProfileProvider>(
                   builder: (context, profileProvider, child) {
                     return const Padding(
                       padding: EdgeInsets.symmetric(
@@ -105,8 +106,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                     );
                   },
-                )
-              : const NotLoggedInWidget(),
+                );
+              }
+              return const NotLoggedInWidget();
+            },
+          ),
         ),
       ),
     );

@@ -38,13 +38,12 @@ class DioClient {
   }) async {
     if (isClear) {
       token = null;
-    } else if (getToken != null && getToken.trim().isNotEmpty && getToken != 'null') {
-      token = getToken.trim();
-    } else if (token == null || token!.trim().isEmpty || token == 'null') {
-      final savedToken = sharedPreferences.getString(AppConstants.token);
-      if (savedToken != null && savedToken.trim().isNotEmpty && savedToken != 'null') {
-        token = savedToken.trim();
-      }
+    } else if (getToken != null) {
+      final clean = getToken.trim();
+      token = (clean.isNotEmpty && clean != 'null') ? clean : null;
+    } else {
+      final savedToken = sharedPreferences.getString(AppConstants.token)?.trim();
+      token = (savedToken != null && savedToken.isNotEmpty && savedToken != 'null') ? savedToken : null;
     }
 
     final Map<String, dynamic> headers = {
@@ -55,8 +54,11 @@ class DioClient {
       'guest-id': sharedPreferences.getString(AppConstants.guestId) ?? '',
     };
 
-    if (token != null && token!.trim().isNotEmpty && token != 'null') {
-      headers['Authorization'] = 'Bearer $token';
+    if (token != null && token!.isNotEmpty && token != 'null') {
+      final parts = token!.split('.');
+      if (parts.length == 3) {
+        headers['Authorization'] = 'Bearer $token';
+      }
     }
 
     dio?..options.baseUrl = baseUrl
