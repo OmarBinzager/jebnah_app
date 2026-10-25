@@ -42,9 +42,6 @@ class ProfileProvider with ChangeNotifier {
     if (reload) {
       _userInfoModel = null;
     }
-    if (isUpdate) {
-      notifyListeners();
-    }
 
     if (_userInfoModel == null) {
       ApiResponseModel apiResponse = await profileRepo!.getUserInfo();
