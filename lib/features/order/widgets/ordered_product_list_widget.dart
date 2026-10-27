@@ -108,6 +108,32 @@ class OrderedProductItem extends StatelessWidget {
                             ),
                           ),
 
+                          if (orderDetailsModel.actualSeller?.name != null &&
+                              orderDetailsModel.actualSeller!.name!.isNotEmpty)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 3.0),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.storefront_outlined,
+                                    size: 14,
+                                    color: Theme.of(context).primaryColor,
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    '${getTranslated('seller', context)}: ${orderDetailsModel.actualSeller!.name}',
+                                    style: poppinsRegular.copyWith(
+                                      fontSize: Dimensions.fontSizeExtraSmall,
+                                      color: Theme.of(context).primaryColor,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ],
+                              ),
+                            ),
+
                           if (!fromReview)
                             OrderedProductVariationWidget(
                               orderDetailsModel: orderDetailsModel,
@@ -192,6 +218,33 @@ class OrderedProductItem extends StatelessWidget {
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
+                      if (orderDetailsModel.actualSeller?.name != null &&
+                          orderDetailsModel.actualSeller!.name!.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 3.0),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.storefront_outlined,
+                                size: 14,
+                                color: Theme.of(context).primaryColor,
+                              ),
+                              const SizedBox(width: 4),
+                              Flexible(
+                                child: Text(
+                                  '${getTranslated('seller', context)}: ${orderDetailsModel.actualSeller!.name}',
+                                  style: poppinsRegular.copyWith(
+                                    fontSize: Dimensions.fontSizeExtraSmall,
+                                    color: Theme.of(context).primaryColor,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       const SizedBox(height: Dimensions.paddingSizeExtraSmall),
 
                       if (!fromReview)

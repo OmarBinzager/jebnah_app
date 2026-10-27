@@ -1,3 +1,5 @@
+import '../../../../common/models/product_model.dart';
+
 class OrderDetailsModel {
   int? id;
   int? productId;
@@ -15,8 +17,9 @@ class OrderDetailsModel {
   // String? variation;
   bool? isVatInclude;
   Map<String, dynamic>? formattedVariation;
+  Seller? seller;
 
-
+  Seller? get actualSeller => seller ?? productDetails?.seller;
 
   OrderDetailsModel(
       {this.id,
@@ -35,6 +38,7 @@ class OrderDetailsModel {
         // this.variation,
         this.isVatInclude,
         this.formattedVariation,
+        this.seller,
       });
 
   OrderDetailsModel.fromJson(Map<String, dynamic> json) {
@@ -61,8 +65,9 @@ class OrderDetailsModel {
       timeSlotId = int.parse(json['time_slot_id']);
     }
     formattedVariation = json['formatted_variation'];
-
-
+    if (json['seller'] != null && json['seller'] is Map<String, dynamic>) {
+      seller = Seller.fromJson(json['seller']);
+    }
   }
 
   Map<String, dynamic> toJson() {
@@ -84,6 +89,9 @@ class OrderDetailsModel {
     data['time_slot_id'] = timeSlotId;
     // data['variation'] = variation;
     data['formatted_variation'] = formattedVariation;
+    if (seller != null) {
+      data['seller'] = seller!.toJson();
+    }
 
     return data;
   }
@@ -105,6 +113,7 @@ class ProductDetails {
   double? discount;
   String? discountType;
   String? taxType;
+  Seller? seller;
 
   ProductDetails(
       {this.id,
@@ -121,7 +130,8 @@ class ProductDetails {
       this.updatedAt,
       this.discount,
       this.discountType,
-      this.taxType});
+      this.taxType,
+      this.seller});
 
   ProductDetails.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -144,6 +154,9 @@ class ProductDetails {
     discount = json['discount'].toDouble();
     discountType = json['discount_type'];
     taxType = json['tax_type'];
+    if (json['seller'] != null && json['seller'] is Map<String, dynamic>) {
+      seller = Seller.fromJson(json['seller']);
+    }
   }
 
   Map<String, dynamic> toJson() {
@@ -165,6 +178,9 @@ class ProductDetails {
     data['discount'] = discount;
     data['discount_type'] = discountType;
     data['tax_type'] = taxType;
+    if (seller != null) {
+      data['seller'] = seller!.toJson();
+    }
     return data;
   }
 }
