@@ -37,7 +37,10 @@ class ApiErrorHandler {
 
                   if (errorResponse != null &&
                       errorResponse.errors != null &&
-                      errorResponse.errors!.isNotEmpty) {
+                      errorResponse.errors!.isNotEmpty &&
+                      errorResponse.errors![0].message != null &&
+                      errorResponse.errors![0].message!.trim().isNotEmpty &&
+                      errorResponse.errors![0].message != 'null') {
                     if (kDebugMode) {
                       print(
                         'error----------------== ${errorResponse.errors![0].message} || error: ${error.response!.requestOptions.uri}',

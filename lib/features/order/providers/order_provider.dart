@@ -352,7 +352,17 @@ class OrderProvider extends ChangeNotifier {
         if (errorResponse.errors != null && errorResponse.errors!.isNotEmpty) {
           errorMessage = errorResponse.errors![0].message;
         }
-        errorMessage ??= apiResponse.error?.toString() ?? 'something_went_wrong';
+        if (errorMessage == null || errorMessage.trim().isEmpty || errorMessage == 'null') {
+          if (apiResponse.error is Map) {
+            errorMessage = apiResponse.error['message']?.toString();
+          } else if (apiResponse.error is String && !apiResponse.error.toString().contains('code: null')) {
+            errorMessage = apiResponse.error.toString();
+          }
+        }
+        errorMessage ??= 'something_went_wrong';
+        if (errorMessage.contains('errors: [{code: null') || errorMessage.contains('{errors:')) {
+          errorMessage = 'something_went_wrong';
+        }
         callback(
           false,
           errorMessage,

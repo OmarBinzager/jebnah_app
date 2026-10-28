@@ -21,14 +21,20 @@ class ErrorResponseModel {
             _errors!.add(Errors.fromJson(v));
           });
         } else if (json['errors'] is Map) {
-          _errors!.add(Errors.fromJson(json['errors']));
+          (json['errors'] as Map).forEach((key, val) {
+            if (val is List && val.isNotEmpty) {
+              _errors!.add(Errors(code: key.toString(), message: val.first.toString()));
+            } else if (val != null) {
+              _errors!.add(Errors(code: key.toString(), message: val.toString()));
+            }
+          });
         } else if (json['errors'] is String) {
           _errors!.add(Errors(code: '', message: json['errors'].toString()));
         }
       } else if (json['message'] != null) {
         _errors!.add(
           Errors(
-            code: json['code']?.toString(),
+            code: json['code']?.toString() ?? '',
             message: json['message'].toString(),
           ),
         );
@@ -72,8 +78,19 @@ class Errors {
 
   Errors.fromJson(dynamic json) {
     if (json is Map) {
-      _code = json["code"]?.toString();
-      _message = json["message"]?.toString();
+      _code = json["code"]?.toString() ?? json["key"]?.toString() ?? json["error_code"]?.toString();
+      _message = json["message"]?.toString() ?? json["error"]?.toString() ?? json["error_message"]?.toString() ?? json["detail"]?.toString();
+      if (_message == null) {
+        for (var entry in json.entries) {
+          if (entry.value != null && entry.value.toString().isNotEmpty) {
+            _code ??= entry.key.toString();
+            _message = entry.value is List
+                ? (entry.value as List).first.toString()
+                : entry.value.toString();
+            break;
+          }
+        }
+      }
     } else if (json is String) {
       _message = json;
     }
