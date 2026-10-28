@@ -601,6 +601,19 @@ class _PaymentMethodBottomSheetWidgetState
       context,
       listen: false,
     );
+    final ConfigModel? configModel = Provider.of<SplashProvider>(
+      context,
+      listen: false,
+    ).configModel;
+
+    if (orderProvider.paymentMethodIndex == null &&
+        orderProvider.selectedPaymentMethod == null) {
+      orderProvider.loadSavedPaymentMethod(
+        configModel: configModel,
+        notify: false,
+      );
+    }
+
     _paymentMethodIndex = orderProvider.paymentMethodIndex;
     _partialAmount = orderProvider.partialAmount;
     _paymentMethod = orderProvider.paymentMethod;

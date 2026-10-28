@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import '../../../common/models/payment_response_model.dart';
 import '../../../common/models/place_order_model.dart';
@@ -546,17 +547,24 @@ class OrderProvider extends ChangeNotifier {
   }
 
   void clearPrevData({bool isUpdate = false}) {
-    _paymentMethod = null;
     _addressIndex = -1;
     _branchIndex = 0;
-    _paymentMethodIndex = null;
-    _selectedPaymentMethod = null;
-    _selectedOfflineMethod = null;
     _distance = -1;
     _trackModel = null;
     _partialAmount = null;
     _isLoading = false;
-    clearOfflinePayment();
+    if (sharedPreferences != null &&
+        (sharedPreferences!.containsKey(AppConstants.savedPaymentMethodIndex) ||
+         sharedPreferences!.containsKey(AppConstants.savedPaymentMethodData) ||
+         sharedPreferences!.containsKey(AppConstants.savedOfflineMethodData))) {
+      loadSavedPaymentMethod(notify: false);
+    } else {
+      _paymentMethod = null;
+      _paymentMethodIndex = null;
+      _selectedPaymentMethod = null;
+      _selectedOfflineMethod = null;
+      clearOfflinePayment();
+    }
     if (isUpdate) {
       notifyListeners();
     }
@@ -634,8 +642,92 @@ class OrderProvider extends ChangeNotifier {
     _selectedOfflineMethod = selectedOfflineMethod;
     _selectedOfflineValue = selectedOfflineValue;
 
+    // Persist to SharedPreferences so it is remembered for future payments
+    if (sharedPreferences != null) {
+      if (index != null) {
+        sharedPreferences!.setInt(AppConstants.savedPaymentMethodIndex, index);
+      } else {
+        sharedPreferences!.remove(AppConstants.savedPaymentMethodIndex);
+      }
+      if (method != null) {
+        sharedPreferences!.setString(
+          AppConstants.savedPaymentMethodData,
+          jsonEncode(method.toJson()),
+        );
+      } else {
+        sharedPreferences!.remove(AppConstants.savedPaymentMethodData);
+      }
+      if (_selectedPaymentMethod != null && _selectedPaymentMethod!.type != null) {
+        sharedPreferences!.setString(
+          AppConstants.savedPaymentType,
+          _selectedPaymentMethod!.type!,
+        );
+      } else {
+        sharedPreferences!.remove(AppConstants.savedPaymentType);
+      }
+      if (selectedOfflineMethod != null) {
+        sharedPreferences!.setString(
+          AppConstants.savedOfflineMethodData,
+          jsonEncode(selectedOfflineMethod.toJson()),
+        );
+      } else {
+        sharedPreferences!.remove(AppConstants.savedOfflineMethodData);
+      }
+    }
+
     if (isUpdate) {
       notifyListeners();
+    }
+  }
+
+  void loadSavedPaymentMethod({ConfigModel? configModel, bool notify = false}) {
+    if (sharedPreferences == null) return;
+
+    try {
+      int? savedIndex;
+      if (sharedPreferences!.containsKey(AppConstants.savedPaymentMethodIndex)) {
+        savedIndex = sharedPreferences!.getInt(AppConstants.savedPaymentMethodIndex);
+      }
+
+      String? savedMethodStr = sharedPreferences!.getString(AppConstants.savedPaymentMethodData);
+      String? savedOfflineStr = sharedPreferences!.getString(AppConstants.savedOfflineMethodData);
+
+      PaymentMethod? method;
+      if (savedMethodStr != null && savedMethodStr.isNotEmpty) {
+        method = PaymentMethod.fromJson(jsonDecode(savedMethodStr));
+      }
+
+      OfflinePaymentModel? offlineMethod;
+      if (savedOfflineStr != null && savedOfflineStr.isNotEmpty) {
+        offlineMethod = OfflinePaymentModel.fromJson(jsonDecode(savedOfflineStr));
+      }
+
+      // Check against business configuration
+      if (configModel != null) {
+        if (savedIndex == 1 && (configModel.cashOnDelivery == null || !configModel.cashOnDelivery!)) {
+          return;
+        }
+        if (savedIndex == 0 && (configModel.walletStatus == null || !configModel.walletStatus!)) {
+          return;
+        }
+        if (method != null && configModel.activePaymentMethodList != null) {
+          bool exists = configModel.activePaymentMethodList!.any(
+            (m) => m.getWay == method!.getWay,
+          );
+          if (!exists) return;
+        }
+      }
+
+      if (savedIndex != null || method != null || offlineMethod != null) {
+        savePaymentMethod(
+          index: savedIndex,
+          method: method,
+          selectedOfflineMethod: offlineMethod,
+          isUpdate: notify,
+        );
+      }
+    } catch (e) {
+      debugPrint('Error loading saved payment method: $e');
     }
   }
 

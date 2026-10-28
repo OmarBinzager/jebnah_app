@@ -144,6 +144,10 @@ class AppConstants {
   static const String topic = 'Jebnah';
   static const String onBoardingSkip = 'on_boarding_skip';
   static const String placeOrderData = 'place_order_data';
+  static const String savedPaymentMethodIndex = 'saved_payment_method_index';
+  static const String savedPaymentMethodData = 'saved_payment_method_data';
+  static const String savedPaymentType = 'saved_payment_type';
+  static const String savedOfflineMethodData = 'saved_offline_method_data';
   static const String cookingManagement = 'cookies_management';
   static const String userLogData = 'user_log_data';
   static const String guestId = 'guest_id';

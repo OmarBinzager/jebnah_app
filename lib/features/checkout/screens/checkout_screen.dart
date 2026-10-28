@@ -850,6 +850,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         Provider.of<ProfileProvider>(context, listen: false);
 
     orderProvider.clearPrevData();
+    orderProvider.loadSavedPaymentMethod(
+      configModel: splashProvider.configModel,
+      notify: false,
+    );
     orderImageNoteProvider.onPickImage(context, true, isUpdate: false);
     splashProvider.getOfflinePaymentMethod(true);
 
