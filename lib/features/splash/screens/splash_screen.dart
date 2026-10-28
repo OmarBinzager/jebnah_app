@@ -199,17 +199,43 @@ class _SplashScreenState extends State<SplashScreen>
 
   void _checkConnectivity() {
     bool isFirst = true;
+    bool? previousConnectionStatus;
+
     subscription = Connectivity().onConnectivityChanged.listen((
       List<ConnectivityResult> result,
-    ) {
-      bool isConnected =
-          result.contains(ConnectivityResult.wifi) ||
-          result.contains(ConnectivityResult.mobile);
+    ) async {
+      bool isConnected = result.any((r) => r != ConnectivityResult.none);
 
-      if ((isFirst && !isConnected) || !isFirst && context.mounted) {
+      if (isFirst) {
+        isFirst = false;
+        previousConnectionStatus = isConnected;
+        if (!isConnected) {
+          // Grace period: allow OS network callback to bind or re-check
+          await Future.delayed(const Duration(milliseconds: 1500));
+          try {
+            final current = await Connectivity().checkConnectivity();
+            isConnected = current.any((r) => r != ConnectivityResult.none);
+          } catch (_) {}
+          previousConnectionStatus = isConnected;
+          if (!isConnected && mounted) {
+            showCustomSnackBarHelper(
+              getTranslated('no_connection', Get.context!),
+              isError: true,
+            );
+          }
+        }
+        return;
+      }
+
+      if (previousConnectionStatus == isConnected) {
+        return;
+      }
+      previousConnectionStatus = isConnected;
+
+      if (mounted) {
         showCustomSnackBarHelper(
           getTranslated(
-            isConnected ? 'connected' : 'no_internet_connection',
+            isConnected ? 'connected' : 'no_connection',
             Get.context!,
           ),
           isError: !isConnected,
@@ -220,7 +246,6 @@ class _SplashScreenState extends State<SplashScreen>
           _route();
         }
       }
-      isFirst = false;
     });
   }
 

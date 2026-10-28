@@ -210,6 +210,7 @@
   "settings": "الإعدادات",
   "language": "اللغة",
   "no_connection": "لا يوجد اتصال بالإنترنت",
+  "no_internet_connection": "لا يوجد اتصال بالإنترنت",
   "connected": "متصل",
   "dark_theme": "المظهر الداكن",
   "choose_language": "اختر اللغة",
