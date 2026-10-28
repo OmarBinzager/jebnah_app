@@ -94,11 +94,17 @@ class CheckOutHelper {
         } else {
           deliveryCharge = setup?.fixedDeliveryCharge?.toDouble() ?? 0.0;
         }
-      } else if (getDeliveryChargeType() == DeliveryChargeType.distance.name &&
-          distance != -1 &&
-          distance > getMinimumDistanceForFreeDelivery()) {
-        deliveryCharge = distance * getDeliveryChargePerKm();
-        if (deliveryCharge < getMinimumDeliveryChargeForDistanceWise()) {
+      } else if (getDeliveryChargeType() == DeliveryChargeType.distance.name) {
+        if (distance != -1 && distance > 0) {
+          if (getMinimumDistanceForFreeDelivery() > 0 && distance < getMinimumDistanceForFreeDelivery()) {
+            deliveryCharge = 0;
+          } else {
+            deliveryCharge = distance * getDeliveryChargePerKm();
+            if (deliveryCharge < getMinimumDeliveryChargeForDistanceWise()) {
+              deliveryCharge = getMinimumDeliveryChargeForDistanceWise();
+            }
+          }
+        } else {
           deliveryCharge = getMinimumDeliveryChargeForDistanceWise();
         }
       } else if (getDeliveryChargeType() == DeliveryChargeType.area.name) {

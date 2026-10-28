@@ -145,7 +145,9 @@ class NotificationHelper {
             : null;
     type = message.data['type'];
 
-    if (Get.context != null && (title != null || body != null)) {
+    final bool hasValidTitle = title != null && title.trim().isNotEmpty && title.trim() != '0';
+    final bool hasValidBody = body != null && body.trim().isNotEmpty && body.trim() != '0';
+    if (Get.context != null && (hasValidTitle || hasValidBody)) {
       showDialog(
         context: Get.context!,
         builder: (context) => Center(
