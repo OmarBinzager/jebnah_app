@@ -1,3 +1,4 @@
+import 'package:go_router/go_router.dart';
 import 'package:flutter/material.dart';
 import '../../../common/providers/cart_provider.dart';
 import '../../../features/splash/providers/splash_provider.dart';
@@ -57,14 +58,16 @@ class DetailsAppBarWidgetState extends State<DetailsAppBarWidget>
           size: 20,
         ),
         onPressed: () {
-          if (Navigator.canPop(context)) {
+          if (context.canPop()) {
+            context.pop();
+            return;
+          } else if (Navigator.canPop(context)) {
             Navigator.pop(context);
             return;
-          } else if (!Navigator.canPop(context)) {
+          } else {
             RouteHelper.getMainRoute(
               action: RouteAction.pushNamedAndRemoveUntil,
             );
-            Provider.of<SplashProvider>(context, listen: false).setPageIndex(0);
             return;
           }
         },

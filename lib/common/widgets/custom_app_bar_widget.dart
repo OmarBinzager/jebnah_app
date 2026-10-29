@@ -1,3 +1,4 @@
+import 'package:go_router/go_router.dart';
 import 'package:flutter/material.dart';
 import '../../../../common/providers/cart_provider.dart';
 import '../../../../features/category/providers/category_provider.dart';
@@ -66,15 +67,13 @@ class CustomAppBarWidget extends StatelessWidget
                 if (onBackPressed != null) {
                   onBackPressed!();
                   return;
+                } else if (context.canPop()) {
+                  context.pop();
+                  return;
                 } else if (Navigator.canPop(context)) {
                   Navigator.pop(context);
                   return;
                 } else {
-                  final splash = Provider.of<SplashProvider>(
-                    context,
-                    listen: false,
-                  );
-                  splash.setPageIndex(0);
                   RouteHelper.getMainRoute(
                     action: RouteAction.pushNamedAndRemoveUntil,
                   );

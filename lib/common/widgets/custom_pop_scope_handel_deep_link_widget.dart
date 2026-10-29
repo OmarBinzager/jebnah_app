@@ -1,3 +1,4 @@
+import 'package:go_router/go_router.dart';
 import 'package:flutter/material.dart';
 import '../../../../features/splash/providers/splash_provider.dart';
 import '../../../../helper/responsive_helper.dart';
@@ -27,8 +28,10 @@ class _CustomPopScopeHandelDeepLinkWidgetState
       listen: false,
     );
 
+    final bool canPop = ResponsiveHelper.isWeb() ? true : (context.canPop() || Navigator.canPop(context));
+
     return PopScope<Object?>(
-      canPop: ResponsiveHelper.isWeb() ? true : false,
+      canPop: canPop,
       onPopInvokedWithResult: (bool didPop, _) {
         if (widget.onPopInvoked != null) {
           widget.onPopInvoked!();
@@ -36,11 +39,13 @@ class _CustomPopScopeHandelDeepLinkWidgetState
 
         if (didPop) return;
 
-        if (Navigator.canPop(context) && !ResponsiveHelper.isDesktop(context)) {
+        if (context.canPop()) {
+          context.pop();
+          return;
+        } else if (Navigator.canPop(context) && !ResponsiveHelper.isDesktop(context)) {
           Navigator.pop(context);
           return;
-        } else if (!didPop && !Navigator.canPop(context)) {
-          splashProvider.setPageIndex(0);
+        } else if (!didPop) {
           RouteHelper.getMainRoute(
             action: RouteAction.pushNamedAndRemoveUntil,
           );
