@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import '../../../../common/widgets/custom_alert_dialog_widget.dart';
@@ -46,6 +47,10 @@ class _CustomPopScopeWidgetState extends State<CustomPopScopeWidget> {
         }
 
         if (splashProvider.pageIndex == 0) {
+          if (Platform.isIOS) {
+            // On iOS, apps should not prompt to exit or terminate programmatically
+            return;
+          }
           ResponsiveHelper().showDialogOrBottomSheet(
             context,
             CustomAlertDialogWidget(
@@ -63,7 +68,11 @@ class _CustomPopScopeWidgetState extends State<CustomPopScopeWidget> {
                 ),
               ),
               onPressRight: () {
-                exit(0);
+                if (Platform.isAndroid) {
+                  SystemNavigator.pop();
+                } else if (!Platform.isIOS) {
+                  exit(0);
+                }
               },
             ),
           );

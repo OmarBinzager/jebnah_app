@@ -242,9 +242,17 @@ class PlaceOrderButtonWidget extends StatelessWidget {
                               isError: true,
                             );
                           } else {
-                            String? hostname = html.window.location.hostname;
-                            String protocol = html.window.location.protocol;
-                            String port = html.window.location.port;
+                            String callBackUrl = '${AppConstants.baseUrl}${RouteHelper.orderSuccessful}';
+                            if (ResponsiveHelper.isWeb()) {
+                              try {
+                                String? hostname = html.window.location.hostname;
+                                String protocol = html.window.location.protocol;
+                                String port = html.window.location.port;
+                                callBackUrl = '$protocol//$hostname${kDebugMode ? ':$port' : ''}${RouteHelper.orderWebPayment}';
+                              } catch (e) {
+                                debugPrint('Web callback url error: $e');
+                              }
+                            }
 
                             List<CartModel> cartList =
                                 Provider.of<CartProvider>(
@@ -346,9 +354,7 @@ class PlaceOrderButtonWidget extends StatelessWidget {
                                   : '',
                               paymentPlatform: kIsWeb ? 'web' : 'app',
                               currencyCode: Provider.of<CurrencyProvider>(context, listen: false).selectedCurrency?.currencyCode,
-                              callBack: ResponsiveHelper.isWeb()
-                                  ? '$protocol//$hostname${kDebugMode ? ':$port' : ''}${RouteHelper.orderWebPayment}'
-                                  : '${AppConstants.baseUrl}${RouteHelper.orderSuccessful}',
+                              callBack: callBackUrl,
                             );
 
                             if (placeOrderBody.paymentMethod ==
@@ -404,9 +410,14 @@ class PlaceOrderButtonWidget extends StatelessWidget {
   }
 
   void _callback(bool isSuccess, String message, String orderID) async {
-    Provider.of<OrderProvider>(Get.context!, listen: false).stopLoader();
+    final navContext = Get.context;
+    if (navContext != null) {
+      Provider.of<OrderProvider>(navContext, listen: false).stopLoader();
+    }
     if (isSuccess) {
-      Provider.of<CartProvider>(Get.context!, listen: false).clearCartList();
+      if (navContext != null) {
+        Provider.of<CartProvider>(navContext, listen: false).clearCartList();
+      }
       RouteHelper.getOrderSuccessRoute(
         orderID,
         'success',

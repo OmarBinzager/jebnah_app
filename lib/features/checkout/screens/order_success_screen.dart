@@ -48,9 +48,11 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
 
     return PopScope(
       canPop: false,
-      onPopInvokedWithResult: ((canPop, _) {
+      onPopInvokedWithResult: (bool didPop, _) {
+        if (didPop) return;
+        splashProvider.setPageIndex(0);
         RouteHelper.getMainRoute(action: RouteAction.pushNamedAndRemoveUntil);
-      }),
+      },
       child: Scaffold(
         backgroundColor: Theme.of(context).cardColor,
         appBar: ResponsiveHelper.isDesktop(context)
@@ -154,9 +156,10 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
                                           context,
                                           listen: false,
                                         ).isLoggedIn() &&
-                                        Provider.of<SplashProvider>(
+                                        (Provider.of<SplashProvider>(
                                           context,
-                                        ).configModel!.loyaltyPointStatus! &&
+                                          listen: false,
+                                        ).configModel?.loyaltyPointStatus ?? false) &&
                                         total.floor() > 0)
                                     ? Column(
                                         children: [
@@ -222,12 +225,21 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
                                           context,
                                         ),
                                         onPressed: () {
-                                          RouteHelper.getOrderTrackingRoute(
-                                            int.parse(widget.orderID!),
-                                            null,
-                                            action: RouteAction
-                                                .pushNamedAndRemoveUntil,
-                                          );
+                                          final int? parsedId = int.tryParse(widget.orderID ?? '');
+                                          if (parsedId != null) {
+                                            RouteHelper.getOrderTrackingRoute(
+                                              parsedId,
+                                              null,
+                                              action: RouteAction
+                                                  .pushNamedAndRemoveUntil,
+                                            );
+                                          } else {
+                                            splashProvider.setPageIndex(0);
+                                            RouteHelper.getMainRoute(
+                                              action: RouteAction
+                                                  .pushNamedAndRemoveUntil,
+                                            );
+                                          }
                                         },
                                       ),
                                     ),

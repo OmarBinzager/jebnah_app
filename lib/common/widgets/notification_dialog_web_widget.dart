@@ -45,8 +45,16 @@ class _NewRequestDialogState extends State<NotificationDialogWebWidget> {
   }
 
   void _startAlarm() async {
-    AudioPlayer audio = AudioPlayer();
-    audio.play(AssetSource('notification.wav'));
+    try {
+      if (kIsWeb) {
+        AudioPlayer audio = AudioPlayer();
+        await audio.play(AssetSource('notification.wav'));
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Audio alarm error: $e');
+      }
+    }
   }
 
   @override

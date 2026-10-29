@@ -682,15 +682,22 @@ class RouteHelper {
       GoRoute(
         path: payment,
         builder: (context, state) {
+          String rawUri = state.uri.queryParameters['uri'] ?? '';
+          String decodedUrl = '';
+          try {
+            if (rawUri.isNotEmpty && rawUri != 'null') {
+              decodedUrl = Uri.decodeComponent(
+                utf8.decode(base64Decode(rawUri)),
+              );
+            }
+          } catch (e) {
+            debugPrint('Failed to decode payment uri: $e');
+          }
           return _routeHandler(
             context,
             child: PaymentScreen(
               orderId: int.tryParse(state.uri.queryParameters['id'] ?? ''),
-              url: Uri.decodeComponent(
-                utf8.decode(
-                  base64Decode(state.uri.queryParameters['uri'] ?? ''),
-                ),
-              ),
+              url: decodedUrl,
             ),
           );
         },

@@ -147,7 +147,7 @@ class NotificationHelper {
 
     final bool hasValidTitle = title != null && title.trim().isNotEmpty && title.trim() != '0';
     final bool hasValidBody = body != null && body.trim().isNotEmpty && body.trim() != '0';
-    if (Get.context != null && (hasValidTitle || hasValidBody)) {
+    if (isWeb && Get.context != null && (hasValidTitle || hasValidBody)) {
       showDialog(
         context: Get.context!,
         builder: (context) => Center(
@@ -166,7 +166,7 @@ class NotificationHelper {
     } else {
       if (kDebugMode) {
         print(
-          'Notification received: $title - $body (type: $type)',
+          'Notification received: $title - $body (type: $type, isWeb: $isWeb)',
         );
       }
     }
