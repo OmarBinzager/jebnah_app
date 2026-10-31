@@ -328,7 +328,7 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
                                                 context,
                                               )
                                               ? (1 / 1.4)
-                                              : (1 / 1.7),
+                                              : (1 / 1.5),
                                           crossAxisCount:
                                               ResponsiveHelper.isDesktop(
                                                 context,
@@ -389,7 +389,7 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
                                                   context,
                                                 )
                                                 ? (1 / 1.4)
-                                                : (1 / 1.7),
+                                                : (1 / 1.5),
                                             crossAxisCount:
                                                 ResponsiveHelper.isDesktop(
                                                   context,

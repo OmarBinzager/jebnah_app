@@ -60,20 +60,33 @@ class CartModel {
 
 
   CartModel.fromJson(Map<String, dynamic> json) {
-    _id = json['id'];
-    _name = json['name'];
-    _image = json['image'];
-    _price = json['price'];
-    _discountedPrice = json['discounted_price'];
-    _quantity = json['quantity'];
+    _id = json['id'] is int ? json['id'] : int.tryParse('${json['id']}');
+    _name = json['name']?.toString();
+    _image = json['image']?.toString();
+    _price = json['price'] is double
+        ? json['price']
+        : double.tryParse('${json['price']}');
+    _discountedPrice = json['discounted_price'] is double
+        ? json['discounted_price']
+        : double.tryParse('${json['discounted_price']}');
+    _quantity = json['quantity'] is int
+        ? json['quantity']
+        : int.tryParse('${json['quantity']}');
     _variation = json['variations'] != null ? Variations.fromJson(json['variations']) : null;
-    _discount = json['discount'];
-    _tax = json['tax'];
-    _capacity = json['capacity'];
-    _unit = json['unit'];
-    _stock = json['stock'];
+    _discount = json['discount'] is double
+        ? json['discount']
+        : double.tryParse('${json['discount']}');
+    _tax = json['tax'] is double
+        ? json['tax']
+        : double.tryParse('${json['tax']}');
+    _capacity = json['capacity'] is double
+        ? json['capacity']
+        : double.tryParse('${json['capacity']}');
+    _unit = json['unit']?.toString();
+    _stock = json['stock'] is int
+        ? json['stock']
+        : int.tryParse('${json['stock']}');
     _product = json['product'] != null ? Product.fromJson(json['product']) : null;
-
   }
 
   Map<String, dynamic> toJson() {

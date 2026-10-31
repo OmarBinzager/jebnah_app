@@ -128,7 +128,10 @@ class DetailsAppBarWidgetState extends State<DetailsAppBarWidget>
                     context,
                     listen: false,
                   ).setPageIndex(2);
-                  RouteHelper.getMainRoute(action: RouteAction.pushReplacement);
+                  RouteHelper.getMainRoute(
+                    action: RouteAction.pushReplacement,
+                    pageIndex: 2,
+                  );
                 },
               ),
             );

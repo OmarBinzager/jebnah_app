@@ -153,7 +153,7 @@ class _AllProductListWidgetState extends State<AllProductListWidget> {
                                     ? 0.7
                                     : ResponsiveHelper.isTab(context)
                                     ? (screenWeight > 860 ? 0.9 : 0.60)
-                                    : (1 / 1.7),
+                                    : (1 / 1.5),
                                 crossAxisCount:
                                     ResponsiveHelper.isDesktop(context)
                                     ? 5

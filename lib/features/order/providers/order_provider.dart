@@ -18,6 +18,7 @@ import '../../../features/order/domain/models/timeslote_model.dart';
 import '../../../features/order/domain/reposotories/order_repo.dart';
 import '../../../features/order/providers/image_note_provider.dart';
 import '../../../features/profile/providers/profile_provider.dart';
+import '../../../features/splash/providers/splash_provider.dart';
 import '../../../helper/api_checker_helper.dart';
 import '../../../features/order/domain/models/delivery_man_model.dart';
 import '../../../helper/date_converter_helper.dart';
@@ -332,13 +333,17 @@ class OrderProvider extends ChangeNotifier {
   ) async {
     final OrderImageNoteProvider imageNoteProvider =
         Provider.of<OrderImageNoteProvider>(Get.context!, listen: false);
+    final SplashProvider splashProvider =
+        Provider.of<SplashProvider>(Get.context!, listen: false);
 
     _isLoading = true;
     notifyListeners();
     try {
+      final bool isOrderImageEnabled =
+          splashProvider.configModel?.orderImageStatus ?? false;
       ApiResponseModel apiResponse = await orderRepo!.placeOrder(
         placeOrderBody,
-        imageNote: imageNoteProvider.imageFiles ?? [],
+        imageNote: isOrderImageEnabled ? (imageNoteProvider.imageFiles ?? []) : [],
       );
 
       if (apiResponse.response != null &&

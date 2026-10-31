@@ -21,13 +21,12 @@ class ImageNoteUploadWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ConfigModel? configModel = Provider.of<SplashProvider>(
-      context,
-      listen: false,
-    ).configModel;
+    return Consumer<SplashProvider>(
+      builder: (context, splashProvider, _) {
+        final ConfigModel? configModel = splashProvider.configModel;
 
-    return (configModel?.orderImageStatus ?? false)
-        ? CustomShadowWidget(
+        return (configModel?.orderImageStatus ?? false)
+            ? CustomShadowWidget(
             margin: const EdgeInsets.symmetric(
               horizontal: Dimensions.paddingSizeDefault,
               vertical: Dimensions.paddingSizeSmall,
@@ -242,6 +241,8 @@ class ImageNoteUploadWidget extends StatelessWidget {
             ),
           )
         : const SizedBox();
+      },
+    );
   }
 
   void _onImageUpload(BuildContext context) {

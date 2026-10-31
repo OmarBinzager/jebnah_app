@@ -143,6 +143,54 @@ class _MainScreenState extends State<MainScreen> {
                                     RouteHelper.getSearchProduct();
                                   },
                                 ),
+                                Consumer<CartProvider>(
+                                  builder: (context, cartProvider, child) {
+                                    final cartQuantity =
+                                        cartProvider.getTotalCartQuantity();
+                                    return IconButton(
+                                      icon: Stack(
+                                        clipBehavior: Clip.none,
+                                        children: [
+                                          Icon(
+                                            Icons.shopping_cart_outlined,
+                                            color: Theme.of(context).primaryColor,
+                                            size: 24,
+                                          ),
+                                          if (cartQuantity > 0)
+                                            Positioned(
+                                              top: -6,
+                                              right: -6,
+                                              child: Container(
+                                                padding: const EdgeInsets.all(4),
+                                                decoration: const BoxDecoration(
+                                                  shape: BoxShape.circle,
+                                                  color: Colors.red,
+                                                ),
+                                                constraints: const BoxConstraints(
+                                                  minWidth: 18,
+                                                  minHeight: 18,
+                                                ),
+                                                child: Text(
+                                                  cartQuantity > 99
+                                                      ? '99+'
+                                                      : '$cartQuantity',
+                                                  style: const TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 9,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                  textAlign: TextAlign.center,
+                                                ),
+                                              ),
+                                            ),
+                                        ],
+                                      ),
+                                      onPressed: () {
+                                        splash.setPageIndex(2);
+                                      },
+                                    );
+                                  },
+                                ),
                               ],
                               if (splash.screenList[splash.pageIndex].title ==
                                   'loyalty_point') ...[

@@ -485,7 +485,12 @@ class ConfigModel {
     _appleLogin = AppleLogin.fromJson(json['apple_login']);
     _isFirebaseOTPVerification = '${json['firebase_otp_verification_status']}'
         .contains('1');
-    _orderImageStatus = '${json['order_image_status']}'.contains('1');
+    final dynamic rawOrderImage = json['order_image_status'] ?? json['order_image'];
+    _orderImageStatus = rawOrderImage == 1 ||
+        rawOrderImage == '1' ||
+        rawOrderImage == true ||
+        rawOrderImage == 'true' ||
+        '$rawOrderImage'.contains('1');
     _orderImageLabelName = json['order_image_label_name'];
     _maxImageUploadSize = int.tryParse(
       json['max_image_upload_size'].toString(),

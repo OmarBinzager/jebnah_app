@@ -132,7 +132,7 @@ class _WishListScreenState extends State<WishListScreen> {
                                                           context,
                                                         )
                                                         ? (1 / 1.41)
-                                                        : (1 / 1.6),
+                                                        : (1 / 1.5),
                                                     crossAxisCount:
                                                         ResponsiveHelper.isDesktop(
                                                           context,

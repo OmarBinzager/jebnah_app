@@ -12,14 +12,20 @@ class CartRepo {
     List<String>? carts = [];
     List<CartModel> cartList = [];
     try {
-      if (sharedPreferences!.containsKey(AppConstants.cartList)) {
-        carts = sharedPreferences!.getStringList(AppConstants.cartList);
+      if (sharedPreferences?.containsKey(AppConstants.cartList) ?? false) {
+        carts = sharedPreferences?.getStringList(AppConstants.cartList);
       }
-      for (var cart in carts!) {
-        cartList.add(CartModel.fromJson(jsonDecode(cart)));
+      if (carts != null) {
+        for (var cart in carts) {
+          try {
+            cartList.add(CartModel.fromJson(jsonDecode(cart)));
+          } catch (e) {
+            // Ignore corrupted single item, do not wipe entire cart
+          }
+        }
       }
     } catch (e) {
-      sharedPreferences?.clear();
+      // Do not clear shared preferences on read error
     }
     return cartList;
   }

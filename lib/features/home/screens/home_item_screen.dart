@@ -229,7 +229,7 @@ class _HomeItemScreenState extends State<HomeItemScreen> {
                                                     context,
                                                   )
                                                   ? (1 / 1.4)
-                                                  : (1 / 1.6),
+                                                  : (1 / 1.5),
                                               crossAxisCount:
                                                   ResponsiveHelper.isDesktop(
                                                     context,

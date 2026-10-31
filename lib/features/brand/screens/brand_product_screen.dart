@@ -124,7 +124,7 @@ class _BrandProductScreenState extends State<BrandProductScreen> {
                                   childAspectRatio:
                                       ResponsiveHelper.isDesktop(context)
                                           ? (1 / 1.4)
-                                          : (1 / 1.8),
+                                          : (1 / 1.5),
                                   crossAxisCount:
                                       ResponsiveHelper.isDesktop(context)
                                           ? 5
@@ -161,7 +161,7 @@ class _BrandProductScreenState extends State<BrandProductScreen> {
                                               ResponsiveHelper.isDesktop(
                                                       context)
                                                   ? (1 / 1.4)
-                                                  : (1 / 1.8),
+                                                  : (1 / 1.5),
                                           crossAxisCount:
                                               ResponsiveHelper.isDesktop(
                                                       context)

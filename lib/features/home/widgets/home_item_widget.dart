@@ -69,7 +69,7 @@ class _HomeItemWidgetState extends State<HomeItemWidget> {
                               ),
                             )
                           : SizedBox(
-                              height: widget.isFeaturedItem ? 150 : 340,
+                              height: widget.isFeaturedItem ? 150 : 285,
                               child: CustomSliderListWidget(
                                 controller: scrollController,
                                 verticalPosition: widget.isFeaturedItem
@@ -96,7 +96,9 @@ class _HomeItemWidgetState extends State<HomeItemWidget> {
                                                         context,
                                                       ).size.width *
                                                       0.90
-                                          : 260,
+                                          : (ResponsiveHelper.isDesktop(context)
+                                                ? 220
+                                                : 185),
                                       // width: ResponsiveHelper.isDesktop(context) ? widget.isFeaturedItem ? 370 : 260 : widget.isFeaturedItem ? MediaQuery.of(context).size.width * 0.90 : MediaQuery.of(context).size.width * 0.65,
                                       padding: const EdgeInsets.all(5),
                                       child: ProductWidget(

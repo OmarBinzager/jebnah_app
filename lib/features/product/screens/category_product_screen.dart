@@ -391,7 +391,7 @@ class _CategoryProductScreenState extends State<CategoryProductScreen> {
                                                   context,
                                                 )
                                                 ? (1 / 1.4)
-                                                : (1 / 1.8),
+                                                : (1 / 1.5),
                                             crossAxisCount:
                                                 ResponsiveHelper.isDesktop(
                                                   context,

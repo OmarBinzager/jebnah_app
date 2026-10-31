@@ -124,11 +124,13 @@ class RouteHelper {
   static const String orderMapInfo = '/order_map_info';
 
   // Static getter methods for routes
-  static String getMainRoute({RouteAction? action}) {
+  static String getMainRoute({RouteAction? action, int? pageIndex}) {
     if (Get.context != null) {
       try {
         final splash = Provider.of<SplashProvider>(Get.context!, listen: false);
-        if (splash.pageIndex != 0) {
+        if (pageIndex != null) {
+          splash.setPageIndex(pageIndex);
+        } else if (splash.pageIndex != 0) {
           splash.setPageIndex(0);
         }
       } catch (_) {}
@@ -379,8 +381,15 @@ class RouteHelper {
 
   static String getCreateAccount({RouteAction? action}) =>
       _navigateRoute(createAccount, route: action);
-  static String getCartScreen({RouteAction? action}) =>
-      _navigateRoute(cart, route: action);
+  static String getCartScreen({RouteAction? action}) {
+    if (ResponsiveHelper.isMobilePhone()) {
+      return getMainRoute(
+        action: action ?? RouteAction.pushReplacement,
+        pageIndex: 2,
+      );
+    }
+    return _navigateRoute(cart, route: action);
+  }
   static String getSearchProduct({RouteAction? action}) =>
       _navigateRoute(searchProduct, route: action);
   static String getProfileMenus({RouteAction? action}) =>
@@ -1195,7 +1204,7 @@ class RouteHelper {
     GoRouterState state,
     int index,
   ) {
-    if (kIsWeb || Navigator.canPop(ctx)) {
+    if (kIsWeb) {
       return null;
     } else {
       WidgetsBinding.instance.addPostFrameCallback((_) {

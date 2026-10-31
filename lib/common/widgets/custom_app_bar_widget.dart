@@ -120,7 +120,10 @@ class CustomAppBarWidget extends StatelessWidget
                 context,
                 listen: false,
               ).setPageIndex(2);
-              RouteHelper.getMainRoute(action: RouteAction.pushReplacement);
+              RouteHelper.getMainRoute(
+                action: RouteAction.pushReplacement,
+                pageIndex: 2,
+              );
             },
           ),
 

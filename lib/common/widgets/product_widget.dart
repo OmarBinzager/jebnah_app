@@ -581,8 +581,8 @@ class _ProductGridWidget extends StatelessWidget {
         : '';
 
     return SizedBox(
-      width: 260,
-      height: 330, // ارتفاع ثابت للبطاقة
+      width: ResponsiveHelper.isDesktop(context) ? 220 : 185,
+      height: ResponsiveHelper.isDesktop(context) ? 310 : 275,
       child: InkWell(
         hoverColor: Colors.transparent,
         borderRadius: BorderRadius.circular(12),
@@ -610,99 +610,103 @@ class _ProductGridWidget extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               // Image Section
-              Stack(
-                children: [
-                  ClipRRect(
-                    borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(12),
-                      topRight: Radius.circular(12),
+              Expanded(
+                child: Stack(
+                  children: [
+                    Positioned.fill(
+                      child: ClipRRect(
+                        borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(12),
+                          topRight: Radius.circular(12),
+                        ),
+                        child: CustomImageWidget(
+                          fit: BoxFit.contain,
+                          width: double.infinity,
+                          height: double.infinity,
+                          image:
+                              '${Provider.of<SplashProvider>(context, listen: false).baseUrls!.productImageUrl}/${(product.image?.isNotEmpty ?? false) ? product.image![0] : ''}',
+                        ),
+                      ),
                     ),
-                    child: CustomImageWidget(
-                      fit: BoxFit.contain,
-                      width: double.infinity,
-                      height: ResponsiveHelper.isDesktop(context) ? 160 : 135,
-                      image:
-                          '${Provider.of<SplashProvider>(context, listen: false).baseUrls!.productImageUrl}/${(product.image?.isNotEmpty ?? false) ? product.image![0] : ''}',
-                    ),
-                  ),
 
-                  // Discount Tag - Top Left
-                  if (product.price != priceWithDiscount)
-                    Positioned(
-                      top: 8,
-                      left: 8,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 6,
-                          vertical: 3,
-                        ),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFFF6B35),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Text(
-                          '% ${_getDiscountPercentage()}',
-                          style: poppinsBold.copyWith(
-                            fontSize: 12,
-                            color: Colors.white,
+                    // Discount Tag - Top Left
+                    if (product.price != priceWithDiscount)
+                      Positioned(
+                        top: 8,
+                        left: 8,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 3,
+                          ),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFF6B35),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            '% ${_getDiscountPercentage()}',
+                            style: poppinsBold.copyWith(
+                              fontSize: 12,
+                              color: Colors.white,
+                            ),
                           ),
                         ),
                       ),
-                    ),
 
-                  // Warranty Badge - Bottom Left inside image
-                  if (product.warrantyYears != null && product.warrantyYears! > 0)
-                    Positioned(
-                      bottom: 8,
-                      left: 8,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 6,
-                          vertical: 3,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.black.withValues(alpha: 0.7),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Row(
-                          children: [
-                            const Icon(
-                              Icons.verified,
-                              color: Colors.white,
-                              size: 10,
-                            ),
-                            const SizedBox(width: 3),
-                            Text(
-                              '${product.warrantyYears} ${getTranslated(product.warrantyYears == 1 ? "year_warranty" : "years_warranty", context)}',
-                              style: poppinsMedium.copyWith(
-                                fontSize: 12,
+                    // Warranty Badge - Bottom Left inside image
+                    if (product.warrantyYears != null && product.warrantyYears! > 0)
+                      Positioned(
+                        bottom: 8,
+                        left: 8,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 3,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.black.withValues(alpha: 0.7),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Row(
+                            children: [
+                              const Icon(
+                                Icons.verified,
                                 color: Colors.white,
+                                size: 10,
                               ),
-                            ),
-                          ],
+                              const SizedBox(width: 3),
+                              Text(
+                                '${product.warrantyYears} ${getTranslated(product.warrantyYears == 1 ? "year_warranty" : "years_warranty", context)}',
+                                style: poppinsMedium.copyWith(
+                                  fontSize: 12,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
 
-                  // Wish Button - Top Right inside image
-                  Positioned(
-                    top: 8,
-                    right: 8,
-                    child: WishButtonWidget(
-                      product: product,
-                      edgeInset: EdgeInsets.zero,
+                    // Wish Button - Top Right inside image
+                    Positioned(
+                      top: 8,
+                      right: 8,
+                      child: WishButtonWidget(
+                        product: product,
+                        edgeInset: EdgeInsets.zero,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
 
               // Brand Logo - Below Image (غير دائري - بشكل مستطيل)
               Align(
                 alignment: Alignment.center,
                 child: Container(
-                  margin: const EdgeInsets.only(top: 4, bottom: 2),
-                  width: 46,
-                  height: 26,
+                  margin: const EdgeInsets.only(top: 3, bottom: 2),
+                  width: 42,
+                  height: 22,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(5),
                     border: Border.all(
@@ -719,98 +723,93 @@ class _ProductGridWidget extends StatelessWidget {
                             fit: BoxFit.contain,
                           ),
                         )
-                      : const Icon(Icons.store, size: 16),
+                      : const Icon(Icons.store, size: 14),
                 ),
               ),
 
               // Product Details
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(8, 2, 8, 6),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Flexible(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            // Product Name - Made clearer
-                            Text(
-                              product.name ?? '',
-                              style: poppinsBold.copyWith(
-                                fontSize: 12,
-                                height: 1.2,
-                                color:
-                                    Theme.of(context).textTheme.bodyLarge?.color,
+              Padding(
+                padding: const EdgeInsets.fromLTRB(8, 2, 8, 8),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Product Name - Made clearer
+                    SizedBox(
+                      height: 30,
+                      child: Text(
+                        product.name ?? '',
+                        style: poppinsBold.copyWith(
+                          fontSize: 12,
+                          height: 1.2,
+                          color:
+                              Theme.of(context).textTheme.bodyLarge?.color,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+
+                    const SizedBox(height: 2),
+
+                    // Price Section - Made clearer
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        // Current Price
+                        Flexible(
+                          child: CustomDirectionalityWidget(
+                            child: Text(
+                              PriceConverterHelper.convertPrice(
+                                context,
+                                priceWithDiscount,
                               ),
-                              maxLines: 2,
+                              style: poppinsExtraBold.copyWith(
+                                fontSize: 14,
+                                color: Theme.of(context).primaryColor,
+                              ),
                               overflow: TextOverflow.ellipsis,
                             ),
-
-                            const SizedBox(height: 2),
-
-                            // Price Section - Made clearer
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                // Current Price
-                                Flexible(
-                                  child: CustomDirectionalityWidget(
-                                    child: Text(
-                                      PriceConverterHelper.convertPrice(
-                                        context,
-                                        priceWithDiscount,
-                                      ),
-                                      style: poppinsExtraBold.copyWith(
-                                        fontSize: 14,
-                                        color: Theme.of(context).primaryColor,
-                                      ),
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 4),
-                                // Original Price
-                                if ((product.price ?? 0) > priceWithDiscount)
-                                  Flexible(
-                                    child: CustomDirectionalityWidget(
-                                      child: Text(
-                                        PriceConverterHelper.convertPrice(
-                                          context,
-                                          product.price,
-                                        ),
-                                        style: poppinsRegular.copyWith(
-                                          fontSize: 11,
-                                          decoration:
-                                              TextDecoration.lineThrough,
-                                          color:
-                                              Theme.of(context).disabledColor,
-                                        ),
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ),
-                                  ),
-                              ],
-                            ),
-                          ],
+                          ),
                         ),
-                      ),
+                        const SizedBox(width: 4),
+                        // Original Price
+                        if ((product.price ?? 0) > priceWithDiscount)
+                          Flexible(
+                            child: CustomDirectionalityWidget(
+                              child: Text(
+                                PriceConverterHelper.convertPrice(
+                                  context,
+                                  product.price,
+                                ),
+                                style: poppinsRegular.copyWith(
+                                  fontSize: 11,
+                                  decoration:
+                                      TextDecoration.lineThrough,
+                                  color:
+                                      Theme.of(context).disabledColor,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
 
-                      // Add to Cart Button - Full width (no wish button in same row)
-                      _buildAddToCartButton(
-                        context: context,
-                        isExistInCart: isExistInCart,
-                        hasNotVariations: hasNotVariations,
-                        stock: stock,
-                        cartModel: cartModel,
-                        cardIndex: cardIndex,
-                        product: product,
-                        productType: productType,
-                      ),
-                    ],
-                  ),
+                    const SizedBox(height: 6),
+
+                    // Add to Cart Button - Full width (no wish button in same row)
+                    _buildAddToCartButton(
+                      context: context,
+                      isExistInCart: isExistInCart,
+                      hasNotVariations: hasNotVariations,
+                      stock: stock,
+                      cartModel: cartModel,
+                      cardIndex: cardIndex,
+                      product: product,
+                      productType: productType,
+                    ),
+                  ],
                 ),
               ),
             ],

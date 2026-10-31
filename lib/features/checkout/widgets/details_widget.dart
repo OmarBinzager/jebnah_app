@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../features/checkout/domain/models/check_out_model.dart';
 import '../../../common/models/config_model.dart';
 import '../../../features/checkout/widgets/image_note_upload_widget.dart';
+import '../../../features/splash/providers/splash_provider.dart';
 import '../../../localization/language_constraints.dart';
 import '../../../features/order/providers/order_provider.dart';
 import '../../../utill/dimensions.dart';
@@ -29,6 +30,10 @@ class DetailsWidget extends StatelessWidget {
       context,
       listen: false,
     ).getCheckOutData;
+    final splashProvider = Provider.of<SplashProvider>(context);
+    final bool isOrderImageEnabled =
+        splashProvider.configModel?.orderImageStatus ?? false;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -40,7 +45,7 @@ class DetailsWidget extends StatelessWidget {
         ),
 
         //PartialPayWidget(totalPrice: (checkOutData?.amount ?? 0) + (checkOutData?.deliveryCharge ?? 0)),
-        const ImageNoteUploadWidget(),
+        if (isOrderImageEnabled) const ImageNoteUploadWidget(),
 
         CustomShadowWidget(
           margin: const EdgeInsets.symmetric(
