@@ -1,3 +1,5 @@
+import '../../../features/address/providers/location_provider.dart';
+import '../../../helper/checkout_helper.dart';
 import 'package:flutter/material.dart';
 import '../../../common/widgets/price_item_widget.dart';
 import '../../../features/cart/widgets/coupon_widget.dart';
@@ -83,6 +85,14 @@ class CartDetailsWidget extends StatelessWidget {
                           .deliveryChargeSetup
                       : null;
 
+                  final locationProvider =
+                      Provider.of<LocationProvider>(context, listen: false);
+                  double distance = CheckOutHelper.calculateDistance(
+                    configModel: configModel,
+                    orderProvider: orderProvider,
+                    locationProvider: locationProvider,
+                  );
+
                   double convenientPrice = 0.0;
                   double fastPrice = 0.0;
 
@@ -92,9 +102,31 @@ class CartDetailsWidget extends StatelessWidget {
                     fastPrice = setup?.fastDeliveryCharge?.toDouble() ??
                         (setup?.fixedDeliveryCharge?.toDouble() ??
                             (configModel.deliveryCharge ?? 0.0));
+                  } else if (setup?.deliveryChargeType == 'distance') {
+                    double perKm = setup?.deliveryChargePerKilometer?.toDouble() ?? 0.0;
+                    double minCharge = setup?.minimumDeliveryCharge?.toDouble() ?? 0.0;
+                    double freeDist = setup?.minimumDistanceForFreeDelivery?.toDouble() ?? 0.0;
+
+                    if (freeDist > 0 && distance > 0 && distance < freeDist) {
+                      fastPrice = 0.0;
+                    } else if (distance > 0) {
+                      fastPrice = distance * perKm;
+                      if (fastPrice < minCharge) {
+                        fastPrice = minCharge;
+                      }
+                    } else {
+                      fastPrice = minCharge;
+                    }
+
+                    if ((setup?.convenientDeliveryCharge ?? 0) > 0) {
+                      convenientPrice = setup!.convenientDeliveryCharge!.toDouble();
+                    } else {
+                      convenientPrice = fastPrice;
+                    }
                   } else {
                     fastPrice = setup?.minimumDeliveryCharge?.toDouble() ??
                         (configModel.deliveryCharge ?? 0.0);
+                    convenientPrice = fastPrice;
                   }
 
                   String convenientPriceStr = convenientPrice <= 0
@@ -234,6 +266,39 @@ class CartDetailsWidget extends StatelessWidget {
                           deliveryCharge =
                               setup?.fixedDeliveryCharge?.toDouble() ??
                                   (configModel.deliveryCharge ?? 0.0);
+                        }
+                      } else if (setup?.deliveryChargeType == 'distance') {
+                        final locationProvider =
+                            Provider.of<LocationProvider>(context, listen: false);
+                        double distance = CheckOutHelper.calculateDistance(
+                          configModel: configModel,
+                          orderProvider: orderProvider,
+                          locationProvider: locationProvider,
+                        );
+
+                        double perKm = setup?.deliveryChargePerKilometer?.toDouble() ?? 0.0;
+                        double minCharge = setup?.minimumDeliveryCharge?.toDouble() ?? 0.0;
+                        double freeDist = setup?.minimumDistanceForFreeDelivery?.toDouble() ?? 0.0;
+
+                        double computedFast = minCharge;
+                        if (freeDist > 0 && distance > 0 && distance < freeDist) {
+                          computedFast = 0.0;
+                        } else if (distance > 0) {
+                          computedFast = distance * perKm;
+                          if (computedFast < minCharge) {
+                            computedFast = minCharge;
+                          }
+                        }
+
+                        if (orderProvider.orderType == 'self_pickup' ||
+                            orderProvider.orderType == 'convenient_delivery') {
+                          if ((setup?.convenientDeliveryCharge ?? 0) > 0) {
+                            deliveryCharge = setup!.convenientDeliveryCharge!.toDouble();
+                          } else {
+                            deliveryCharge = computedFast;
+                          }
+                        } else {
+                          deliveryCharge = computedFast;
                         }
                       } else {
                         deliveryCharge =

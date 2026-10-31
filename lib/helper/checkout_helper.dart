@@ -95,23 +95,96 @@ class CheckOutHelper {
           deliveryCharge = setup?.fixedDeliveryCharge?.toDouble() ?? 0.0;
         }
       } else if (getDeliveryChargeType() == DeliveryChargeType.distance.name) {
+        final setup = splashProvider
+            .deliveryInfoModelList?[orderProvider.branchIndex]
+            .deliveryChargeSetup;
+
+        double computedDistanceCharge = 0.0;
         if (distance != -1 && distance > 0) {
-          if (getMinimumDistanceForFreeDelivery() > 0 && distance < getMinimumDistanceForFreeDelivery()) {
-            deliveryCharge = 0;
+          if (getMinimumDistanceForFreeDelivery() > 0 &&
+              distance < getMinimumDistanceForFreeDelivery()) {
+            computedDistanceCharge = 0;
           } else {
-            deliveryCharge = distance * getDeliveryChargePerKm();
-            if (deliveryCharge < getMinimumDeliveryChargeForDistanceWise()) {
-              deliveryCharge = getMinimumDeliveryChargeForDistanceWise();
+            computedDistanceCharge = distance * getDeliveryChargePerKm();
+            if (computedDistanceCharge <
+                getMinimumDeliveryChargeForDistanceWise()) {
+              computedDistanceCharge =
+                  getMinimumDeliveryChargeForDistanceWise();
             }
           }
         } else {
-          deliveryCharge = getMinimumDeliveryChargeForDistanceWise();
+          computedDistanceCharge = getMinimumDeliveryChargeForDistanceWise();
+        }
+
+        if (orderProvider.orderType == 'self_pickup' ||
+            orderProvider.orderType == 'convenient_delivery') {
+          if (setup?.convenientDeliveryCharge != null &&
+              setup!.convenientDeliveryCharge! > 0) {
+            deliveryCharge = setup.convenientDeliveryCharge!.toDouble();
+          } else {
+            deliveryCharge = computedDistanceCharge;
+          }
+        } else {
+          deliveryCharge = computedDistanceCharge;
         }
       } else if (getDeliveryChargeType() == DeliveryChargeType.area.name) {
         deliveryCharge = getAreaWiseDeliveryCharge();
       }
     }
     return deliveryCharge;
+  }
+
+  static double calculateDistance({
+    required ConfigModel configModel,
+    required OrderProvider orderProvider,
+    required LocationProvider locationProvider,
+  }) {
+    if (orderProvider.distance > 0) {
+      return orderProvider.distance;
+    }
+
+    try {
+      if (configModel.branches != null &&
+          configModel.branches!.isNotEmpty &&
+          orderProvider.branchIndex < configModel.branches!.length) {
+        final branch = configModel.branches![orderProvider.branchIndex];
+        final branchLat = double.tryParse(branch.latitude ?? '') ?? 0.0;
+        final branchLng = double.tryParse(branch.longitude ?? '') ?? 0.0;
+
+        double addressLat = 0.0;
+        double addressLng = 0.0;
+
+        if (locationProvider.addressList != null &&
+            locationProvider.addressList!.isNotEmpty) {
+          final address = (orderProvider.addressIndex >= 0 &&
+                  orderProvider.addressIndex < locationProvider.addressList!.length)
+              ? locationProvider.addressList![orderProvider.addressIndex]
+              : locationProvider.addressList!.first;
+          addressLat = double.tryParse(address.latitude ?? '') ?? 0.0;
+          addressLng = double.tryParse(address.longitude ?? '') ?? 0.0;
+        } else {
+          addressLat = locationProvider.pickPosition.latitude;
+          addressLng = locationProvider.pickPosition.longitude;
+        }
+
+        if (branchLat != 0.0 &&
+            branchLng != 0.0 &&
+            addressLat != 0.0 &&
+            addressLng != 0.0) {
+          double dist = Geolocator.distanceBetween(
+                branchLat,
+                branchLng,
+                addressLat,
+                addressLng,
+              ) /
+              1000.0;
+          orderProvider.setDistance(dist, notify: false);
+          return dist;
+        }
+      }
+    } catch (_) {}
+
+    return -1.0;
   }
 
   static bool isBranchAvailable({
@@ -191,39 +264,51 @@ class CheckOutHelper {
       orderProvider.setAddressIndex(index, notify: true);
 
       if (CheckOutHelper.isKmWiseCharge(configModel: configModel)) {
-        showDialog(
-          context: Get.context!,
-          builder: (context) => Center(
-            child: Container(
-              height: 100,
-              width: 100,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: Theme.of(context).cardColor,
-                borderRadius: BorderRadius.circular(10),
+        double branchLat = double.tryParse(configModel.branches![orderProvider.branchIndex].latitude ?? '') ?? 0.0;
+        double branchLng = double.tryParse(configModel.branches![orderProvider.branchIndex].longitude ?? '') ?? 0.0;
+        double addressLat = double.tryParse(locationProvider.addressList![index].latitude ?? '') ?? 0.0;
+        double addressLng = double.tryParse(locationProvider.addressList![index].longitude ?? '') ?? 0.0;
+
+        if (branchLat != 0.0 && branchLng != 0.0 && addressLat != 0.0 && addressLng != 0.0) {
+          double directDist = Geolocator.distanceBetween(branchLat, branchLng, addressLat, addressLng) / 1000.0;
+          orderProvider.setDistance(directDist, notify: false);
+        }
+
+        bool isSuccess = false;
+        if (fromAddressList) {
+          showDialog(
+            context: Get.context!,
+            builder: (context) => Center(
+              child: Container(
+                height: 100,
+                width: 100,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: Theme.of(context).cardColor,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: CustomLoaderWidget(color: Theme.of(context).primaryColor),
               ),
-              child: CustomLoaderWidget(color: Theme.of(context).primaryColor),
             ),
-          ),
-          barrierDismissible: false,
-        );
+            barrierDismissible: false,
+          );
 
-        bool isSuccess = await orderProvider.getDistanceInMeter(
-          LatLng(
-            double.parse(
-              configModel.branches![orderProvider.branchIndex].latitude!,
-            ),
-            double.parse(
-              configModel.branches![orderProvider.branchIndex].longitude!,
-            ),
-          ),
-          LatLng(
-            double.parse(locationProvider.addressList![index].latitude!),
-            double.parse(locationProvider.addressList![index].longitude!),
-          ),
-        );
+          if (branchLat != 0.0 && addressLat != 0.0) {
+            isSuccess = await orderProvider.getDistanceInMeter(
+              LatLng(branchLat, branchLng),
+              LatLng(addressLat, addressLng),
+            );
+          }
 
-        Navigator.pop(Get.context!);
+          Navigator.pop(Get.context!);
+        } else {
+          if (branchLat != 0.0 && addressLat != 0.0) {
+            isSuccess = await orderProvider.getDistanceInMeter(
+              LatLng(branchLat, branchLng),
+              LatLng(addressLat, addressLng),
+            );
+          }
+        }
 
         if (fromAddressList) {
           await showDialog(

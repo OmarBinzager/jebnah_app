@@ -453,6 +453,13 @@ class OrderProvider extends ChangeNotifier {
     }
   }
 
+  void setDistance(double distance, {bool notify = true}) {
+    _distance = distance;
+    if (notify) {
+      notifyListeners();
+    }
+  }
+
   bool _isDistanceLoading = false;
   bool get isDistanceLoading => _isDistanceLoading;
 
