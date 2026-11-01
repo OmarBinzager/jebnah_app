@@ -186,218 +186,249 @@ class PlaceOrderButtonWidget extends StatelessWidget {
                           context,
                         ),
                         onPressed: () async {
-                          final AuthProvider authProvider =
-                              Provider.of<AuthProvider>(context, listen: false);
-                          final ProfileProvider profileProvider =
-                              Provider.of<ProfileProvider>(
-                                context,
-                                listen: false,
-                              );
-
-                          if (fromOfflinePayment &&
-                              orderProvider.getOfflinePaymentData().isEmpty) {
-                            showCustomSnackBarHelper(
-                              getTranslated(
-                                'input_your_data_properly',
-                                context,
-                              ),
-                              isError: true,
-                            );
-                          } else if (orderProvider.addressIndex == -1) {
-                            showDialog(
-                              context: context,
-                              builder: (_) => const AddAddressDialogWidget(),
-                            );
-                          } else if ((CheckOutHelper.getDeliveryChargeType() ==
-                                  DeliveryChargeType.area.name) &&
-                              (orderProvider.selectedAreaID == null) &&
-                              !isSelfPickup) {
-                            await scrollController?.animateTo(
-                              0,
-                              duration: const Duration(milliseconds: 100),
-                              curve: Curves.ease,
-                            );
-                            _openDropdown();
-                          } else if ((orderProvider.selectedPaymentMethod ==
-                                  null
-                              ? (orderProvider.selectedOfflineValue == null)
-                              : orderProvider.selectedPaymentMethod == null)) {
-                            //showCustomSnackBarHelper(getTranslated('add_a_payment_method', context));
-                            ResponsiveHelper().showDialogOrBottomSheet(
-                              context,
-                              PaymentMethodBottomSheetWidget(
-                                totalPrice: total + (weight ?? 0),
-                              ),
-                              isScrollControlled: true,
-                            );
-
-                          } else if (!isSelfPickup &&
-                              isKmWiseCharge &&
-                              orderProvider.distance == -1) {
-                            showCustomSnackBarHelper(
-                              getTranslated(
-                                'delivery_fee_not_set_yet',
-                                context,
-                              ),
-                              isError: true,
-                            );
-                          } else {
-                            String callBackUrl = '${AppConstants.baseUrl}${RouteHelper.orderSuccessful}';
-                            if (ResponsiveHelper.isWeb()) {
-                              try {
-                                String? hostname = html.window.location.hostname;
-                                String protocol = html.window.location.protocol;
-                                String port = html.window.location.port;
-                                callBackUrl = '$protocol//$hostname${kDebugMode ? ':$port' : ''}${RouteHelper.orderWebPayment}';
-                              } catch (e) {
-                                debugPrint('Web callback url error: $e');
-                              }
-                            }
-
-                            List<CartModel> cartList =
-                                Provider.of<CartProvider>(
+                          try {
+                            final AuthProvider authProvider =
+                                Provider.of<AuthProvider>(context, listen: false);
+                            final ProfileProvider profileProvider =
+                                Provider.of<ProfileProvider>(
                                   context,
                                   listen: false,
-                                ).cartList;
-                            List<Cart> carts = [];
+                                );
 
-                            for (
-                              int index = 0;
-                              index < cartList.length;
-                              index++
-                            ) {
-                              Cart cart = Cart(
-                                productId: cartList[index].id,
-                                price: cartList[index].price,
-                                discountAmount: cartList[index].discountedPrice,
-                                quantity: cartList[index].quantity,
-                                taxAmount: cartList[index].tax,
-                                variant: cartList[index].variation?.type ?? '',
-                                variation: (cartList[index].variation?.type != null &&
-                                        cartList[index].variation!.type!.trim().isNotEmpty)
-                                    ? [
-                                        Variation(
-                                          type: cartList[index].variation?.type,
-                                        ),
-                                      ]
-                                    : [],
+                            final bool hasValidOffline =
+                                orderProvider.selectedOfflineValue != null &&
+                                    orderProvider.selectedOfflineValue!.isNotEmpty;
+                            final bool hasValidMethod =
+                                orderProvider.selectedPaymentMethod != null &&
+                                    orderProvider.selectedPaymentMethod!.getWay != null &&
+                                    orderProvider.selectedPaymentMethod!.getWay!.isNotEmpty;
+
+                            if (fromOfflinePayment &&
+                                orderProvider.getOfflinePaymentData().isEmpty) {
+                              showCustomSnackBarHelper(
+                                getTranslated(
+                                  'input_your_data_properly',
+                                  context,
+                                ),
+                                isError: true,
                               );
-                              carts.add(cart);
-                            }
-
-                            PlaceOrderModel placeOrderBody = PlaceOrderModel(
-                              cart: carts,
-                              orderType: checkOutData?.orderType,
-                              couponCode: checkOutData?.couponCode,
-                              orderNote: checkOutData?.orderNote,
-                              branchId: configModel!
-                                  .branches![orderProvider.branchIndex]
-                                  .id,
-                              deliveryAddressId: (orderProvider.addressIndex != -1 &&
-                                      Provider.of<LocationProvider>(
-                                            context,
-                                            listen: false,
-                                          ).addressList !=
-                                          null &&
-                                      orderProvider.addressIndex <
-                                          Provider.of<LocationProvider>(
-                                            context,
-                                            listen: false,
-                                          ).addressList!.length)
-                                  ? Provider.of<LocationProvider>(
-                                          context,
-                                          listen: false,
-                                        )
-                                        .addressList![orderProvider
-                                            .addressIndex]
-                                        .id
-                                  : null,
-                              distance: orderProvider.distance == -1
-                                  ? 0
-                                  : orderProvider.distance,
-                              couponDiscountAmount: Provider.of<CouponProvider>(
+                            } else if (orderProvider.addressIndex == -1) {
+                              showDialog(
+                                context: context,
+                                builder: (_) => const AddAddressDialogWidget(),
+                              );
+                            } else if ((CheckOutHelper.getDeliveryChargeType() ==
+                                    DeliveryChargeType.area.name) &&
+                                (orderProvider.selectedAreaID == null) &&
+                                !isSelfPickup) {
+                              await scrollController?.animateTo(
+                                0,
+                                duration: const Duration(milliseconds: 100),
+                                curve: Curves.ease,
+                              );
+                              _openDropdown();
+                            } else if (!hasValidMethod && !hasValidOffline) {
+                              ResponsiveHelper().showDialogOrBottomSheet(
                                 context,
-                                listen: false,
-                              ).discount,
-                              timeSlotId: (orderProvider.timeSlots != null &&
-                                      orderProvider.timeSlots!.isNotEmpty &&
-                                      orderProvider.selectTimeSlot <
-                                          orderProvider.timeSlots!.length)
-                                  ? orderProvider
-                                      .timeSlots![orderProvider.selectTimeSlot]
-                                      .id
-                                  : null,
-                              paymentMethod:
-                                  orderProvider.selectedOfflineValue != null
-                                  ? 'offline_payment'
-                                  : orderProvider
-                                        .selectedPaymentMethod!
-                                        .getWay!,
-                              deliveryDate: orderProvider
-                                  .getDateList()[orderProvider.selectDateSlot],
-                              couponDiscountTitle: '',
-                              orderAmount:
-                                  (checkOutData!.amount ?? 0) +
-                                  (orderProvider.deliveryCharge ?? 0) +
-                                  (weight ?? 0),
-                              selectedDeliveryArea:
-                                  orderProvider.selectedAreaID,
-
-                              isPartial: orderProvider.partialAmount == null
-                                  ? '0'
-                                  : '1',
-                              bringChangeAmount:
-                                  orderProvider.bringChangeAmount,
-                              isGuest: authProvider.isLoggedIn() ? "0" : "1",
-                              customerId: authProvider.isLoggedIn()
-                                  ? profileProvider.userInfoModel?.id.toString()
-                                  : '',
-                              paymentPlatform: kIsWeb ? 'web' : 'app',
-                              currencyCode: Provider.of<CurrencyProvider>(context, listen: false).selectedCurrency?.currencyCode,
-                              callBack: callBackUrl,
-                            );
-
-                            if (placeOrderBody.paymentMethod ==
-                                    'wallet_payment' ||
-                                placeOrderBody.paymentMethod ==
-                                    'cash_on_delivery' ||
-                                placeOrderBody.paymentMethod ==
-                                    'offline_payment') {
-                              orderProvider.placeOrder(
-                                placeOrderBody,
-                                _callback,
+                                PaymentMethodBottomSheetWidget(
+                                  totalPrice: total + (weight ?? 0),
+                                ),
+                                isScrollControlled: true,
+                              );
+                            } else if (!isSelfPickup &&
+                                isKmWiseCharge &&
+                                orderProvider.distance == -1) {
+                              showCustomSnackBarHelper(
+                                getTranslated(
+                                  'delivery_fee_not_set_yet',
+                                  context,
+                                ),
+                                isError: true,
                               );
                             } else {
-                              final String placeOrder = convert.base64Url
-                                  .encode(
-                                    convert.utf8.encode(
-                                      convert.jsonEncode(
-                                        placeOrderBody.toJson(),
-                                      ),
-                                    ),
-                                  );
+                              String callBackUrl = '${AppConstants.baseUrl}${RouteHelper.orderSuccessful}';
+                              if (ResponsiveHelper.isWeb()) {
+                                try {
+                                  String? hostname = html.window.location.hostname;
+                                  String protocol = html.window.location.protocol;
+                                  String port = html.window.location.port;
+                                  callBackUrl = '$protocol//$hostname${kDebugMode ? ':$port' : ''}${RouteHelper.orderWebPayment}';
+                                } catch (e) {
+                                  debugPrint('Web callback url error: $e');
+                                }
+                              }
 
-                              final paymentUrl = await orderProvider
-                                  .placeDigitalOrder(context, placeOrderBody);
+                              List<CartModel> cartList =
+                                  Provider.of<CartProvider>(
+                                    context,
+                                    listen: false,
+                                  ).cartList;
+                              List<Cart> carts = [];
 
-                              if (paymentUrl != null) {
-                                orderProvider.clearPlaceOrder().then(
-                                  (_) => orderProvider
-                                      .setPlaceOrder(placeOrder)
-                                      .then((value) {
-                                        if (ResponsiveHelper.isWeb()) {
-                                          html.window.open(paymentUrl, "_self");
-                                        } else {
-                                          RouteHelper.getPaymentRoute(
-                                            url: paymentUrl,
-                                            action: RouteAction
-                                                .pushNamedAndRemoveUntil,
-                                          );
-                                        }
-                                      }),
+                              for (
+                                int index = 0;
+                                index < cartList.length;
+                                index++
+                              ) {
+                                Cart cart = Cart(
+                                  productId: cartList[index].id,
+                                  price: cartList[index].price,
+                                  discountAmount: cartList[index].discountedPrice,
+                                  quantity: cartList[index].quantity,
+                                  taxAmount: cartList[index].tax,
+                                  variant: cartList[index].variation?.type ?? '',
+                                  variation: (cartList[index].variation?.type != null &&
+                                          cartList[index].variation!.type!.trim().isNotEmpty)
+                                      ? [
+                                          Variation(
+                                            type: cartList[index].variation?.type,
+                                          ),
+                                        ]
+                                      : [],
                                 );
+                                carts.add(cart);
+                              }
+
+                              int? branchId;
+                              if (configModel?.branches != null && configModel!.branches!.isNotEmpty) {
+                                if (orderProvider.branchIndex >= 0 &&
+                                    orderProvider.branchIndex < configModel.branches!.length) {
+                                  branchId = configModel.branches![orderProvider.branchIndex].id;
+                                } else {
+                                  branchId = configModel.branches![0].id;
+                                }
+                              }
+
+                              final dateList = orderProvider.getDateList();
+                              final deliveryDate = (dateList.isNotEmpty &&
+                                      orderProvider.selectDateSlot >= 0 &&
+                                      orderProvider.selectDateSlot < dateList.length)
+                                  ? dateList[orderProvider.selectDateSlot]
+                                  : (dateList.isNotEmpty ? dateList[0] : '');
+
+                              final String selectedPaymentMethodStr = hasValidOffline
+                                  ? 'offline_payment'
+                                  : (orderProvider.selectedPaymentMethod?.getWay ?? 'cash_on_delivery');
+
+                              PlaceOrderModel placeOrderBody = PlaceOrderModel(
+                                cart: carts,
+                                orderType: checkOutData?.orderType,
+                                couponCode: checkOutData?.couponCode,
+                                orderNote: checkOutData?.orderNote,
+                                branchId: branchId,
+                                deliveryAddressId: (orderProvider.addressIndex != -1 &&
+                                        Provider.of<LocationProvider>(
+                                              context,
+                                              listen: false,
+                                            ).addressList !=
+                                            null &&
+                                        orderProvider.addressIndex <
+                                            Provider.of<LocationProvider>(
+                                              context,
+                                              listen: false,
+                                            ).addressList!.length)
+                                    ? Provider.of<LocationProvider>(
+                                            context,
+                                            listen: false,
+                                          )
+                                          .addressList![orderProvider
+                                              .addressIndex]
+                                          .id
+                                    : null,
+                                distance: orderProvider.distance == -1
+                                    ? 0
+                                    : orderProvider.distance,
+                                couponDiscountAmount: Provider.of<CouponProvider>(
+                                  context,
+                                  listen: false,
+                                ).discount,
+                                timeSlotId: (orderProvider.timeSlots != null &&
+                                        orderProvider.timeSlots!.isNotEmpty &&
+                                        orderProvider.selectTimeSlot >= 0 &&
+                                        orderProvider.selectTimeSlot <
+                                            orderProvider.timeSlots!.length)
+                                    ? orderProvider
+                                        .timeSlots![orderProvider.selectTimeSlot]
+                                        .id
+                                    : null,
+                                paymentMethod: selectedPaymentMethodStr,
+                                deliveryDate: deliveryDate,
+                                couponDiscountTitle: '',
+                                orderAmount:
+                                    (checkOutData?.amount ?? 0) +
+                                    (orderProvider.deliveryCharge ?? 0) +
+                                    (weight ?? 0),
+                                selectedDeliveryArea:
+                                    orderProvider.selectedAreaID,
+
+                                isPartial: orderProvider.partialAmount == null
+                                    ? '0'
+                                    : '1',
+                                bringChangeAmount:
+                                    orderProvider.bringChangeAmount,
+                                isGuest: authProvider.isLoggedIn() ? "0" : "1",
+                                customerId: authProvider.isLoggedIn()
+                                    ? profileProvider.userInfoModel?.id?.toString() ?? ''
+                                    : '',
+                                paymentPlatform: kIsWeb ? 'web' : 'app',
+                                currencyCode: Provider.of<CurrencyProvider>(context, listen: false).selectedCurrency?.currencyCode,
+                                callBack: callBackUrl,
+                              );
+
+                              if (placeOrderBody.paymentMethod ==
+                                      'wallet_payment' ||
+                                  placeOrderBody.paymentMethod ==
+                                      'cash_on_delivery' ||
+                                  placeOrderBody.paymentMethod ==
+                                      'offline_payment') {
+                                orderProvider.placeOrder(
+                                  placeOrderBody,
+                                  _callback,
+                                  context: context,
+                                );
+                              } else {
+                                final String placeOrder = convert.base64Url
+                                    .encode(
+                                      convert.utf8.encode(
+                                        convert.jsonEncode(
+                                          placeOrderBody.toJson(),
+                                        ),
+                                      ),
+                                    );
+
+                                final paymentUrl = await orderProvider
+                                    .placeDigitalOrder(context, placeOrderBody);
+
+                                if (paymentUrl != null && paymentUrl.isNotEmpty) {
+                                  orderProvider.clearPlaceOrder().then(
+                                    (_) => orderProvider
+                                        .setPlaceOrder(placeOrder)
+                                        .then((value) {
+                                          if (ResponsiveHelper.isWeb()) {
+                                            html.window.open(paymentUrl, "_self");
+                                          } else {
+                                            RouteHelper.getPaymentRoute(
+                                              url: paymentUrl,
+                                              action: RouteAction
+                                                  .pushNamedAndRemoveUntil,
+                                            );
+                                          }
+                                        }),
+                                  );
+                                } else {
+                                  showCustomSnackBarHelper(
+                                    getTranslated('something_went_wrong', Get.context ?? context),
+                                    isError: true,
+                                  );
+                                }
                               }
                             }
+                          } catch (e, stack) {
+                            debugPrint('Place order button error: $e\n$stack');
+                            showCustomSnackBarHelper(
+                              getTranslated('something_went_wrong', Get.context ?? context),
+                              isError: true,
+                            );
                           }
                         },
                       ),
@@ -410,21 +441,29 @@ class PlaceOrderButtonWidget extends StatelessWidget {
   }
 
   void _callback(bool isSuccess, String message, String orderID) async {
-    final navContext = Get.context;
-    if (navContext != null) {
-      Provider.of<OrderProvider>(navContext, listen: false).stopLoader();
-    }
-    if (isSuccess) {
+    try {
+      final navContext = Get.context;
       if (navContext != null) {
-        Provider.of<CartProvider>(navContext, listen: false).clearCartList();
+        try {
+          Provider.of<OrderProvider>(navContext, listen: false).stopLoader();
+        } catch (_) {}
       }
-      RouteHelper.getOrderSuccessRoute(
-        orderID,
-        'success',
-        action: RouteAction.pushReplacement,
-      );
-    } else {
-      showCustomSnackBarHelper(message, isError: true);
+      if (isSuccess) {
+        if (navContext != null) {
+          try {
+            Provider.of<CartProvider>(navContext, listen: false).clearCartList();
+          } catch (_) {}
+        }
+        RouteHelper.getOrderSuccessRoute(
+          orderID,
+          'success',
+          action: RouteAction.pushReplacement,
+        );
+      } else {
+        showCustomSnackBarHelper(message, isError: true);
+      }
+    } catch (e) {
+      debugPrint('Error in place order callback: $e');
     }
   }
 }

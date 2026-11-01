@@ -42,28 +42,23 @@ class OrderDetailsModel {
       });
 
   OrderDetailsModel.fromJson(Map<String, dynamic> json) {
-    id = json['id'];
-    productId = json['product_id'];
-    orderId = json['order_id'];
-    price = json['price'].toDouble();
+    id = json['id'] != null ? int.tryParse('${json['id']}') : null;
+    productId = json['product_id'] != null ? int.tryParse('${json['product_id']}') : null;
+    orderId = json['order_id'] != null ? int.tryParse('${json['order_id']}') : null;
+    price = double.tryParse('${json['price']}') ?? 0.0;
     productDetails = json['product_details'] != null && json['product_details'] != "" ? ProductDetails.fromJson(json['product_details']) : null;
     // variation = json['variation'];
-    discountOnProduct = json['discount_on_product'].toDouble();
+    discountOnProduct = double.tryParse('${json['discount_on_product']}') ?? 0.0;
     discountType = json['discount_type'];
-    quantity = json['quantity'];
-    taxAmount = json['tax_amount'].toDouble();
+    quantity = json['quantity'] != null ? int.tryParse('${json['quantity']}') : null;
+    taxAmount = double.tryParse('${json['tax_amount']}') ?? 0.0;
     createdAt = json['created_at'];
     updatedAt = json['updated_at'];
     isVatInclude = '${json['vat_status']}' == 'included';
     if(json['variant'] != null){
       variant = json['variant'];
     }
-    try{
-      timeSlotId = json['time_slot_id'];
-
-    }catch(e){
-      timeSlotId = int.parse(json['time_slot_id']);
-    }
+    timeSlotId = json['time_slot_id'] != null ? int.tryParse('${json['time_slot_id']}') : null;
     formattedVariation = json['formatted_variation'];
     if (json['seller'] != null && json['seller'] is Map<String, dynamic>) {
       seller = Seller.fromJson(json['seller']);
@@ -134,24 +129,24 @@ class ProductDetails {
       this.seller});
 
   ProductDetails.fromJson(Map<String, dynamic> json) {
-    id = json['id'];
+    id = json['id'] != null ? int.tryParse('${json['id']}') : null;
     name = json['name'];
     description = json['description'];
     image = json['image'];
-    price = json['price'].toDouble();
+    price = double.tryParse('${json['price']}') ?? 0.0;
     if (json['category_ids'] != null) {
       categoryIds = [];
       json['category_ids'].forEach((v) {
         categoryIds!.add(CategoryIds.fromJson(v));
       });
     }
-    capacity = json['capacity'].toDouble();
+    capacity = double.tryParse('${json['capacity']}') ?? 0.0;
     unit = json['unit'];
-    tax = json['tax'].toDouble();
-    status = json['status'];
+    tax = double.tryParse('${json['tax']}') ?? 0.0;
+    status = json['status'] != null ? int.tryParse('${json['status']}') : null;
     createdAt = json['created_at'];
     updatedAt = json['updated_at'];
-    discount = json['discount'].toDouble();
+    discount = double.tryParse('${json['discount']}') ?? 0.0;
     discountType = json['discount_type'];
     taxType = json['tax_type'];
     if (json['seller'] != null && json['seller'] is Map<String, dynamic>) {

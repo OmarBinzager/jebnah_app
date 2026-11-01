@@ -30,11 +30,18 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
   // bool _isReload = true;
   @override
   void initState() {
-    if (widget.status == 0) {
-      Provider.of<OrderProvider>(
-        context,
-        listen: false,
-      ).trackOrder(widget.orderID, null, context, false, isUpdate: false);
+    if (widget.status == 0 &&
+        widget.orderID != null &&
+        widget.orderID!.isNotEmpty &&
+        widget.orderID != 'null') {
+      try {
+        Provider.of<OrderProvider>(
+          context,
+          listen: false,
+        ).trackOrder(widget.orderID, null, context, false, isUpdate: false);
+      } catch (e) {
+        debugPrint('OrderSuccessScreen trackOrder error: $e');
+      }
     }
     super.initState();
   }
@@ -160,7 +167,9 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
                                           context,
                                           listen: false,
                                         ).configModel?.loyaltyPointStatus ?? false) &&
-                                        total.floor() > 0)
+                                        !total.isNaN &&
+                                        !total.isInfinite &&
+                                        total > 0)
                                     ? Column(
                                         children: [
                                           Image.asset(

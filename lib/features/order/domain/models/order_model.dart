@@ -166,30 +166,30 @@ class OrderModel {
   double? get currencyAmount => _currencyAmount;
 
   OrderModel.fromJson(Map<String, dynamic> json) {
-    _id = json['id'];
-    _userId = json['user_id'];
-    _orderAmount = json['order_amount'].toDouble();
-    _couponDiscountAmount = json['coupon_discount_amount'].toDouble();
+    _id = json['id'] != null ? int.tryParse('${json['id']}') : null;
+    _userId = json['user_id'] != null ? int.tryParse('${json['user_id']}') : null;
+    _orderAmount = double.tryParse('${json['order_amount']}') ?? 0.0;
+    _couponDiscountAmount = double.tryParse('${json['coupon_discount_amount']}') ?? 0.0;
     _couponDiscountTitle = json['coupon_discount_title'];
     _paymentStatus = json['payment_status'];
     _orderStatus = json['order_status'];
-    _totalTaxAmount = json['total_tax_amount'].toDouble();
+    _totalTaxAmount = double.tryParse('${json['total_tax_amount']}') ?? 0.0;
     _paymentMethod = json['payment_method'];
     _transactionReference = json['transaction_reference'];
-    _deliveryAddressId = json['delivery_address_id'];
+    _deliveryAddressId = json['delivery_address_id'] != null ? int.tryParse('${json['delivery_address_id']}') : null;
     _createdAt = json['created_at'];
     _updatedAt = json['updated_at'];
-    _checked = json['checked'];
-    _deliveryManId = json['delivery_man_id'];
-    _deliveryCharge = json['delivery_charge'].toDouble();
+    _checked = json['checked'] != null ? int.tryParse('${json['checked']}') : null;
+    _deliveryManId = json['delivery_man_id'] != null ? int.tryParse('${json['delivery_man_id']}') : null;
+    _deliveryCharge = double.tryParse('${json['delivery_charge']}') ?? 0.0;
     _orderNote = json['order_note'];
     _couponCode = json['coupon_code'];
     _orderType = json['order_type'];
-    _branchId = json['branch_id'];
-    _timeSlotId = json['time_slot_id'];
+    _branchId = json['branch_id'] != null ? int.tryParse('${json['branch_id']}') : null;
+    _timeSlotId = json['time_slot_id'] != null ? int.tryParse('${json['time_slot_id']}') : null;
     _date = json['date'];
     _deliveryDate = json['delivery_date'];
-    _totalQuantity = json['total_quantity'];
+    _totalQuantity = json['total_quantity'] != null ? int.tryParse('${json['total_quantity']}') : null;
     _customer = json['customer'] != null
         ? UserInfoModel.fromJson(json['customer'])
         : null;
@@ -200,11 +200,7 @@ class OrderModel {
         ? DeliveryAddress.fromJson(json['delivery_address'])
         : null;
     if (json['extra_discount'] != null) {
-      try {
-        _extraDiscount = json['extra_discount'];
-      } catch (e) {
-        _extraDiscount = double.parse('${json['extra_discount']}');
-      }
+      _extraDiscount = double.tryParse('${json['extra_discount']}');
     }
     _orderPartialPayments = json["partial_payment"] == null
         ? []

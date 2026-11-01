@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../../common/models/payment_response_model.dart';
 import '../../../common/models/place_order_model.dart';
 import '../../../features/auth/providers/auth_provider.dart';
@@ -298,28 +299,36 @@ class OrderProvider extends ChangeNotifier {
         notifyListeners();
       }
 
-      ApiResponseModel apiResponse = await orderRepo!.trackOrder(
-        orderID,
-        phoneNumber,
-      );
-      if (apiResponse.response != null &&
-          apiResponse.response!.statusCode == 200) {
-        _trackModel = OrderModel.fromJson(apiResponse.response!.data);
-        responseModel = ResponseModel(
-          true,
-          apiResponse.response!.data.toString(),
+      try {
+        ApiResponseModel apiResponse = await orderRepo!.trackOrder(
+          orderID,
+          phoneNumber,
         );
-      } else {
+        if (apiResponse.response != null &&
+            apiResponse.response!.statusCode == 200) {
+          _trackModel = OrderModel.fromJson(apiResponse.response!.data);
+          responseModel = ResponseModel(
+            true,
+            apiResponse.response!.data.toString(),
+          );
+        } else {
+          _orderDetails = [];
+          _trackModel = OrderModel();
+          responseModel = ResponseModel(
+            false,
+            ApiCheckerHelper.getError(apiResponse).errors?.first.message,
+          );
+          ApiCheckerHelper.checkApi(apiResponse);
+        }
+      } catch (e) {
+        debugPrint('trackOrder error: $e');
         _orderDetails = [];
         _trackModel = OrderModel();
-        responseModel = ResponseModel(
-          false,
-          ApiCheckerHelper.getError(apiResponse).errors?.first.message,
-        );
-        ApiCheckerHelper.checkApi(apiResponse);
+        responseModel = ResponseModel(false, e.toString());
+      } finally {
+        _isLoading = false;
+        notifyListeners();
       }
-      _isLoading = false;
-      notifyListeners();
     } else {
       _trackModel = orderModel;
       responseModel = ResponseModel(true, 'Successful');
@@ -329,21 +338,34 @@ class OrderProvider extends ChangeNotifier {
 
   Future<void> placeOrder(
     PlaceOrderModel placeOrderBody,
-    Function callback,
-  ) async {
-    final OrderImageNoteProvider imageNoteProvider =
-        Provider.of<OrderImageNoteProvider>(Get.context!, listen: false);
-    final SplashProvider splashProvider =
-        Provider.of<SplashProvider>(Get.context!, listen: false);
+    Function callback, {
+    BuildContext? context,
+  }) async {
+    final BuildContext? currentContext = context ?? Get.context;
+    OrderImageNoteProvider? imageNoteProvider;
+    SplashProvider? splashProvider;
+    if (currentContext != null) {
+      try {
+        imageNoteProvider =
+            Provider.of<OrderImageNoteProvider>(currentContext, listen: false);
+        splashProvider =
+            Provider.of<SplashProvider>(currentContext, listen: false);
+      } catch (e) {
+        debugPrint('placeOrder providers lookup error: $e');
+      }
+    }
 
     _isLoading = true;
     notifyListeners();
     try {
       final bool isOrderImageEnabled =
-          splashProvider.configModel?.orderImageStatus ?? false;
+          splashProvider?.configModel?.orderImageStatus ?? false;
+      final List<XFile?> imageFiles = isOrderImageEnabled
+          ? (imageNoteProvider?.imageFiles ?? [])
+          : [];
       ApiResponseModel apiResponse = await orderRepo!.placeOrder(
         placeOrderBody,
-        imageNote: isOrderImageEnabled ? (imageNoteProvider.imageFiles ?? []) : [],
+        imageNote: imageFiles,
       );
 
       if (apiResponse.response != null &&
