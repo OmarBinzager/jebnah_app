@@ -77,7 +77,7 @@ class ReviewProvider extends ChangeNotifier {
     ResponseModel responseModel;
     if (response.response != null && response.response!.statusCode == 200) {
       _submitList[index] = true;
-      responseModel = ResponseModel(true, 'Review submitted successfully');
+      responseModel = ResponseModel(true, 'تم رفع تقييمك, شكرا لثفتك بجبناه');
       notifyListeners();
     } else {
       String? errorMessage;
@@ -104,7 +104,7 @@ class ReviewProvider extends ChangeNotifier {
     ResponseModel responseModel;
     if (response.response != null && response.response!.statusCode == 200) {
       _deliverymanReviewSubmitted = true;
-      responseModel = ResponseModel(true, 'Review submitted successfully');
+      responseModel = ResponseModel(true, 'تم رفع تقييمك, شكرا لثفتك بجبناه');
       notifyListeners();
     } else {
       String? errorMessage;

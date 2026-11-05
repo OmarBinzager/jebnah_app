@@ -91,7 +91,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     final ConfigModel configModel = Provider.of<SplashProvider>(
       context,
       listen: false,
-    ).configModel!;
+    ).configModel ?? ConfigModel();
     final SplashProvider splashProvider = Provider.of<SplashProvider>(
       context,
       listen: false,
@@ -101,15 +101,22 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       listen: false,
     );
 
+    final bool isGuestCheckout = configModel.isGuestCheckout ?? false;
     final bool isRoute =
-        (_isLoggedIn ||
-        (configModel.isGuestCheckout! && authProvider.getGuestId() != null));
+        (_isLoggedIn || (isGuestCheckout && authProvider.getGuestId() != null));
 
     double weightCharge = 0.0;
     if (widget.orderType == OrderType.delivery.name) {
+      DeliveryInfoModel? deliveryInfo;
+      final infoList = splashProvider.deliveryInfoModelList;
+      if (infoList != null &&
+          orderProvider.branchIndex >= 0 &&
+          orderProvider.branchIndex < infoList.length) {
+        deliveryInfo = infoList[orderProvider.branchIndex];
+      }
       weightCharge = CheckOutHelper.weightChargeCalculation(
         widget.weight,
-        splashProvider.deliveryInfoModelList?[orderProvider.branchIndex],
+        deliveryInfo,
       );
     }
 
@@ -171,7 +178,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                                                 crossAxisAlignment:
                                                     CrossAxisAlignment.start,
                                                 children: [
-                                                  if (_branches!.isNotEmpty)
+                                                  if (_branches != null && _branches!.isNotEmpty)
                                                     Container(
                                                       margin: const EdgeInsets.symmetric(
                                                         horizontal: Dimensions
@@ -278,10 +285,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                                                                         _setMarkers(
                                                                           index,
                                                                         );
-                                                                        // ignore: empty_catches
-                                                                      } catch (
-                                                                        e
-                                                                      ) {}
+                                                                      } catch (e) {
+                                                                        debugPrint('Branch selection error: $e');
+                                                                      }
                                                                     },
                                                                     child: Container(
                                                                       padding: const EdgeInsets.symmetric(
@@ -381,12 +387,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                                                                               MapType.normal,
                                                                           initialCameraPosition: CameraPosition(
                                                                             target: LatLng(
-                                                                              double.parse(
-                                                                                _branches![0].latitude!,
-                                                                              ),
-                                                                              double.parse(
-                                                                                _branches![0].longitude!,
-                                                                              ),
+                                                                              double.tryParse('${(_branches != null && _branches!.isNotEmpty) ? _branches![0].latitude : 0}') ?? 0.0,
+                                                                              double.tryParse('${(_branches != null && _branches!.isNotEmpty) ? _branches![0].longitude : 0}') ?? 0.0,
                                                                             ),
                                                                             zoom:
                                                                                 8,
@@ -400,7 +402,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                                                                                 GoogleMapController
                                                                                 controller,
                                                                               ) async {
-                                                                                await Geolocator.requestPermission();
+                                                                                try { await Geolocator.requestPermission(); } catch (e) { debugPrint('Geolocator error: $e'); }
                                                                                 _mapController = controller;
                                                                                 _loading = false;
                                                                                 _setMarkers(
@@ -866,9 +868,16 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
     double weightCharge = 0.0;
     if (widget.orderType == OrderType.delivery.name) {
+      DeliveryInfoModel? deliveryInfo;
+      final infoList = splashProvider.deliveryInfoModelList;
+      if (infoList != null &&
+          orderProvider.branchIndex >= 0 &&
+          orderProvider.branchIndex < infoList.length) {
+        deliveryInfo = infoList[orderProvider.branchIndex];
+      }
       weightCharge = CheckOutHelper.weightChargeCalculation(
         widget.weight,
-        splashProvider.deliveryInfoModelList?[orderProvider.branchIndex],
+        deliveryInfo,
       );
     }
 
@@ -886,7 +895,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     if (_isLoggedIn || CheckOutHelper.isGuestCheckout()) {
       orderProvider.setAddressIndex(-1, notify: false);
       orderProvider.initializeTimeSlot();
-      _branches = splashProvider.configModel!.branches;
+      _branches = splashProvider.configModel?.branches ?? [];
 
       await locationProvider.initAddressList();
       AddressModel? lastOrderedAddress;
@@ -904,9 +913,11 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         lastAddress: lastOrderedAddress,
       );
     }
-    _activePaymentList = CheckOutHelper.getActivePaymentList(
-      configModel: splashProvider.configModel!,
-    );
+    if (splashProvider.configModel != null) {
+      _activePaymentList = CheckOutHelper.getActivePaymentList(
+        configModel: splashProvider.configModel!,
+      );
+    }
   }
 
   void _setMarkers(int selectedIndex) async {

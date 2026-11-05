@@ -47,6 +47,24 @@ class CurrencyProvider extends ChangeNotifier {
           orElse: () => _currencyList.first,
         );
 
+    if (config.decimalPointSettings != null) {
+      _baseCurrency?.decimalDigits = config.decimalPointSettings;
+      for (var c in _currencyList) {
+        if (c.isBase == true) {
+          c.decimalDigits = config.decimalPointSettings;
+        }
+      }
+    }
+
+    if (config.currencySymbolPosition != null) {
+      _baseCurrency?.symbolPosition = config.currencySymbolPosition;
+      for (var c in _currencyList) {
+        if (c.isBase == true) {
+          c.symbolPosition = config.currencySymbolPosition;
+        }
+      }
+    }
+
     String? savedCode = sharedPreferences?.getString(AppConstants.currency);
     if (savedCode != null) {
       _selectedCurrency = _currencyList.firstWhere(

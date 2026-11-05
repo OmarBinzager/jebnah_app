@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import '../../../common/widgets/custom_app_bar_widget.dart';
 import '../../../common/widgets/custom_loader_widget.dart';
 import '../../../common/widgets/custom_pop_scope_handel_deep_link_widget.dart';
 import '../../../common/widgets/main_app_bar_widget.dart';
@@ -16,7 +17,8 @@ import '../../../utill/styles.dart';
 import 'package:provider/provider.dart';
 
 class AllCategoriesScreen extends StatefulWidget {
-  const AllCategoriesScreen({super.key});
+  final bool showAppBar;
+  const AllCategoriesScreen({super.key, this.showAppBar = false});
 
   @override
   State<AllCategoriesScreen> createState() => _AllCategoriesScreenState();
@@ -76,7 +78,11 @@ class _AllCategoriesScreenState extends State<AllCategoriesScreen> {
       child: Scaffold(
         appBar: (ResponsiveHelper.isDesktop(context) || kIsWeb)
             ? const MainAppBarWidget()
-            : null,
+            : widget.showAppBar
+                ? CustomAppBarWidget(
+                    title: getTranslated('all_categories', context),
+                  )
+                : null,
         body: Center(
           child: SizedBox(
             width: Dimensions.webScreenWidth,

@@ -67,46 +67,51 @@ class CartButtonWidget extends StatelessWidget {
             CustomButtonWidget(
               buttonText: getTranslated('proceed_to_checkout', context),
               onPressed: () {
-                final authProvider = Provider.of<AuthProvider>(
-                  context,
-                  listen: false,
-                );
-                if (!authProvider.isLoggedIn()) {
-                  RouteHelper.getLoginRoute();
-                  return;
-                }
+                try {
+                  final authProvider = Provider.of<AuthProvider>(
+                    context,
+                    listen: false,
+                  );
+                  if (!authProvider.isLoggedIn()) {
+                    RouteHelper.getLoginRoute();
+                    return;
+                  }
 
-                if (_itemPrice < (_configModel?.minimumOrderValue ?? 0)) {
+                  if (_itemPrice < (_configModel?.minimumOrderValue ?? 0)) {
+                    showCustomSnackBarHelper(
+                      ' ${getTranslated('minimum_order_amount_is', context)} ${PriceConverterHelper.convertPrice(context, _configModel?.minimumOrderValue)}, ${getTranslated('you_have', context)} ${PriceConverterHelper.convertPrice(context, _itemPrice)} ${getTranslated('in_your_cart_please_add_more_item', context)}',
+                      isError: true,
+                    );
+                  } else {
+                    String? orderType = Provider.of<OrderProvider>(
+                      context,
+                      listen: false,
+                    ).orderType;
+                    double? couponDiscount = Provider.of<CouponProvider>(
+                      context,
+                      listen: false,
+                    ).discount;
+
+                    RouteHelper.getCheckoutRoute(
+                      _total,
+                      _tax,
+                      _discount,
+                      couponDiscount ?? 0.0,
+                      (orderType == null || orderType.isEmpty || orderType == 'null') ? 'delivery' : orderType,
+                      Provider.of<CouponProvider>(
+                            context,
+                            listen: false,
+                          ).coupon?.code ??
+                          '',
+                      _isFreeDelivery ? 'free_delivery' : '',
+                      _weight,
+                    );
+                  }
+                } catch (e, stack) {
+                  debugPrint('Proceed to checkout error: $e\n$stack');
                   showCustomSnackBarHelper(
-                    ' ${getTranslated('minimum_order_amount_is', context)} ${PriceConverterHelper.convertPrice(context, _configModel?.minimumOrderValue)}, ${getTranslated('you_have', context)} ${PriceConverterHelper.convertPrice(context, _itemPrice)} ${getTranslated('in_your_cart_please_add_more_item', context)}',
+                    getTranslated('something_went_wrong', context),
                     isError: true,
-                  );
-                } else {
-                  String? orderType = Provider.of<OrderProvider>(
-                    context,
-                    listen: false,
-                  ).orderType;
-                  double? couponDiscount = Provider.of<CouponProvider>(
-                    context,
-                    listen: false,
-                  ).discount;
-
-                  debugPrint(
-                    "--------------------(CART BUTTON WIDGET)--------------Discount: $_discount and Coupon Discount: $couponDiscount and $_isFreeDelivery}",
-                  );
-                  RouteHelper.getCheckoutRoute(
-                    _total,
-                    _tax,
-                    _discount,
-                    couponDiscount,
-                    orderType,
-                    Provider.of<CouponProvider>(
-                          context,
-                          listen: false,
-                        ).coupon?.code ??
-                        '',
-                    _isFreeDelivery ? 'free_delivery' : '',
-                    _weight,
                   );
                 }
               },

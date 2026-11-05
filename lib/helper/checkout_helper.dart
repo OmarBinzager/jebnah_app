@@ -553,18 +553,24 @@ class CheckOutHelper {
     }
   }
 
-  static bool isGuestCheckout() {
-    final SplashProvider splashProvider = Provider.of<SplashProvider>(
-      Get.context!,
-      listen: false,
-    );
-    final AuthProvider authProvider = Provider.of<AuthProvider>(
-      Get.context!,
-      listen: false,
-    );
+  static bool isGuestCheckout({BuildContext? context}) {
+    final ctx = context ?? Get.context;
+    if (ctx == null) return false;
+    try {
+      final SplashProvider splashProvider = Provider.of<SplashProvider>(
+        ctx,
+        listen: false,
+      );
+      final AuthProvider authProvider = Provider.of<AuthProvider>(
+        ctx,
+        listen: false,
+      );
 
-    return (splashProvider.configModel!.isGuestCheckout!) &&
-        authProvider.getGuestId() != null;
+      return (splashProvider.configModel?.isGuestCheckout ?? false) &&
+          authProvider.getGuestId() != null;
+    } catch (_) {
+      return false;
+    }
   }
 
   static double weightChargeCalculation(
@@ -573,91 +579,77 @@ class CheckOutHelper {
   ) {
     double weightCharge = 0.0;
 
-    if (deliveryInfoModel?.deliveryWeightSettingsStatus ?? false) {
-      if (deliveryInfoModel?.deliveryWeightChargeType ==
-              WeightChargeType.unit.name &&
-          weight != null &&
-          deliveryInfoModel?.deliveryCountChargeFrom != null) {
-        if (deliveryInfoModel?.deliveryCountChargeFromOperation ==
-                WeightChargeConditions.greater_or_equal.name &&
-            weight >=
-                double.parse(deliveryInfoModel!.deliveryCountChargeFrom!)) {
-          if (weight ==
-              double.parse(deliveryInfoModel.deliveryCountChargeFrom!)) {
-            weightCharge = double.parse(
-              deliveryInfoModel.deliveryAdditionalChargePerUnit!,
-            );
-          } else if (weight >
-              double.parse(deliveryInfoModel.deliveryCountChargeFrom!)) {
-            weight =
-                weight -
-                double.parse(deliveryInfoModel.deliveryCountChargeFrom!);
-            if (weight > 0) {
-              weightCharge =
-                  weight *
-                      double.parse(
-                        deliveryInfoModel.deliveryAdditionalChargePerUnit!,
-                      ) +
-                  double.parse(
-                    deliveryInfoModel.deliveryAdditionalChargePerUnit!,
-                  );
+    try {
+      if (deliveryInfoModel?.deliveryWeightSettingsStatus ?? false) {
+        if (deliveryInfoModel?.deliveryWeightChargeType ==
+                WeightChargeType.unit.name &&
+            weight != null &&
+            deliveryInfoModel?.deliveryCountChargeFrom != null) {
+          final countFrom = double.tryParse(deliveryInfoModel!.deliveryCountChargeFrom!) ?? 0.0;
+          final addCharge = double.tryParse(deliveryInfoModel.deliveryAdditionalChargePerUnit ?? '0') ?? 0.0;
+
+          if (deliveryInfoModel.deliveryCountChargeFromOperation ==
+                  WeightChargeConditions.greater_or_equal.name &&
+              weight >= countFrom) {
+            if (weight == countFrom) {
+              weightCharge = addCharge;
+            } else if (weight > countFrom) {
+              double diff = weight - countFrom;
+              if (diff > 0) {
+                weightCharge = (diff * addCharge) + addCharge;
+              }
+            }
+          } else if (deliveryInfoModel.deliveryCountChargeFromOperation ==
+                  WeightChargeConditions.greater.name &&
+              weight > countFrom) {
+            double diff = weight - countFrom;
+            if (diff > 0) {
+              weightCharge = diff * addCharge;
             }
           }
-        } else if (deliveryInfoModel?.deliveryCountChargeFromOperation ==
-                WeightChargeConditions.greater.name &&
-            weight >
-                double.parse(deliveryInfoModel!.deliveryCountChargeFrom!)) {
-          weight =
-              weight - double.parse(deliveryInfoModel.deliveryCountChargeFrom!);
-          if (weight > 0) {
-            weightCharge =
-                weight *
-                double.parse(
-                  deliveryInfoModel.deliveryAdditionalChargePerUnit!,
-                );
-          }
-        }
-      } else if (deliveryInfoModel?.deliveryWeightChargeType ==
-          WeightChargeType.range.name) {
-        List<Map<String, dynamic>> weightRanges = deliveryInfoModel!
-            .deliveryWeightRange!
-            .map((weightRange) => weightRange.toJson())
-            .toList();
+        } else if (deliveryInfoModel?.deliveryWeightChargeType ==
+            WeightChargeType.range.name) {
+          List<Map<String, dynamic>> weightRanges = (deliveryInfoModel?.deliveryWeightRange ?? [])
+              .map((weightRange) => weightRange.toJson())
+              .toList();
 
-        for (var range in weightRanges) {
-          double minWeight = double.parse(range['min_weight']);
-          double maxWeight = double.parse(range['max_weight']);
-          String minOperation = range['min_operation'];
-          String maxOperation = range['max_operation'];
-          double deliveryCharge = double.parse(range['delivery_charge']);
+          for (var range in weightRanges) {
+            double minWeight = double.tryParse('${range['min_weight']}') ?? 0.0;
+            double maxWeight = double.tryParse('${range['max_weight']}') ?? 0.0;
+            String minOperation = range['min_operation'] ?? '';
+            String maxOperation = range['max_operation'] ?? '';
+            double deliveryCharge = double.tryParse('${range['delivery_charge']}') ?? 0.0;
 
-          bool minConditionMet = false;
-          bool maxConditionMet = false;
+            bool minConditionMet = false;
+            bool maxConditionMet = false;
 
-          if (minOperation == WeightChargeConditions.greater.name &&
-              weight! > minWeight) {
-            minConditionMet = true;
-          } else if (minOperation ==
-                  WeightChargeConditions.greater_or_equal.name &&
-              weight! >= minWeight) {
-            minConditionMet = true;
-          }
+            if (minOperation == WeightChargeConditions.greater.name &&
+                weight != null && weight > minWeight) {
+              minConditionMet = true;
+            } else if (minOperation ==
+                    WeightChargeConditions.greater_or_equal.name &&
+                weight != null && weight >= minWeight) {
+              minConditionMet = true;
+            }
 
-          if (maxOperation == WeightChargeConditions.less.name &&
-              weight! < maxWeight) {
-            maxConditionMet = true;
-          } else if (maxOperation ==
-                  WeightChargeConditions.less_or_equal.name &&
-              weight! <= maxWeight) {
-            maxConditionMet = true;
-          }
-          if (minConditionMet && maxConditionMet) {
-            weightCharge = deliveryCharge;
-
-            break;
+            if (maxOperation == WeightChargeConditions.less.name &&
+                weight != null && weight < maxWeight) {
+              maxConditionMet = true;
+            } else if (maxOperation ==
+                    WeightChargeConditions.less_or_equal.name &&
+                weight != null && weight <= maxWeight) {
+              maxConditionMet = true;
+            }
+            if (minConditionMet && maxConditionMet) {
+              weightCharge = deliveryCharge;
+              break;
+            }
           }
         }
       }
+    } catch (e) {
+      debugPrint('weightChargeCalculation error: $e');
+      weightCharge = 0.0;
     }
 
     return weightCharge;

@@ -272,8 +272,12 @@ class RouteHelper {
     String fd = freeDelivery.isNotEmpty
         ? base64Encode(utf8.encode(freeDelivery))
         : '';
+    String orderType = (type == null || type.isEmpty || type == 'null') ? 'delivery' : type;
+    double cDiscount = couponDiscount ?? 0.0;
+    double tTax = tax ?? 0.0;
+    double tDiscount = discount ?? 0.0;
     return _navigateRoute(
-      '$checkout?amount=${base64Encode(utf8.encode('$amount'))}&tax=${base64Encode(utf8.encode('$tax'))}&discount=${base64Encode(utf8.encode('$discount'))}&couponDiscount=${base64Encode(utf8.encode('$couponDiscount'))}&type=$type&code=${base64Encode(utf8.encode(code))}&c-type=$fd&weight=${base64Encode(utf8.encode('$weight'))}',
+      '$checkout?amount=${base64Encode(utf8.encode('$amount'))}&tax=${base64Encode(utf8.encode('$tTax'))}&discount=${base64Encode(utf8.encode('$tDiscount'))}&couponDiscount=${base64Encode(utf8.encode('$cDiscount'))}&type=$orderType&code=${base64Encode(utf8.encode(code))}&c-type=$fd&weight=${base64Encode(utf8.encode('$weight'))}',
       route: action,
     );
   }
@@ -714,43 +718,40 @@ class RouteHelper {
       GoRoute(
         path: checkout,
         builder: (context, state) {
+          double safeDouble(String? key) {
+            String? param = state.uri.queryParameters[key];
+            if (param == null || param.isEmpty) return 0.0;
+            try {
+              String decoded = utf8.decode(base64Decode(param));
+              return double.tryParse(decoded) ?? 0.0;
+            } catch (_) {
+              return double.tryParse(param) ?? 0.0;
+            }
+          }
+
+          String safeString(String? key) {
+            String? param = state.uri.queryParameters[key];
+            if (param == null || param.isEmpty) return '';
+            try {
+              return utf8.decode(base64Decode(param));
+            } catch (_) {
+              return param;
+            }
+          }
+
           return _routeHandler(
             context,
             child: CheckoutScreen(
-              orderType: state.uri.queryParameters['type'] ?? '',
-              tax: double.parse(
-                utf8.decode(
-                  base64Decode(state.uri.queryParameters['tax'] ?? ''),
-                ),
-              ),
-              discount: double.parse(
-                utf8.decode(
-                  base64Decode(state.uri.queryParameters['discount'] ?? ''),
-                ),
-              ),
-              couponDiscount: double.parse(
-                utf8.decode(
-                  base64Decode(
-                    state.uri.queryParameters['couponDiscount'] ?? '',
-                  ),
-                ),
-              ),
-              amount: double.parse(
-                utf8.decode(
-                  base64Decode(state.uri.queryParameters['amount'] ?? ''),
-                ),
-              ),
-              couponCode: utf8.decode(
-                base64Decode(state.uri.queryParameters['code'] ?? ''),
-              ),
-              freeDeliveryType: utf8.decode(
-                base64Decode(state.uri.queryParameters['c-type'] ?? ''),
-              ),
-              weight: double.parse(
-                utf8.decode(
-                  base64Decode(state.uri.queryParameters['weight'] ?? ''),
-                ),
-              ),
+              orderType: state.uri.queryParameters['type'] == 'null'
+                  ? 'delivery'
+                  : (state.uri.queryParameters['type'] ?? 'delivery'),
+              tax: safeDouble('tax'),
+              discount: safeDouble('discount'),
+              couponDiscount: safeDouble('couponDiscount'),
+              amount: safeDouble('amount'),
+              couponCode: safeString('code'),
+              freeDeliveryType: safeString('c-type'),
+              weight: safeDouble('weight'),
             ),
           );
         },
@@ -882,7 +883,7 @@ class RouteHelper {
       GoRoute(
         path: categories,
         builder: (context, state) =>
-            _routeHandler(context, child: const AllCategoriesScreen()),
+            _routeHandler(context, child: const AllCategoriesScreen(showAppBar: true)),
       ),
       GoRoute(
         path: allBrands,

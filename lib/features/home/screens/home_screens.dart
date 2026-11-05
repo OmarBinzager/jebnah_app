@@ -31,7 +31,6 @@ import '../../../utill/product_type.dart';
 import 'package:provider/provider.dart';
 
 import '../widgets/brand_carousel_widget.dart';
-import '../widgets/category_grid2x2_widget.dart';
 import '../widgets/dynamic_banner_widget.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -183,15 +182,6 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: const CategoryWidget(),
                       ),
                       const DynamicBannerWidget(section: 'home_top'),
-
-                      Padding(
-                        padding: EdgeInsets.only(
-                          bottom: ResponsiveHelper.isDesktop(context)
-                              ? Dimensions.paddingSizeLarge
-                              : Dimensions.paddingSizeSmall,
-                        ),
-                        child: const CategoryGrid2x2Widget(),
-                      ),
 
                       const BrandCarouselWidget(),
 

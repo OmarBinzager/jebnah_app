@@ -37,8 +37,13 @@ class PriceConverterHelper {
     ConfigModel? config = Provider.of<SplashProvider>(context, listen: false).configModel;
 
     String symbol = selectedCurrency?.currencySymbol ?? config?.currencySymbol ?? '﷼';
-    bool isLeft = (selectedCurrency?.symbolPosition ?? config?.currencySymbolPosition ?? 'right') == 'left';
-    int decimalDigits = selectedCurrency?.decimalDigits ?? config?.decimalPointSettings ?? 2;
+    String symbolPosition = (selectedCurrency == null || selectedCurrency.isBase == true)
+        ? (config?.currencySymbolPosition ?? selectedCurrency?.symbolPosition ?? 'right')
+        : (selectedCurrency.symbolPosition ?? config?.currencySymbolPosition ?? 'right');
+    bool isLeft = symbolPosition.toLowerCase() == 'left';
+    int decimalDigits = (selectedCurrency == null || selectedCurrency.isBase == true)
+        ? (config?.decimalPointSettings ?? selectedCurrency?.decimalDigits ?? 2)
+        : (selectedCurrency.decimalDigits ?? config?.decimalPointSettings ?? 2);
 
     String formattedNumber = convertedPrice
         .toStringAsFixed(decimalDigits)
