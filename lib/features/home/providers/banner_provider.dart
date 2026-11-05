@@ -76,14 +76,15 @@ class BannerProvider extends ChangeNotifier {
   }
 
   void getProductDetails(BuildContext context, String productID) async {
-    ApiResponseModel apiResponse = await bannerRepo!.getProductDetails(
-      productID,
-    );
-    if (apiResponse.response != null &&
-        apiResponse.response!.statusCode == 200) {
-      _productList.add(Product.fromJson(apiResponse.response!.data));
-    } else {
-      ApiCheckerHelper.checkApi(apiResponse);
-    }
+    try {
+      ApiResponseModel apiResponse = await bannerRepo!.getProductDetails(
+        productID,
+      );
+      if (apiResponse.response != null &&
+          apiResponse.response!.statusCode == 200 &&
+          apiResponse.response!.data != null) {
+        _productList.add(Product.fromJson(apiResponse.response!.data));
+      }
+    } catch (_) {}
   }
 }
