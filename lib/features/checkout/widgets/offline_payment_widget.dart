@@ -642,7 +642,9 @@ class _OfflinePaymentWidgetState extends State<OfflinePaymentWidget> {
           isError: false,
         );
       } else {
-        Provider.of<CartProvider>(Get.context!, listen: false).clearCartList();
+        try {
+          Provider.of<CartProvider>(Get.context ?? context, listen: false).clearCartList();
+        } catch (_) {}
         splashProvider.setPageIndex(0);
         RouteHelper.getMainRoute(action: RouteAction.pushNamedAndRemoveUntil);
         showFlutterCustomToaster(

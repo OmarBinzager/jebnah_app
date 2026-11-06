@@ -27,6 +27,7 @@ import '../../../helper/order_helper.dart';
 import '../../../helper/responsive_helper.dart';
 import '../../../localization/language_constraints.dart';
 import '../../../main.dart';
+import '../../../common/providers/cart_provider.dart';
 import '../../../common/providers/product_provider.dart';
 import '../../../utill/app_constants.dart';
 import '../../../helper/custom_snackbar_helper.dart';
@@ -372,6 +373,22 @@ class OrderProvider extends ChangeNotifier {
           apiResponse.response!.statusCode == 200) {
         String? message = apiResponse.response!.data['message'];
         String orderID = apiResponse.response!.data['order_id'].toString();
+
+        try {
+          await sharedPreferences?.setStringList(AppConstants.cartList, []);
+        } catch (e) {
+          debugPrint('Error wiping cart from sharedPreferences: $e');
+        }
+        final ctx = Get.context;
+        if (ctx != null) {
+          try {
+            // ignore: use_build_context_synchronously
+            Provider.of<CartProvider>(ctx, listen: false).clearCartList();
+          } catch (e) {
+            debugPrint('Error clearing CartProvider: $e');
+          }
+        }
+
         callback(true, message, orderID);
         debugPrint('-------- Order placed successfully $orderID ----------');
       } else {

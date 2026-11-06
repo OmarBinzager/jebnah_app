@@ -720,12 +720,17 @@ class _PaymentMethodBottomSheetWidgetState
   }
 
   void _callback(bool isSuccess, String message, String orderID) async {
-    Provider.of<OrderProvider>(Get.context!, listen: false).stopLoader();
+    final navContext = Get.context ?? context;
+    try {
+      Provider.of<OrderProvider>(navContext, listen: false).stopLoader();
+    } catch (_) {}
     if (isSuccess) {
-      Provider.of<CartProvider>(Get.context!, listen: false).clearCartList();
+      try {
+        Provider.of<CartProvider>(navContext, listen: false).clearCartList();
+      } catch (_) {}
       double walletBalance =
           Provider.of<ProfileProvider>(
-            Get.context!,
+            navContext,
             listen: false,
           ).userInfoModel?.walletBalance ??
           0;

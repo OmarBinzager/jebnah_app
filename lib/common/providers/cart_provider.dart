@@ -48,9 +48,14 @@ class CartProvider extends ChangeNotifier {
   }
 
   void addToCart(CartModel cartModel) {
-    _cartList.add(cartModel);
+    int? existIndex = isExistInCart(cartModel);
+    if (existIndex != null) {
+      _cartList[existIndex].quantity = (_cartList[existIndex].quantity ?? 0) + (cartModel.quantity ?? 1);
+    } else {
+      _cartList.add(cartModel);
+    }
     cartRepo?.addToCartList(_cartList);
-    _amount = _amount + (cartModel.discountedPrice! * cartModel.quantity!);
+    _amount = _amount + (cartModel.discountedPrice! * (cartModel.quantity ?? 1));
     notifyListeners();
   }
 
@@ -137,8 +142,10 @@ class CartProvider extends ChangeNotifier {
 
   void clearCartList() {
     _cartList = [];
+    _pendingCartList.clear();
     _amount = 0;
-    cartRepo!.addToCartList(_cartList);
+    _cartIndex = null;
+    cartRepo?.addToCartList(_cartList);
     notifyListeners();
   }
 
