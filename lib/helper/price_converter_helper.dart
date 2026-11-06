@@ -37,6 +37,8 @@ class PriceConverterHelper {
     ConfigModel? config = Provider.of<SplashProvider>(context, listen: false).configModel;
 
     String symbol = selectedCurrency?.currencySymbol ?? config?.currencySymbol ?? '﷼';
+    symbol = symbol.replaceAll(RegExp(r'[\u200E\u200F\u202A-\u202E]'), '').trim();
+
     String symbolPosition = (selectedCurrency == null || selectedCurrency.isBase == true)
         ? (config?.currencySymbolPosition ?? selectedCurrency?.symbolPosition ?? 'right')
         : (selectedCurrency.symbolPosition ?? config?.currencySymbolPosition ?? 'right');
@@ -49,7 +51,7 @@ class PriceConverterHelper {
         .toStringAsFixed(decimalDigits)
         .replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},');
 
-    return !isLeft ? '$formattedNumber $symbol' : '$symbol $formattedNumber';
+    return !isLeft ? '\u202A$formattedNumber $symbol\u202C' : '\u202A$symbol $formattedNumber\u202C';
   }
 
   static double? convertWithDiscount(
