@@ -705,6 +705,7 @@ class BaseUrls {
   String? customerImageUrl;
   String? bannerImageUrl;
   String? brandImageUrl;
+  String? sellerImageUrl;
   String? categoryImageUrl;
   String? reviewImageUrl;
   String? notificationImageUrl;
@@ -721,6 +722,7 @@ class BaseUrls {
     this.customerImageUrl,
     this.bannerImageUrl,
     this.brandImageUrl,
+    this.sellerImageUrl,
     this.categoryImageUrl,
     this.reviewImageUrl,
     this.notificationImageUrl,
@@ -739,6 +741,7 @@ class BaseUrls {
       customerImageUrl: json['customer_image_url'],
       bannerImageUrl: json['banner_image_url'],
       brandImageUrl: json['brand_image_url'],
+      sellerImageUrl: json['seller_image_url'],
       categoryImageUrl: json['category_image_url'],
       reviewImageUrl: json['review_image_url'],
       notificationImageUrl: json['notification_image_url'],
@@ -758,6 +761,7 @@ class BaseUrls {
       'customer_image_url': customerImageUrl,
       'banner_image_url': bannerImageUrl,
       'brand_image_url': brandImageUrl,
+      'seller_image_url': sellerImageUrl,
       'category_image_url': categoryImageUrl,
       'review_image_url': reviewImageUrl,
       'notification_image_url': notificationImageUrl,

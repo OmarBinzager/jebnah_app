@@ -17,6 +17,7 @@ import '../../../utill/styles.dart';
 
 import '../../brand/providers/brand_provider.dart';
 import '../../home/providers/seller_provider.dart';
+import '../../splash/providers/splash_provider.dart';
 
 class ProductTitleWidget extends StatelessWidget {
   final Product? product;
@@ -151,6 +152,12 @@ class ProductTitleWidget extends StatelessWidget {
 
     String brandImage =
         product?.brand?.image ?? brandProvider.brandDetails?.imageUrl ?? '';
+    if (brandImage.isNotEmpty && !brandImage.startsWith('http://') && !brandImage.startsWith('https://')) {
+      final baseUrl = Provider.of<SplashProvider>(context, listen: false).baseUrls?.brandImageUrl;
+      if (baseUrl != null && baseUrl.isNotEmpty) {
+        brandImage = '$baseUrl/$brandImage';
+      }
+    }
 
     if (brandName.isEmpty) {
       return const SizedBox();
@@ -179,7 +186,17 @@ class ProductTitleWidget extends StatelessWidget {
     } else if (product?.seller?.name != null) {
       sellerName = product!.seller!.name ?? '';
 
-      sellerImage = sellerProvider.sellerDetails?.logoUrl ?? '';
+      sellerImage = (product?.seller?.image != null && product!.seller!.image!.trim().isNotEmpty)
+          ? product!.seller!.image!
+          : (product?.seller?.logo != null && product!.seller!.logo!.trim().isNotEmpty)
+              ? product!.seller!.logo!
+              : (sellerProvider.sellerDetails?.logoUrl ?? '');
+      if (sellerImage.isNotEmpty && !sellerImage.startsWith('http://') && !sellerImage.startsWith('https://')) {
+        final baseUrl = Provider.of<SplashProvider>(context, listen: false).baseUrls?.sellerImageUrl;
+        if (baseUrl != null && baseUrl.isNotEmpty) {
+          sellerImage = '$baseUrl/$sellerImage';
+        }
+      }
     }
 
     if (sellerName.isEmpty) {

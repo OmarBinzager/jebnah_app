@@ -42,10 +42,7 @@ class ProductWidget extends StatelessWidget {
       categoryDiscount: product.categoryDiscount,
     );
     final double? priceWithDiscount = discountValue.discount;
-    final brandImageUrl =
-        product.brand?.image != null && product.brand!.image!.isNotEmpty
-        ? '${Provider.of<SplashProvider>(context, listen: false).baseUrls?.brandImageUrl}/${product.brand!.image}'
-        : '';
+    final String brandOrSellerImageUrl = getBrandOrSellerImageUrl(context, product);
     return Consumer<CartProvider>(
       builder: (context, cartProvider, child) {
         double price = 0;
@@ -248,27 +245,30 @@ class ProductWidget extends StatelessWidget {
                             ],
                           ),
 
-                          // Brand Logo - Below Image (outside image)
+                          // Brand / Seller Logo - Below Image (outside image)
                           Align(
                             alignment: Alignment.center,
                             child: Container(
                               margin: const EdgeInsets.only(top: 8),
-                              width: 40,
-                              height: 40,
+                              width: 44,
+                              height: 28,
                               decoration: BoxDecoration(
-                                shape: BoxShape.rectangle,
+                                borderRadius: BorderRadius.circular(6),
                                 border: Border.all(
                                   color: Theme.of(context).cardColor,
-                                  width: 2,
+                                  width: 1.5,
                                 ),
                                 color: Colors.white,
                               ),
-                              child: ClipOval(
-                                child: CustomImageWidget(
-                                  image: brandImageUrl,
-                                  fit: BoxFit.contain,
-                                ),
-                              ),
+                              child: brandOrSellerImageUrl.isNotEmpty
+                                  ? ClipRRect(
+                                      borderRadius: BorderRadius.circular(5),
+                                      child: CustomImageWidget(
+                                        image: brandOrSellerImageUrl,
+                                        fit: BoxFit.contain,
+                                      ),
+                                    )
+                                  : const Icon(Icons.storefront_outlined, size: 16, color: Colors.grey),
                             ),
                           ),
 
@@ -362,6 +362,32 @@ class ProductWidget extends StatelessWidget {
               );
       },
     );
+  }
+
+  static String getBrandOrSellerImageUrl(BuildContext context, Product product) {
+    // 1. Check brand image
+    final brandImage = product.brand?.image;
+    if (brandImage != null && brandImage.trim().isNotEmpty) {
+      if (brandImage.startsWith('http://') || brandImage.startsWith('https://')) {
+        return brandImage;
+      }
+      final baseUrl = Provider.of<SplashProvider>(context, listen: false).baseUrls?.brandImageUrl;
+      return (baseUrl != null && baseUrl.isNotEmpty) ? '$baseUrl/$brandImage' : brandImage;
+    }
+
+    // 2. Check seller image / logo
+    final sellerImage = (product.seller?.image != null && product.seller!.image!.trim().isNotEmpty)
+        ? product.seller!.image
+        : product.seller?.logo;
+    if (sellerImage != null && sellerImage.trim().isNotEmpty) {
+      if (sellerImage.startsWith('http://') || sellerImage.startsWith('https://')) {
+        return sellerImage;
+      }
+      final baseUrl = Provider.of<SplashProvider>(context, listen: false).baseUrls?.sellerImageUrl;
+      return (baseUrl != null && baseUrl.isNotEmpty) ? '$baseUrl/$sellerImage' : sellerImage;
+    }
+
+    return '';
   }
 
   String _getDiscountPercentage(Product product, dynamic discountValue) {
@@ -574,11 +600,8 @@ class _ProductGridWidget extends StatelessWidget {
     final bool hasNotVariations =
         product.variations == null || (product.variations?.isEmpty ?? false);
 
-    // الحصول على رابط صورة البراند
-    final brandImageUrl =
-        product.brand?.image != null && product.brand!.image!.isNotEmpty
-        ? '${Provider.of<SplashProvider>(context, listen: false).baseUrls?.brandImageUrl}/${product.brand!.image}'
-        : '';
+    final String brandOrSellerImageUrl =
+        ProductWidget.getBrandOrSellerImageUrl(context, product);
 
     return SizedBox(
       width: ResponsiveHelper.isDesktop(context) ? 220 : 185,
@@ -700,7 +723,7 @@ class _ProductGridWidget extends StatelessWidget {
                 ),
               ),
 
-              // Brand Logo - Below Image (غير دائري - بشكل مستطيل)
+              // Brand / Seller Logo - Below Image (غير دائري - بشكل مستطيل)
               Align(
                 alignment: Alignment.center,
                 child: Container(
@@ -715,15 +738,15 @@ class _ProductGridWidget extends StatelessWidget {
                     ),
                     color: Colors.white,
                   ),
-                  child: brandImageUrl.isNotEmpty
+                  child: brandOrSellerImageUrl.isNotEmpty
                       ? ClipRRect(
                           borderRadius: BorderRadius.circular(5),
                           child: CustomImageWidget(
-                            image: brandImageUrl,
+                            image: brandOrSellerImageUrl,
                             fit: BoxFit.contain,
                           ),
                         )
-                      : const Icon(Icons.store, size: 14),
+                      : const Icon(Icons.storefront_outlined, size: 14, color: Colors.grey),
                 ),
               ),
 

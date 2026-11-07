@@ -280,12 +280,15 @@ class Product {
           ? json['warranty_years']
           : int.tryParse(json['warranty_years']?.toString() ?? '');
       _brand = json['brand'] != null ? Brand.fromJson(json['brand']) : null;
+      _seller = json['seller'] != null ? Seller.fromJson(json['seller']) : null;
       if (json['brand'] != null) {
         _brand = Brand.fromJson(json['brand']);
-
         print('✅ Brand Loaded: ${_brand?.name}');
       } else {
         print('❌ No Brand Object Found');
+      }
+      if (_seller != null) {
+        print('✅ Seller Loaded: ${_seller?.name}');
       }
       print(
         '✅ Product loaded - ID: $_id, Brand ID: $_brandId, Seller ID: $_sellerId',
@@ -342,6 +345,12 @@ class Product {
     data['brand_id'] = _brandId;
     data['seller_id'] = _sellerId;
     data['warranty_years'] = _warrantyYears;
+    if (_brand != null) {
+      data['brand'] = _brand!.toJson();
+    }
+    if (_seller != null) {
+      data['seller'] = _seller!.toJson();
+    }
 
     return data;
   }
@@ -676,9 +685,9 @@ class Brand {
   Brand({this.id, this.name, this.image});
 
   Brand.fromJson(Map<String, dynamic> json) {
-    id = json['id'];
-    name = json['name'];
-    image = json['image'];
+    id = json['id'] is int ? json['id'] : int.tryParse(json['id']?.toString() ?? '');
+    name = json['name']?.toString();
+    image = json['image']?.toString() ?? json['image_full_path']?.toString();
   }
 
   Map<String, dynamic> toJson() {
@@ -693,20 +702,34 @@ class Brand {
 class Seller {
   int? id;
   String? name;
+  String? image;
+  String? logo;
 
-  Seller({this.id, this.name});
+  Seller({this.id, this.name, this.image, this.logo});
 
   Seller.fromJson(Map<String, dynamic> json) {
-    id = json['id'];
-    // تحويل القيمة المقروءة إلى نص مباشرة مع التأكد من عدم كونها فارغة
+    id = json['id'] is int ? json['id'] : int.tryParse(json['id']?.toString() ?? '');
     name = json['name']?.toString();
+    image = json['image']?.toString() ??
+        json['image_full_path']?.toString() ??
+        json['logo']?.toString() ??
+        json['logo_full_path']?.toString();
+    logo = json['logo']?.toString() ??
+        json['logo_full_path']?.toString() ??
+        image;
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
     data['id'] = id;
     if (name != null) {
-      data['name'] = name; // إرجاع الاسم كما هو كمفتاح وقيمة نصية
+      data['name'] = name;
+    }
+    if (image != null) {
+      data['image'] = image;
+    }
+    if (logo != null) {
+      data['logo'] = logo;
     }
     return data;
   }
