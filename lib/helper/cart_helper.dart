@@ -48,7 +48,8 @@ class CartHelper {
     }
 
     for (Variations variationValue in product.variations ?? []) {
-      if (variationValue.type == variationType) {
+      if (variationValue.type == variationType ||
+          variationValue.type?.replaceAll(' ', '') == variationType.replaceAll(' ', '')) {
         price = variationValue.price;
         variation = variationValue;
         stock = variationValue.stock;

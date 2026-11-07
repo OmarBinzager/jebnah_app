@@ -35,8 +35,27 @@ class ProductWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    double? startingPrice;
+    if (product.variations?.isNotEmpty ?? false) {
+      List<double> priceList = [];
+      for (var variation in product.variations!) {
+        if (variation.price != null && variation.price! > 0) {
+          priceList.add(variation.price!);
+        }
+      }
+      if (priceList.isNotEmpty) {
+        priceList.sort((a, b) => a.compareTo(b));
+        startingPrice = priceList.first;
+      } else {
+        startingPrice = product.price;
+      }
+    } else {
+      startingPrice = product.price;
+    }
+    final double basePrice = startingPrice ?? product.price ?? 0;
+
     final discountValue = PriceConverterHelper.convertProductDiscount(
-      price: product.price,
+      price: basePrice,
       discount: product.discount,
       discountType: product.discountType,
       categoryDiscount: product.categoryDiscount,
@@ -55,18 +74,24 @@ class ProductWidget extends StatelessWidget {
           for (int index = 0; index < product.variations!.length; index++) {
             price = (product.variations![index].price ?? 0);
             stock = product.variations![index].stock;
+            final double? variationDiscounted = PriceConverterHelper.convertProductDiscount(
+              price: price,
+              discount: product.discount,
+              discountType: product.discountType,
+              categoryDiscount: product.categoryDiscount,
+            ).discount;
             cartModel = CartModel(
               product.id,
               (product.image?.isNotEmpty ?? false) ? product.image![0] : '',
               product.name,
               price,
-              discountValue.discount,
+              variationDiscounted,
               1,
               product.variations![index],
-              (price - (discountValue.discount ?? 0)),
-              ((discountValue.discount ?? 0) -
+              (price - (variationDiscounted ?? 0)),
+              ((variationDiscounted ?? 0) -
                   PriceConverterHelper.convertWithDiscount(
-                    discountValue.discount,
+                    variationDiscounted,
                     product.tax,
                     product.taxType,
                   )!),
@@ -83,20 +108,20 @@ class ProductWidget extends StatelessWidget {
             }
           }
         } else {
-          price = product.price ?? 0;
+          price = basePrice;
           stock = product.totalStock;
           cartModel = CartModel(
             product.id,
             (product.image?.isNotEmpty ?? false) ? product.image![0] : '',
             product.name,
             price,
-            discountValue.discount,
+            priceWithDiscount,
             1,
             null,
-            (price - (discountValue.discount ?? 0)),
-            ((discountValue.discount ?? 0) -
+            (price - (priceWithDiscount ?? 0)),
+            ((priceWithDiscount ?? 0) -
                 PriceConverterHelper.convertWithDiscount(
-                  discountValue.discount,
+                  priceWithDiscount,
                   product.tax,
                   product.taxType,
                 )!),
@@ -121,7 +146,8 @@ class ProductWidget extends StatelessWidget {
                   cardIndex: cardIndex,
                   isCenter: isCenter,
                   isExistInCart: isExistInCart,
-                  priceWithDiscount: priceWithDiscount ?? 0,
+                  basePrice: basePrice,
+                  priceWithDiscount: priceWithDiscount ?? basePrice,
                   discountType: discountValue.type,
                   product: product,
                   productType: productType,
@@ -210,7 +236,7 @@ class ProductWidget extends StatelessWidget {
                                 ),
 
                               // Discount Tag - Bottom Left inside image (next to warranty if present)
-                              if (product.price != discountValue.discount)
+                              if (basePrice > (priceWithDiscount ?? 0))
                                 Positioned(
                                   bottom: 8,
                                   left: (product.warrantyYears != null && product.warrantyYears! > 0) ? 75 : 8,
@@ -224,7 +250,7 @@ class ProductWidget extends StatelessWidget {
                                       borderRadius: BorderRadius.circular(15),
                                     ),
                                     child: Text(
-                                      '% ${_getDiscountPercentage(product, discountValue)}',
+                                      '% ${_getDiscountPercentage(product, discountValue, basePrice)}',
                                       style: poppinsBold.copyWith(
                                         fontSize: 12,
                                         color: Colors.white,
@@ -314,14 +340,13 @@ class ProductWidget extends StatelessWidget {
                                     ),
                                     const SizedBox(width: 6),
                                     // Original Price (before discount)
-                                    if ((product.price ?? 0) >
-                                        priceWithDiscount!)
+                                    if (basePrice > (priceWithDiscount ?? 0))
                                       Flexible(
                                         child: CustomDirectionalityWidget(
                                           child: Text(
                                             PriceConverterHelper.convertPrice(
                                               context,
-                                              product.price,
+                                              basePrice,
                                             ),
                                             style: poppinsRegular.copyWith(
                                               fontSize: 12,
@@ -390,12 +415,12 @@ class ProductWidget extends StatelessWidget {
     return '';
   }
 
-  String _getDiscountPercentage(Product product, dynamic discountValue) {
+  String _getDiscountPercentage(Product product, dynamic discountValue, double basePrice) {
     if (discountValue.type == DiscountType.productDiscount) {
       if (product.discountType == 'percent') {
-        return product.discount.toString();
+        return product.discount?.round().toString() ?? '0';
       } else {
-        double originalPrice = product.price ?? 0;
+        double originalPrice = basePrice;
         double discountedPrice = discountValue.discount ?? 0;
         if (originalPrice > 0) {
           int percentage =
@@ -406,9 +431,9 @@ class ProductWidget extends StatelessWidget {
       }
     } else {
       if (product.categoryDiscount?.discountType == 'percent') {
-        return product.categoryDiscount?.discountAmount.toString() ?? '0';
+        return product.categoryDiscount?.discountAmount?.round().toString() ?? '0';
       } else {
-        double originalPrice = product.price ?? 0;
+        double originalPrice = basePrice;
         double discountedPrice = discountValue.discount ?? 0;
         if (originalPrice > 0) {
           int percentage =
@@ -577,6 +602,7 @@ class _ProductGridWidget extends StatelessWidget {
   final int? stock;
   final CartModel? cartModel;
   final int? cardIndex;
+  final double basePrice;
   final double priceWithDiscount;
   final DiscountType? discountType;
   final Product product;
@@ -588,6 +614,7 @@ class _ProductGridWidget extends StatelessWidget {
     this.stock,
     this.cartModel,
     required this.cardIndex,
+    required this.basePrice,
     required this.priceWithDiscount,
     required this.product,
     required this.productType,
@@ -653,7 +680,7 @@ class _ProductGridWidget extends StatelessWidget {
                     ),
 
                     // Discount Tag - Top Left
-                    if (product.price != priceWithDiscount)
+                    if (basePrice > priceWithDiscount)
                       Positioned(
                         top: 8,
                         left: 8,
@@ -797,13 +824,13 @@ class _ProductGridWidget extends StatelessWidget {
                         ),
                         const SizedBox(width: 4),
                         // Original Price
-                        if ((product.price ?? 0) > priceWithDiscount)
+                        if (basePrice > priceWithDiscount)
                           Flexible(
                             child: CustomDirectionalityWidget(
                               child: Text(
                                 PriceConverterHelper.convertPrice(
                                   context,
-                                  product.price,
+                                  basePrice,
                                 ),
                                 style: poppinsRegular.copyWith(
                                   fontSize: 11,
@@ -845,9 +872,9 @@ class _ProductGridWidget extends StatelessWidget {
   String _getDiscountPercentage() {
     if (discountType == DiscountType.productDiscount) {
       if (product.discountType == 'percent') {
-        return product.discount.toString();
+        return product.discount?.round().toString() ?? '0';
       } else {
-        double originalPrice = product.price ?? 0;
+        double originalPrice = basePrice;
         double discountedPrice = priceWithDiscount;
         if (originalPrice > 0) {
           int percentage =
@@ -858,9 +885,9 @@ class _ProductGridWidget extends StatelessWidget {
       }
     } else {
       if (product.categoryDiscount?.discountType == 'percent') {
-        return product.categoryDiscount?.discountAmount.toString() ?? '0';
+        return product.categoryDiscount?.discountAmount?.round().toString() ?? '0';
       } else {
-        double originalPrice = product.price ?? 0;
+        double originalPrice = basePrice;
         double discountedPrice = priceWithDiscount;
         if (originalPrice > 0) {
           int percentage =

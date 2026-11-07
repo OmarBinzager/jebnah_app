@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../common/models/cart_model.dart';
 import '../../../common/models/product_model.dart';
-import '../../../common/providers/product_provider.dart';
+import '../../../common/providers/cart_provider.dart';
 
 import '../../../common/widgets/custom_directionality_widget.dart';
 import '../../../common/widgets/custom_image_widget.dart';
 
+import '../../../helper/cart_helper.dart';
 import '../../../helper/price_converter_helper.dart';
 import '../../../helper/responsive_helper.dart';
 
@@ -23,55 +25,60 @@ class ProductTitleWidget extends StatelessWidget {
   final Product? product;
   final int? stock;
   final int? cartIndex;
+  final CartModel? cartModel;
 
   const ProductTitleWidget({
     super.key,
     required this.product,
     required this.stock,
     required this.cartIndex,
+    this.cartModel,
   });
 
   @override
   Widget build(BuildContext context) {
-    double? startingPrice;
-    double? startingPriceWithDiscount;
-    double? endingPrice;
-    double? endingPriceWithDiscount;
+    return Consumer<CartProvider>(
+      builder: (context, cartProvider, child) {
+        // Calculate the active selected price (from cartModel or by looking up current variation)
+        final activeCartModel = (product != null
+                ? CartHelper.getCartModel(
+                    product!,
+                    variationIndexList: cartProvider.variationIndex,
+                  )
+                : null) ??
+            cartModel;
 
-    if (product?.variations?.isNotEmpty ?? false) {
-      List<double?> priceList = [];
+        double? currentPrice;
+        double? currentPriceWithDiscount;
 
-      for (var variation in product!.variations!) {
-        priceList.add(variation.price);
-      }
+        if (activeCartModel != null &&
+            activeCartModel.price != null &&
+            activeCartModel.price! > 0) {
+          currentPrice = activeCartModel.price;
+          currentPriceWithDiscount = PriceConverterHelper.convertProductDiscount(
+            price: currentPrice,
+            discount: product?.discount,
+            discountType: product?.discountType,
+            categoryDiscount: product?.categoryDiscount,
+          ).discount;
+        } else if (product?.variations?.isNotEmpty ?? false) {
+          currentPrice = product!.variations!.first.price ?? product!.price ?? 0;
+          currentPriceWithDiscount = PriceConverterHelper.convertProductDiscount(
+            price: currentPrice,
+            discount: product?.discount,
+            discountType: product?.discountType,
+            categoryDiscount: product?.categoryDiscount,
+          ).discount;
+        } else {
+          currentPrice = product?.price ?? 0;
+          currentPriceWithDiscount = PriceConverterHelper.convertProductDiscount(
+            price: currentPrice,
+            discount: product?.discount,
+            discountType: product?.discountType,
+            categoryDiscount: product?.categoryDiscount,
+          ).discount;
+        }
 
-      priceList.sort((a, b) => a!.compareTo(b!));
-
-      startingPrice = priceList.first;
-
-      if (priceList.first! < priceList.last!) {
-        endingPrice = priceList.last;
-      }
-    } else {
-      startingPrice = product!.price;
-    }
-
-    startingPriceWithDiscount = PriceConverterHelper.convertWithDiscount(
-      startingPrice,
-      product!.discount,
-      product!.discountType,
-    );
-
-    if (endingPrice != null) {
-      endingPriceWithDiscount = PriceConverterHelper.convertWithDiscount(
-        endingPrice,
-        product!.discount,
-        product!.discountType,
-      );
-    }
-
-    return Consumer<ProductProvider>(
-      builder: (context, provider, child) {
         return Padding(
           padding: const EdgeInsets.all(Dimensions.paddingSizeLarge),
           child: Column(
@@ -106,11 +113,13 @@ class ProductTitleWidget extends StatelessWidget {
               Row(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  /// DISCOUNT PRICE
+                  /// DISCOUNT PRICE / CURRENT VARIATION PRICE
                   CustomDirectionalityWidget(
                     child: Text(
-                      '${PriceConverterHelper.convertPrice(context, startingPriceWithDiscount)}'
-                      '${endingPriceWithDiscount != null ? ' - ${PriceConverterHelper.convertPrice(context, endingPriceWithDiscount)}' : ''}',
+                      PriceConverterHelper.convertPrice(
+                        context,
+                        currentPriceWithDiscount,
+                      ),
                       style: poppinsBold.copyWith(
                         fontSize: 30,
                         color: Theme.of(context).primaryColor,
@@ -120,13 +129,18 @@ class ProductTitleWidget extends StatelessWidget {
 
                   const SizedBox(width: 10),
 
-                  /// ORIGINAL PRICE
-                  if (startingPriceWithDiscount! < startingPrice!)
+                  /// ORIGINAL PRICE (WHEN DISCOUNTED)
+                  if (currentPriceWithDiscount != null &&
+                      currentPrice != null &&
+                      currentPriceWithDiscount < currentPrice)
                     Padding(
                       padding: const EdgeInsets.only(bottom: 4),
                       child: CustomDirectionalityWidget(
                         child: Text(
-                          PriceConverterHelper.convertPrice(context, startingPrice),
+                          PriceConverterHelper.convertPrice(
+                            context,
+                            currentPrice,
+                          ),
                           style: poppinsMedium.copyWith(
                             fontSize: 15,
                             decoration: TextDecoration.lineThrough,

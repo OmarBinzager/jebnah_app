@@ -189,6 +189,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen>
                                                   stock: cartModel?.stock,
                                                   cartIndex:
                                                       cartProvider.cartIndex,
+                                                  cartModel: cartModel,
                                                 ),
 
                                                 VariationWidget(
@@ -579,6 +580,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen>
                                                         stock: cartModel?.stock,
                                                         cartIndex: cartProvider
                                                             .cartIndex,
+                                                        cartModel: cartModel,
                                                       ),
 
                                                       VariationWidget(
