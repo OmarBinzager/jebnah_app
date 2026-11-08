@@ -39,10 +39,10 @@ class PriceConverterHelper {
     String symbol = selectedCurrency?.currencySymbol ?? config?.currencySymbol ?? '﷼';
     symbol = symbol.replaceAll(RegExp(r'[\u200E\u200F\u202A-\u202E]'), '').trim();
 
-    String symbolPosition = (selectedCurrency == null || selectedCurrency.isBase == true)
-        ? (config?.currencySymbolPosition ?? selectedCurrency?.symbolPosition ?? 'right')
-        : (selectedCurrency.symbolPosition ?? config?.currencySymbolPosition ?? 'right');
-    bool isLeft = symbolPosition.toLowerCase() == 'left';
+    String symbolPosition = (config?.currencySymbolPosition != null && config!.currencySymbolPosition!.trim().isNotEmpty)
+        ? config.currencySymbolPosition!.trim().toLowerCase()
+        : (selectedCurrency?.symbolPosition?.trim().toLowerCase() ?? 'right');
+    bool isLeft = symbolPosition == 'left';
     int decimalDigits = (selectedCurrency == null || selectedCurrency.isBase == true)
         ? (config?.decimalPointSettings ?? selectedCurrency?.decimalDigits ?? 2)
         : (selectedCurrency.decimalDigits ?? config?.decimalPointSettings ?? 2);
@@ -102,13 +102,21 @@ class PriceConverterHelper {
     double? discount,
     String? discountType,
   ) {
+    if (discountType == 'percent') {
+      return '$discount% OFF';
+    }
     CurrencyProvider? currencyProvider;
     try {
       currencyProvider = Provider.of<CurrencyProvider>(context, listen: false);
     } catch (_) {}
+    ConfigModel? config = Provider.of<SplashProvider>(context, listen: false).configModel;
     final symbol = currencyProvider?.selectedCurrency?.currencySymbol ??
-        Provider.of<SplashProvider>(context, listen: false).configModel?.currencySymbol ?? '﷼';
-    return '$discount${discountType == 'percent' ? '%' : ' $symbol'} OFF';
+        config?.currencySymbol ?? '﷼';
+    String symbolPosition = (config?.currencySymbolPosition != null && config!.currencySymbolPosition!.trim().isNotEmpty)
+        ? config.currencySymbolPosition!.trim().toLowerCase()
+        : (currencyProvider?.selectedCurrency?.symbolPosition?.trim().toLowerCase() ?? 'right');
+    bool isLeft = symbolPosition == 'left';
+    return isLeft ? '$symbol $discount OFF' : '$discount $symbol OFF';
   }
 
   /// Converts a base currency numeric amount to selected currency numeric amount

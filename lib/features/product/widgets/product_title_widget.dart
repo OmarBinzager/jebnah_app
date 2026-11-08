@@ -189,16 +189,11 @@ class ProductTitleWidget extends StatelessWidget {
   Widget _buildSellerChip(BuildContext context) {
     final sellerProvider = Provider.of<SellerProvider>(context, listen: false);
 
-    bool isAdmin = product?.addedBy == 'admin';
-
     String sellerName = '';
-
     String sellerImage = '';
 
-    if (isAdmin) {
-      sellerName = getTranslated('in_house_shop', context);
-    } else if (product?.seller?.name != null) {
-      sellerName = product!.seller!.name ?? '';
+    if (product?.seller?.name != null && product!.seller!.name!.trim().isNotEmpty) {
+      sellerName = product!.seller!.name!;
 
       sellerImage = (product?.seller?.image != null && product!.seller!.image!.trim().isNotEmpty)
           ? product!.seller!.image!
@@ -211,6 +206,11 @@ class ProductTitleWidget extends StatelessWidget {
           sellerImage = '$baseUrl/$sellerImage';
         }
       }
+    } else if (product?.addedBy == 'admin') {
+      sellerName = getTranslated('in_house_shop', context);
+    } else if (sellerProvider.sellerDetails?.name != null && sellerProvider.sellerDetails!.name!.trim().isNotEmpty) {
+      sellerName = sellerProvider.sellerDetails!.name!;
+      sellerImage = sellerProvider.sellerDetails?.logoUrl ?? '';
     }
 
     if (sellerName.isEmpty) {

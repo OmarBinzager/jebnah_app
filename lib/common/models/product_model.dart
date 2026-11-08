@@ -182,9 +182,9 @@ class Product {
     try {
       _id = json['id'] is int
           ? json['id']
-          : int.tryParse(json['id'].toString());
-      _name = json['name'];
-      _description = json['description'];
+          : int.tryParse(json['id']?.toString() ?? '');
+      _name = json['name']?.toString();
+      _description = json['description']?.toString();
       if (json['image'] is List) {
         _image = (json['image'] as List).map((e) => e.toString()).toList();
       } else if (json['image'] is String) {
@@ -208,93 +208,193 @@ class Product {
       } else {
         _image = [];
       }
-      _price = (json['price'] is num) ? json['price'].toDouble() : 0.0;
+      _price = double.tryParse(json['price']?.toString() ?? '0') ?? 0.0;
 
-      if (json['variations'] != null) {
-        _variations = [];
-        json['variations'].forEach((v) {
-          _variations!.add(Variations.fromJson(v));
-        });
+      // Variations
+      _variations = [];
+      dynamic variationData = json['variations'];
+      if (variationData is String && variationData.trim().isNotEmpty) {
+        try {
+          variationData = jsonDecode(variationData);
+        } catch (_) {}
+      }
+      if (variationData is List) {
+        for (var v in variationData) {
+          if (v != null) {
+            try {
+              _variations!.add(Variations.fromJson(v is Map<String, dynamic> ? v : Map<String, dynamic>.from(v)));
+            } catch (_) {}
+          }
+        }
       }
 
-      _tax = (json['tax'] is num) ? json['tax'].toDouble() : 0.0;
-      _status = json['status'];
-      _createdAt = json['created_at'];
-      _updatedAt = json['updated_at'];
-      _attributes = json['attributes']?.cast<String>() ?? [];
+      _tax = double.tryParse(json['tax']?.toString() ?? '0') ?? 0.0;
+      _status = json['status'] is int ? json['status'] : int.tryParse(json['status']?.toString() ?? '1');
+      _createdAt = json['created_at']?.toString();
+      _updatedAt = json['updated_at']?.toString();
 
-      if (json['category_ids'] != null) {
-        _categoryIds = [];
-        json['category_ids'].forEach((v) {
-          _categoryIds!.add(CategoryIds.fromJson(v));
-        });
+      // Attributes
+      _attributes = [];
+      dynamic attrData = json['attributes'];
+      if (attrData is String && attrData.trim().isNotEmpty) {
+        try {
+          attrData = jsonDecode(attrData);
+        } catch (_) {}
+      }
+      if (attrData is List) {
+        _attributes = attrData.map((e) => e.toString()).toList();
       }
 
-      if (json['choice_options'] != null) {
-        _choiceOptions = [];
-        json['choice_options'].forEach((v) {
-          _choiceOptions!.add(ChoiceOptions.fromJson(v));
-        });
+      // Category IDs
+      _categoryIds = [];
+      dynamic catData = json['category_ids'];
+      if (catData is String && catData.trim().isNotEmpty) {
+        try {
+          catData = jsonDecode(catData);
+        } catch (_) {}
+      }
+      if (catData is List) {
+        for (var v in catData) {
+          if (v != null) {
+            try {
+              _categoryIds!.add(CategoryIds.fromJson(v is Map<String, dynamic> ? v : Map<String, dynamic>.from(v)));
+            } catch (_) {}
+          }
+        }
       }
 
-      _discount = (json['discount'] is num) ? json['discount'].toDouble() : 0.0;
+      // Choice Options
+      _choiceOptions = [];
+      dynamic choiceData = json['choice_options'];
+      if (choiceData is String && choiceData.trim().isNotEmpty) {
+        try {
+          choiceData = jsonDecode(choiceData);
+        } catch (_) {}
+      }
+      if (choiceData is List) {
+        for (var v in choiceData) {
+          if (v != null) {
+            try {
+              _choiceOptions!.add(ChoiceOptions.fromJson(v is Map<String, dynamic> ? v : Map<String, dynamic>.from(v)));
+            } catch (_) {}
+          }
+        }
+      }
+
+      _discount = double.tryParse(json['discount']?.toString() ?? '0') ?? 0.0;
       _weight = double.tryParse(json['weight']?.toString() ?? '0') ?? 0.0;
-      _discountType = json['discount_type'];
-      _taxType = json['tax_type'];
-      _unit = json['unit'];
-      _capacity = (json['capacity'] is num) ? json['capacity'].toDouble() : 0.0;
+      _discountType = json['discount_type']?.toString();
+      _taxType = json['tax_type']?.toString();
+      _unit = json['unit']?.toString();
+      _capacity = double.tryParse(json['capacity']?.toString() ?? '0') ?? 0.0;
       _totalStock = json['total_stock'] is int
           ? json['total_stock']
-          : int.tryParse((json['total_stock'] ?? json['stock'] ?? '0').toString());
+          : int.tryParse((json['total_stock'] ?? json['stock'] ?? '0').toString()) ?? 0;
 
-      if (json['rating'] != null && json['rating'] is List) {
-        _rating = [];
-        json['rating'].forEach((v) {
-          _rating!.add(Rating.fromJson(v));
-        });
+      // Rating
+      _rating = [];
+      dynamic ratingData = json['rating'];
+      if (ratingData is String && ratingData.trim().isNotEmpty) {
+        try {
+          ratingData = jsonDecode(ratingData);
+        } catch (_) {}
+      }
+      if (ratingData is List) {
+        for (var v in ratingData) {
+          if (v != null) {
+            try {
+              _rating!.add(Rating.fromJson(v is Map<String, dynamic> ? v : Map<String, dynamic>.from(v)));
+            } catch (_) {}
+          }
+        }
       }
 
-      if (json['active_reviews'] != null) {
-        _activeReviews = [];
-        json['active_reviews'].forEach((v) {
-          _activeReviews!.add(ActiveReview.fromJson(v));
-        });
+      // Active Reviews
+      _activeReviews = [];
+      dynamic reviewData = json['active_reviews'];
+      if (reviewData is String && reviewData.trim().isNotEmpty) {
+        try {
+          reviewData = jsonDecode(reviewData);
+        } catch (_) {}
+      }
+      if (reviewData is List) {
+        for (var v in reviewData) {
+          if (v != null) {
+            try {
+              _activeReviews!.add(ActiveReview.fromJson(v is Map<String, dynamic> ? v : Map<String, dynamic>.from(v)));
+            } catch (_) {}
+          }
+        }
       }
 
       _maximumOrderQuantity =
           int.tryParse(json['maximum_order_quantity']?.toString() ?? '1') ?? 1;
-      _categoryDiscount = (json['category_discount'] != null &&
-              json['category_discount'] is Map<String, dynamic>)
-          ? CategoryDiscount.fromJson(json['category_discount'])
-          : null;
+
+      // Category Discount
+      dynamic catDiscountData = json['category_discount'];
+      if (catDiscountData is String && catDiscountData.trim().isNotEmpty) {
+        try {
+          catDiscountData = jsonDecode(catDiscountData);
+        } catch (_) {}
+      }
+      if (catDiscountData is Map) {
+        try {
+          _categoryDiscount = CategoryDiscount.fromJson(Map<String, dynamic>.from(catDiscountData));
+        } catch (_) {
+          _categoryDiscount = null;
+        }
+      } else {
+        _categoryDiscount = null;
+      }
 
       // Brand & Seller IDs
       _brandId = json['brand_id'] is int
           ? json['brand_id']
-          : int.tryParse(json['brand_id'].toString());
+          : int.tryParse(json['brand_id']?.toString() ?? '');
 
       _sellerId = json['seller_id'] is int
           ? json['seller_id']
-          : int.tryParse(json['seller_id'].toString());
+          : int.tryParse(json['seller_id']?.toString() ?? '');
+
       _warrantyYears = json['warranty_years'] is int
           ? json['warranty_years']
           : int.tryParse(json['warranty_years']?.toString() ?? '');
-      _brand = json['brand'] != null ? Brand.fromJson(json['brand']) : null;
-      _seller = json['seller'] != null ? Seller.fromJson(json['seller']) : null;
-      if (json['brand'] != null) {
-        _brand = Brand.fromJson(json['brand']);
-        print('✅ Brand Loaded: ${_brand?.name}');
+
+      // Brand
+      dynamic brandData = json['brand'];
+      if (brandData is String && brandData.trim().isNotEmpty) {
+        try {
+          brandData = jsonDecode(brandData);
+        } catch (_) {}
+      }
+      if (brandData is Map) {
+        try {
+          _brand = Brand.fromJson(Map<String, dynamic>.from(brandData));
+        } catch (_) {
+          _brand = null;
+        }
       } else {
-        print('❌ No Brand Object Found');
+        _brand = null;
       }
-      if (_seller != null) {
-        print('✅ Seller Loaded: ${_seller?.name}');
+
+      // Seller
+      dynamic sellerData = json['seller'];
+      if (sellerData is String && sellerData.trim().isNotEmpty) {
+        try {
+          sellerData = jsonDecode(sellerData);
+        } catch (_) {}
       }
-      print(
-        '✅ Product loaded - ID: $_id, Brand ID: $_brandId, Seller ID: $_sellerId',
-      );
+      if (sellerData is Map) {
+        try {
+          _seller = Seller.fromJson(Map<String, dynamic>.from(sellerData));
+        } catch (_) {
+          _seller = null;
+        }
+      } else {
+        _seller = null;
+      }
     } catch (e) {
-      print('❌ Error parsing product: $e');
+      debugPrint('❌ Error parsing product: $e');
     }
   }
 
@@ -372,9 +472,9 @@ class Variations {
   int? get stock => _stock;
 
   Variations.fromJson(Map<String, dynamic> json) {
-    _type = json['type'];
-    _price = json['price'].toDouble();
-    _stock = json['stock'];
+    _type = json['type']?.toString();
+    _price = double.tryParse(json['price']?.toString() ?? '0') ?? 0.0;
+    _stock = json['stock'] is int ? json['stock'] : int.tryParse(json['stock']?.toString() ?? '0');
   }
 
   Map<String, dynamic> toJson() {

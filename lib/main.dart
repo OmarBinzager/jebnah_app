@@ -195,18 +195,39 @@ void _initNotifications() async {
     }
 
     try {
-      await FirebaseMessaging.instance.subscribeToTopic(AppConstants.topic);
-    } catch (e) {
-      if (kDebugMode) {
-        print('Error subscribing to topic: $e');
-      }
-    }
-
-    try {
       await NotificationHelper.initialize();
     } catch (e) {
       if (kDebugMode) {
         print('Error initializing NotificationHelper: $e');
+      }
+    }
+
+    // On iOS, wait for APNs token to be assigned before calling Firebase topic/token methods
+    if (!kIsWeb && defaultTargetPlatform == TargetPlatform.iOS) {
+      try {
+        String? apnsToken = await FirebaseMessaging.instance.getAPNSToken();
+        if (apnsToken == null) {
+          for (int i = 0; i < 5; i++) {
+            await Future.delayed(const Duration(seconds: 1));
+            apnsToken = await FirebaseMessaging.instance.getAPNSToken();
+            if (apnsToken != null) break;
+          }
+        }
+        if (kDebugMode) {
+          print('iOS APNs Token: $apnsToken');
+        }
+      } catch (e) {
+        if (kDebugMode) {
+          print('Error getting APNs token: $e');
+        }
+      }
+    }
+
+    try {
+      await FirebaseMessaging.instance.subscribeToTopic(AppConstants.topic);
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error subscribing to topic: $e');
       }
     }
 
@@ -222,6 +243,27 @@ void _initNotifications() async {
         print('Error getting FCM token: $e');
       }
     }
+
+    FirebaseMessaging.instance.onTokenRefresh.listen((newToken) {
+      if (kDebugMode) {
+        print('FCM TOKEN REFRESHED: $newToken');
+      }
+      try {
+        final context = navigatorKey.currentContext ?? Get.context;
+        if (context != null) {
+          final authProvider = Provider.of<AuthProvider>(context, listen: false);
+          if (authProvider.isLoggedIn()) {
+            authProvider.updateToken(newToken);
+          } else {
+            authProvider.addOrUpdateGuest();
+          }
+        }
+      } catch (e) {
+        if (kDebugMode) {
+          print('Error syncing refreshed token: $e');
+        }
+      }
+    });
   }
 }
 

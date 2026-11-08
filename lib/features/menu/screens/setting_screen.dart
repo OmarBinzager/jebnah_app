@@ -17,6 +17,7 @@ import '../../../features/menu/widgets/language_dialog_widget.dart';
 import '../../../features/menu/widgets/sign_out_dialog_widget.dart';
 import '../../../features/profile/providers/profile_provider.dart';
 import '../../../features/splash/providers/splash_provider.dart';
+import '../../../helper/price_converter_helper.dart';
 import '../../../helper/custom_snackbar_helper.dart';
 import '../../../helper/dialog_helper.dart';
 import '../../../helper/responsive_helper.dart';
@@ -394,7 +395,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    ' ${walletBalance.toStringAsFixed(2)}',
+                    PriceConverterHelper.convertPrice(context, walletBalance),
                     style: poppinsBold.copyWith(
                       fontSize: Dimensions.fontSizeExtraLarge,
                       color: Colors.white,

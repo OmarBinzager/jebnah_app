@@ -331,10 +331,17 @@ class ConfigModel {
     _baseUrls = json['base_urls'] != null
         ? BaseUrls.fromJson(json['base_urls'])
         : null;
+    _currencySymbolPosition = json['currency_symbol_position'];
     _currencySymbol = json['currency_symbol'];
     _currencyModel = json['currency_model'] != null
         ? CurrencyModel.fromJson(json['currency_model'])
         : null;
+    if (_currencyModel != null) {
+      _currencyModel!.isBase = true;
+      if (_currencySymbolPosition != null) {
+        _currencyModel!.symbolPosition = _currencySymbolPosition;
+      }
+    }
     if (json['active_currencies'] != null) {
       _activeCurrencies = [];
       json['active_currencies'].forEach((v) {

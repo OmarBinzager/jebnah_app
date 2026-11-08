@@ -507,18 +507,31 @@ class _ChatScreenState extends State<ChatScreen> {
                                                 ).primaryColor,
                                               ),
                                             )
-                                          : Image.asset(
-                                              Images.send,
-                                              width: 25,
-                                              height: 25,
-                                              color:
-                                                  Provider.of<ChatProvider>(
-                                                    context,
-                                                  ).isSendButtonActive
-                                                  ? Theme.of(
+                                          : Transform(
+                                              alignment: Alignment.center,
+                                              transform: Matrix4.identity()
+                                                ..scale(
+                                                  Directionality.of(context) ==
+                                                          TextDirection.rtl
+                                                      ? -1.0
+                                                      : 1.0,
+                                                  1.0,
+                                                ),
+                                              child: Image.asset(
+                                                Images.send,
+                                                width: 25,
+                                                height: 25,
+                                                color:
+                                                    Provider.of<ChatProvider>(
                                                       context,
-                                                    ).primaryColor
-                                                  : Theme.of(context).hintColor,
+                                                    ).isSendButtonActive
+                                                    ? Theme.of(
+                                                        context,
+                                                      ).primaryColor
+                                                    : Theme.of(
+                                                        context,
+                                                      ).hintColor,
+                                              ),
                                             ),
                                     ),
                                   ),

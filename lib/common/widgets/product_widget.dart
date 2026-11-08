@@ -73,7 +73,15 @@ class ProductWidget extends StatelessWidget {
         if (product.variations?.isNotEmpty ?? false) {
           for (int index = 0; index < product.variations!.length; index++) {
             price = (product.variations![index].price ?? 0);
+            if (price <= 0) {
+              price = basePrice;
+            }
             stock = product.variations![index].stock;
+            if (stock == null || stock <= 0) {
+              if (product.totalStock != null && product.totalStock! > 0) {
+                stock = product.totalStock;
+              }
+            }
             final double? variationDiscounted = PriceConverterHelper.convertProductDiscount(
               price: price,
               discount: product.discount,

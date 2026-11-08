@@ -46,6 +46,7 @@ class CurrencyProvider extends ChangeNotifier {
           (c) => c.isBase == true,
           orElse: () => _currencyList.first,
         );
+    _baseCurrency?.isBase = true;
 
     if (config.decimalPointSettings != null) {
       _baseCurrency?.decimalDigits = config.decimalPointSettings;
@@ -59,9 +60,7 @@ class CurrencyProvider extends ChangeNotifier {
     if (config.currencySymbolPosition != null) {
       _baseCurrency?.symbolPosition = config.currencySymbolPosition;
       for (var c in _currencyList) {
-        if (c.isBase == true) {
-          c.symbolPosition = config.currencySymbolPosition;
-        }
+        c.symbolPosition = config.currencySymbolPosition;
       }
     }
 

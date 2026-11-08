@@ -244,35 +244,51 @@ class AuthRepo {
     }
   }
 
-  Future<ApiResponseModel> updateToken() async {
+  Future<ApiResponseModel> updateToken([String? token]) async {
     try {
-      String? deviceToken = '@';
+      String? deviceToken = token;
 
-      if (defaultTargetPlatform == TargetPlatform.iOS) {
-        FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
-          alert: true,
-          badge: true,
-          sound: true,
-        );
-        NotificationSettings settings = await FirebaseMessaging.instance
-            .requestPermission(
-              alert: true,
-              announcement: false,
-              badge: true,
-              carPlay: false,
-              criticalAlert: false,
-              provisional: false,
-              sound: true,
-            );
-        if (settings.authorizationStatus == AuthorizationStatus.authorized) {
-          deviceToken = (await getDeviceToken())!;
+      if (deviceToken == null || deviceToken.isEmpty || deviceToken == '@') {
+        if (!kIsWeb && defaultTargetPlatform == TargetPlatform.iOS) {
+          await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
+            alert: true,
+            badge: true,
+            sound: true,
+          );
+          NotificationSettings settings = await FirebaseMessaging.instance
+              .requestPermission(
+                alert: true,
+                announcement: false,
+                badge: true,
+                carPlay: false,
+                criticalAlert: false,
+                provisional: true,
+                sound: true,
+              );
+          if (settings.authorizationStatus == AuthorizationStatus.authorized ||
+              settings.authorizationStatus == AuthorizationStatus.provisional) {
+            deviceToken = await getDeviceToken();
+          }
+        } else {
+          deviceToken = await getDeviceToken();
         }
-      } else {
-        deviceToken = (await getDeviceToken())!;
+      }
+
+      if (deviceToken == null || deviceToken.trim().isEmpty || deviceToken == '@') {
+        if (kDebugMode) {
+          print('FCM Token is empty or invalid, skipping server update.');
+        }
+        return ApiResponseModel.withError('No valid device token available yet');
       }
 
       if (!kIsWeb) {
-        FirebaseMessaging.instance.subscribeToTopic(AppConstants.topic);
+        try {
+          await FirebaseMessaging.instance.subscribeToTopic(AppConstants.topic);
+        } catch (e) {
+          if (kDebugMode) {
+            print('Error subscribing to topic: $e');
+          }
+        }
       }
 
       Response response = await dioClient!.post(
@@ -287,18 +303,36 @@ class AuthRepo {
   }
 
   Future<String?> getDeviceToken() async {
-    String? deviceToken = '@';
+    String? deviceToken;
     try {
-      deviceToken = (await FirebaseMessaging.instance.getToken())!;
+      if (!kIsWeb && defaultTargetPlatform == TargetPlatform.iOS) {
+        String? apnsToken = await FirebaseMessaging.instance.getAPNSToken();
+        if (apnsToken == null) {
+          for (int i = 0; i < 5; i++) {
+            await Future.delayed(const Duration(seconds: 1));
+            apnsToken = await FirebaseMessaging.instance.getAPNSToken();
+            if (apnsToken != null) break;
+          }
+        }
+        if (kDebugMode) {
+          print('--------APNs Token---------- $apnsToken');
+        }
+        if (apnsToken == null) {
+          if (kDebugMode) {
+            print('APNs token is not ready yet, skipping FCM getToken()');
+          }
+          return null;
+        }
+      }
+
+      deviceToken = await FirebaseMessaging.instance.getToken();
     } catch (error) {
       if (kDebugMode) {
-        print('error is: $error');
+        print('error getting device token: $error');
       }
     }
-    if (deviceToken != null) {
-      if (kDebugMode) {
-        print('--------Device Token---------- $deviceToken');
-      }
+    if (deviceToken != null && kDebugMode) {
+      print('--------Device Token---------- $deviceToken');
     }
 
     return deviceToken;
@@ -364,10 +398,13 @@ class AuthRepo {
 
   Future<ApiResponseModel> addOrUpdateGuest(String? fcmToken) async {
     try {
+      final safeFcmToken = (fcmToken == null || fcmToken.trim().isEmpty || fcmToken == '@')
+          ? null
+          : fcmToken;
       Response response = await dioClient!.post(
         AppConstants.addGuest,
         data: {
-          'fcm_token': fcmToken,
+          'fcm_token': safeFcmToken,
           'guest_id': getGuestId() == 'null' ? null : getGuestId(),
         },
       );

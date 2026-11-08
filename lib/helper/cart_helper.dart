@@ -50,10 +50,22 @@ class CartHelper {
     for (Variations variationValue in product.variations ?? []) {
       if (variationValue.type == variationType ||
           variationValue.type?.replaceAll(' ', '') == variationType.replaceAll(' ', '')) {
-        price = variationValue.price;
+        price = (variationValue.price != null && variationValue.price! > 0)
+            ? variationValue.price
+            : product.price;
         variation = variationValue;
         stock = variationValue.stock;
         break;
+      }
+    }
+
+    if (price == null || price <= 0) {
+      price = product.price ?? 0.0;
+    }
+
+    if (stock == null || stock <= 0) {
+      if (product.totalStock != null && product.totalStock! > 0) {
+        stock = product.totalStock;
       }
     }
 
@@ -72,8 +84,8 @@ class CartHelper {
       priceWithDiscount,
       quantity,
       variation,
-      (price! - priceWithDiscount!),
-      (priceWithDiscount -
+      (price - (priceWithDiscount ?? 0)),
+      ((priceWithDiscount ?? 0) -
           PriceConverterHelper.convertWithDiscount(
             priceWithDiscount,
             product.tax,

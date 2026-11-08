@@ -299,8 +299,8 @@ class AuthProvider with ChangeNotifier {
     return responseModel;
   }
 
-  Future<void> updateToken() async {
-    await authRepo?.updateToken();
+  Future<void> updateToken([String? token]) async {
+    await authRepo?.updateToken(token);
   }
 
   void onChangeRememberMeStatus({bool? value, bool isUpdate = true}) {
@@ -545,13 +545,17 @@ class AuthProvider with ChangeNotifier {
   }
 
   Future updateFirebaseToken() async {
-    if (await authRepo!.getDeviceToken() != '@') {
-      await authRepo!.updateToken();
+    final token = await authRepo?.getDeviceToken();
+    if (token != null && token.isNotEmpty && token != '@') {
+      await authRepo?.updateToken(token);
     }
   }
 
   Future<void> addOrUpdateGuest() async {
     String? fcmToken = await authRepo?.getDeviceToken();
+    if (fcmToken == '@') {
+      fcmToken = null;
+    }
     ApiResponseModel apiResponse = await authRepo!.addOrUpdateGuest(fcmToken);
 
     if (apiResponse.response != null &&

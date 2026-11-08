@@ -10,6 +10,7 @@ import GoogleMaps
   ) -> Bool {
     GMSServices.provideAPIKey("AIzaSyCxvQntD9qlo9q0Y-UU_mxYnOxc1OlsDQo")
     GeneratedPluginRegistrant.register(with: self)
+    application.registerForRemoteNotifications()
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
 }
