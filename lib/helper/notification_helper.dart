@@ -3,20 +3,16 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../common/enums/notification_type.dart';
 import '../common/models/notification_body.dart';
+import '../common/widgets/in_app_notification_banner.dart';
 import '../features/splash/providers/splash_provider.dart';
 import '../helper/maintenance_helper.dart';
 import '../helper/route_helper.dart';
 import '../main.dart';
 import '../utill/app_constants.dart';
-import '../common/widgets/notification_dialog_web_widget.dart';
-
 import 'package:provider/provider.dart';
 
 class NotificationHelper {
-  // تم إزالة معامل FlutterLocalNotificationsPlugin من الدالة initialize
   static Future<void> initialize() async {
-    // تم حذف: تهيئة flutter_local_notifications بالكامل
-
     FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
       if (kDebugMode) {
         print(
@@ -34,8 +30,7 @@ class NotificationHelper {
       }
 
       if (message.data['type'] != 'maintenance') {
-        // تم تعديل: تمرير true للـ isWeb فقط، وإزالة معامل flutterLocalNotificationsPlugin
-        showNotification(message, kIsWeb);
+        showNotification(message);
       }
     });
 
@@ -116,10 +111,7 @@ class NotificationHelper {
     });
   }
 
-  static Future<void> showNotification(
-    RemoteMessage message,
-    bool isWeb, // تم تغيير اسم المعامل من data إلى isWeb للتوضيح
-  ) async {
+  static Future<void> showNotification(RemoteMessage message) async {
     String? title;
     String? body;
     String? orderID;
@@ -145,37 +137,28 @@ class NotificationHelper {
             : null;
     type = message.data['type'];
 
-    final bool hasValidTitle = title != null && title.trim().isNotEmpty && title.trim() != '0';
-    final bool hasValidBody = body != null && body.trim().isNotEmpty && body.trim() != '0';
-    if (isWeb && Get.context != null && (hasValidTitle || hasValidBody)) {
-      showDialog(
-        context: Get.context!,
-        builder: (context) => Center(
-          child: NotificationDialogWebWidget(
-            orderId: int.tryParse(orderID ?? '0'),
-            title: title,
-            body: body,
-            image: image,
-            type: type,
-            userName: userName,
-            profileImage: profileImage,
-            senderType: senderType,
-          ),
-        ),
+    final bool hasValidTitle =
+        title != null && title.trim().isNotEmpty && title.trim() != '0';
+    final bool hasValidBody =
+        body != null && body.trim().isNotEmpty && body.trim() != '0';
+
+    if (hasValidTitle || hasValidBody) {
+      InAppNotificationBanner.show(
+        orderId: int.tryParse(orderID ?? '0'),
+        title: title ?? '',
+        body: body ?? '',
+        image: image,
+        type: type,
+        userName: userName,
+        profileImage: profileImage,
+        senderType: senderType,
       );
     } else {
       if (kDebugMode) {
-        print(
-          'Notification received: $title - $body (type: $type, isWeb: $isWeb)',
-        );
+        print('Notification received with empty title and body: $type');
       }
     }
   }
-
-  // تم حذف الدوال التالية بالكامل لأنها تعتمد على flutter_local_notifications:
-  // - showBigTextNotification
-  // - showBigPictureNotificationHiddenLargeIcon
-  // - _downloadAndSaveFile
 
   static NotificationBody convertNotification(Map<String, dynamic> data) {
     return NotificationBody.fromJson(data);
@@ -189,5 +172,4 @@ Future<dynamic> myBackgroundMessageHandler(RemoteMessage message) async {
       "onBackground: ${message.notification?.title}/${message.notification?.body}/${message.notification?.titleLocKey}",
     );
   }
-  // تم حذف: أي كود كان يعتمد على flutter_local_notifications في الخلفية
 }

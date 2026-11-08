@@ -5,7 +5,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'firebase_options.dart';
 import 'package:flutter/foundation.dart'
-    show kDebugMode, kIsWeb;
+    show defaultTargetPlatform, kDebugMode, kIsWeb, TargetPlatform;
 import 'package:flutter/material.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'common/enums/app_mode_enum.dart';
@@ -107,9 +107,7 @@ Future<void> main() async {
         ChangeNotifierProvider(
           create: (context) => di.sl<LocalizationProvider>(),
         ),
-        ChangeNotifierProvider(
-          create: (context) => di.sl<CurrencyProvider>(),
-        ),
+        ChangeNotifierProvider(create: (context) => di.sl<CurrencyProvider>()),
         ChangeNotifierProvider(create: (context) => di.sl<SplashProvider>()),
         ChangeNotifierProvider(
           create: (context) => di.sl<OnBoardingProvider>(),
@@ -183,11 +181,12 @@ void _initNotifications() async {
     }
 
     try {
-      await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
-        alert: true,
-        badge: true,
-        sound: true,
-      );
+      await FirebaseMessaging.instance
+          .setForegroundNotificationPresentationOptions(
+            alert: true,
+            badge: true,
+            sound: true,
+          );
     } catch (e) {
       if (kDebugMode) {
         print('Error setting foreground notification options: $e');
@@ -251,7 +250,10 @@ void _initNotifications() async {
       try {
         final context = navigatorKey.currentContext ?? Get.context;
         if (context != null) {
-          final authProvider = Provider.of<AuthProvider>(context, listen: false);
+          final authProvider = Provider.of<AuthProvider>(
+            context,
+            listen: false,
+          );
           if (authProvider.isLoggedIn()) {
             authProvider.updateToken(newToken);
           } else {

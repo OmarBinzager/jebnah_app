@@ -4,7 +4,6 @@ import 'package:country_code_picker/country_code_picker.dart';
 import 'package:flutter/material.dart';
 import '../../../helper/responsive_helper.dart';
 import '../../../utill/dimensions.dart';
-import '../../../common/widgets/custom_directionality_widget.dart';
 import '../../../utill/styles.dart';
 
 // List of Gulf countries + Yemen
@@ -220,7 +219,8 @@ class CountryCodePickerWidgetState extends State<CountryCodePickerWidget> {
             if (!widget.hideMainText)
               Flexible(
                 fit: widget.alignLeft ? FlexFit.tight : FlexFit.loose,
-                child: CustomDirectionalityWidget(
+                child: Directionality(
+                  textDirection: TextDirection.ltr,
                   child: Text(
                     widget.showOnlyCountryWhenClosed
                         ? selectedItem!.toCountryStringOnly()

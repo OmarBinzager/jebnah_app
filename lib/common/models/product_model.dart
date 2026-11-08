@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
+
 enum DiscountType { productDiscount, categoryDiscount }
 
 class ProductModel {

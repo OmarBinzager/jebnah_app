@@ -23,7 +23,6 @@ import '../../../utill/images.dart';
 import '../../../utill/styles.dart';
 import '../../../common/widgets/custom_app_bar_widget.dart';
 import '../../../common/widgets/custom_button_widget.dart';
-import '../../../common/widgets/custom_directionality_widget.dart';
 import '../../../common/widgets/custom_loader_widget.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:provider/provider.dart';
@@ -368,7 +367,8 @@ class _VerificationScreenState extends State<VerificationScreen> {
                                                         //   }
                                                         // }
                                                       },
-                                                child: CustomDirectionalityWidget(
+                                                child: Directionality(
+                                                  textDirection: TextDirection.ltr,
                                                   child: Text(
                                                     (verificationProvider
                                                                     .currentTime !=

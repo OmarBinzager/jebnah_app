@@ -6,6 +6,6 @@ class CustomDirectionalityWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Directionality(textDirection: TextDirection.ltr, child: child);
+    return child;
   }
 }
