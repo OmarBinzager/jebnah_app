@@ -532,11 +532,15 @@ class OrderPartialPayment {
 class OfflinePaymentInformation {
   String? paymentName;
   String? paymentNote;
+  String? customerReceipt;
+  String? receiptFullPath;
   List<MethodValue>? methodInformation;
 
   OfflinePaymentInformation({
     this.paymentName,
     this.paymentNote,
+    this.customerReceipt,
+    this.receiptFullPath,
     this.methodInformation,
   });
 
@@ -547,6 +551,8 @@ class OfflinePaymentInformation {
       OfflinePaymentInformation(
         paymentName: json["payment_name"],
         paymentNote: json["payment_note"],
+        customerReceipt: json["customer_receipt"],
+        receiptFullPath: json["receipt_full_path"],
         methodInformation: json["method_information"] == null
             ? []
             : List<MethodValue>.from(

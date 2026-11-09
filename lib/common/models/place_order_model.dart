@@ -306,12 +306,14 @@ class OfflinePaymentInfo{
   final String? paymentNote;
   final List<Map<String, dynamic>?>? methodFields;
   final List<Map<String, String>>? methodInformation;
+  final String? customerReceiptBase64;
 
   OfflinePaymentInfo(
       {this.paymentName,
         this.paymentNote,
         this.methodFields,
-        this.methodInformation});
+        this.methodInformation,
+        this.customerReceiptBase64});
 
 
   Map<String, dynamic> toJson() {
@@ -320,6 +322,9 @@ class OfflinePaymentInfo{
     data['method_fields'] = methodFields;
     data['payment_note'] = paymentNote;
     data['method_information'] = methodInformation;
+    if (customerReceiptBase64 != null) {
+      data['customer_receipt_base64'] = customerReceiptBase64;
+    }
     return data;
   }
 }

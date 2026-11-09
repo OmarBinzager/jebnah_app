@@ -746,15 +746,35 @@ class PaymentMethodView extends StatelessWidget {
                                             Dimensions.radiusSizeDefault,
                                           ),
                                         ),
-                                        child: Text(
-                                          offlineMethod?.methodName ?? '',
-                                          style:
-                                              selectedOfflineMethod ==
-                                                  offlineMethod
-                                              ? poppinsMedium.copyWith(
-                                                  color: Colors.white,
-                                                )
-                                              : poppinsRegular,
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            if (offlineMethod?.imageFullPath != null &&
+                                                offlineMethod!.imageFullPath!.isNotEmpty) ...[
+                                              ClipRRect(
+                                                borderRadius: BorderRadius.circular(4),
+                                                child: CustomImageWidget(
+                                                  image: offlineMethod.imageFullPath ?? '',
+                                                  height: 20,
+                                                  width: 20,
+                                                  fit: BoxFit.contain,
+                                                ),
+                                              ),
+                                              const SizedBox(
+                                                width: Dimensions.paddingSizeExtraSmall,
+                                              ),
+                                            ],
+                                            Text(
+                                              offlineMethod?.methodName ?? '',
+                                              style:
+                                                  selectedOfflineMethod ==
+                                                          offlineMethod
+                                                      ? poppinsMedium.copyWith(
+                                                          color: Colors.white,
+                                                        )
+                                                      : poppinsRegular,
+                                            ),
+                                          ],
                                         ),
                                       ),
                                     ),

@@ -387,6 +387,8 @@
   "stock_out": "غير متوفر",
   "select_payment_method": "اختر طريقة الدفع",
   "offline_payment": "الدفع عبر المحفظة",
+  "transfer_receipt": "سند التحويل / الإيداع",
+  "attach_transfer_receipt": "إرفاق صورة سند التحويل أو الإيداع",
   "payment_by": "الدفع بواسطة",
   "transaction_id": "رقم المعاملة (TxID)",
   "payment_note": "ملاحظة الدفع",

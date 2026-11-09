@@ -5,12 +5,20 @@ class MaintenanceHelper {
   static bool isMaintenanceModeEnable(ConfigModel? configModel) =>
       configModel?.maintenanceMode?.maintenanceStatus ?? false;
 
-  static bool isCustomerMaintenanceEnable(ConfigModel? configModel) =>
-      configModel?.maintenanceMode?.selectedMaintenanceSystem?.customerApp ??
-      false;
+  static bool isCustomerMaintenanceEnable(ConfigModel? configModel) {
+    if (configModel?.maintenanceMode?.selectedMaintenanceSystem == null) {
+      return configModel?.maintenanceMode?.maintenanceStatus ?? false;
+    }
+    return configModel?.maintenanceMode?.selectedMaintenanceSystem?.customerApp ??
+        false;
+  }
 
-  static bool isWebMaintenanceEnable(ConfigModel? configModel) =>
-      configModel?.maintenanceMode?.selectedMaintenanceSystem?.webApp ?? false;
+  static bool isWebMaintenanceEnable(ConfigModel? configModel) {
+    if (configModel?.maintenanceMode?.selectedMaintenanceSystem == null) {
+      return configModel?.maintenanceMode?.maintenanceStatus ?? false;
+    }
+    return configModel?.maintenanceMode?.selectedMaintenanceSystem?.webApp ?? false;
+  }
 
   static bool checkWebMaintenanceMode(ConfigModel? configModel) =>
       (ResponsiveHelper.isWeb()) && isWebMaintenanceEnable(configModel);

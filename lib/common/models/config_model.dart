@@ -376,9 +376,25 @@ class ConfigModel {
     _customerLogin = json['customer_login'] != null
         ? CustomerLogin.fromJson(json['customer_login'])
         : null;
-    _maintenanceMode = json['advance_maintenance_mode'] != null
-        ? MaintenanceMode.fromJson(json['advance_maintenance_mode'])
-        : null;
+    final advMaintenance = json['advance_maintenance_mode'];
+    final simpleMaintenance = json['maintenance_mode'];
+    if (advMaintenance != null && advMaintenance is Map<String, dynamic>) {
+      _maintenanceMode = MaintenanceMode.fromJson(advMaintenance);
+    } else if (simpleMaintenance != null) {
+      final isEnabled = simpleMaintenance == true ||
+          simpleMaintenance == 1 ||
+          '$simpleMaintenance' == '1' ||
+          '$simpleMaintenance'.toLowerCase() == 'true';
+      _maintenanceMode = MaintenanceMode(
+        maintenanceStatus: isEnabled,
+        selectedMaintenanceSystem: SelectedMaintenanceSystem(
+          customerApp: isEnabled,
+          webApp: isEnabled,
+        ),
+      );
+    } else {
+      _maintenanceMode = null;
+    }
     _playStoreConfig = json['play_store_config'] != null
         ? PlayStoreConfig.fromJson(json['play_store_config'])
         : null;
@@ -1182,10 +1198,17 @@ class MaintenanceMode {
   });
 
   MaintenanceMode.fromJson(Map<String, dynamic> json) {
-    maintenanceStatus = '${json['maintenance_status']}'.contains('1');
+    final status = json['maintenance_mode_status'] ?? json['maintenance_status'] ?? json['status'];
+    maintenanceStatus = status == true ||
+        status == 1 ||
+        '$status' == '1' ||
+        '$status'.toLowerCase() == 'true';
+
     selectedMaintenanceSystem = json['selected_maintenance_system'] != null
         ? SelectedMaintenanceSystem.fromJson(
-            json['selected_maintenance_system'],
+            json['selected_maintenance_system'] is Map<String, dynamic>
+                ? json['selected_maintenance_system']
+                : Map<String, dynamic>.from(json['selected_maintenance_system']),
           )
         : null;
     maintenanceMessages = json['maintenance_messages'] != null
@@ -1225,8 +1248,17 @@ class SelectedMaintenanceSystem {
   SelectedMaintenanceSystem({this.customerApp, this.webApp});
 
   SelectedMaintenanceSystem.fromJson(Map<String, dynamic> json) {
-    customerApp = '${json['customer_app']}'.contains('1');
-    webApp = '${json['web_app']}'.contains('1');
+    final customer = json['customer_app'];
+    customerApp = customer == true ||
+        customer == 1 ||
+        '$customer' == '1' ||
+        '$customer'.toLowerCase() == 'true';
+
+    final web = json['web_app'];
+    webApp = web == true ||
+        web == 1 ||
+        '$web' == '1' ||
+        '$web'.toLowerCase() == 'true';
   }
 
   Map<String, dynamic> toJson() {

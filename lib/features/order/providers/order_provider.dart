@@ -819,6 +819,31 @@ class OrderProvider extends ChangeNotifier {
     return data;
   }
 
+  String? _receiptBase64;
+  String? get receiptBase64 => _receiptBase64;
+  XFile? _receiptFile;
+  XFile? get receiptFile => _receiptFile;
+
+  void setReceiptFile(XFile? file, {bool isUpdate = true}) async {
+    _receiptFile = file;
+    if (file != null) {
+      try {
+        final bytes = await file.readAsBytes();
+        final ext = file.path.split('.').last.toLowerCase();
+        final mime = ext == 'png' ? 'image/png' : 'image/jpeg';
+        _receiptBase64 = 'data:$mime;base64,${base64Encode(bytes)}';
+      } catch (e) {
+        debugPrint('Receipt encoding error: $e');
+        _receiptBase64 = null;
+      }
+    } else {
+      _receiptBase64 = null;
+    }
+    if (isUpdate) {
+      notifyListeners();
+    }
+  }
+
   List<CartModel> reOrderCartList = [];
 
   Future<List<CartModel>?> reorderProduct(String orderId) async {

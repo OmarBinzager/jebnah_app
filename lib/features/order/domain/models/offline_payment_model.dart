@@ -3,6 +3,8 @@ import 'dart:convert';
 class OfflinePaymentModel {
     int? id;
     String? methodName;
+    String? image;
+    String? imageFullPath;
     List<MethodField>? methodFields;
     String? paymentNote;
     List<MethodInformation>? methodInformations;
@@ -11,6 +13,8 @@ class OfflinePaymentModel {
     OfflinePaymentModel({
         this.id,
         this.methodName,
+        this.image,
+        this.imageFullPath,
         this.methodFields,
         this.paymentNote,
         this.methodInformations,
@@ -28,6 +32,8 @@ class OfflinePaymentModel {
     factory OfflinePaymentModel.fromJson(Map<String, dynamic> json) => OfflinePaymentModel(
         id: json["id"],
         methodName: json["method_name"],
+        image: json["image"],
+        imageFullPath: json["image_full_path"],
         methodFields: json["method_fields"] == null ? [] : List<MethodField>.from(json["method_fields"]!.map((x) => MethodField.fromJson(x))),
         paymentNote: json["payment_note"],
         methodInformations: json["method_informations"] == null ? [] : List<MethodInformation>.from(json["method_informations"]!.map((x) => MethodInformation.fromJson(x))),
@@ -36,6 +42,8 @@ class OfflinePaymentModel {
     Map<String, dynamic> toJson() => {
         "id": id,
         "method_name": methodName,
+        "image": image,
+        "image_full_path": imageFullPath,
         "method_fields": methodFields == null ? [] : List<dynamic>.from(methodFields!.map((x) => x.toJson())),
         "payment_note": paymentNote,
         "method_informations": methodInformations == null ? [] : List<dynamic>.from(methodInformations!.map((x) => x.toJson())),

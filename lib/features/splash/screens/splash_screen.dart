@@ -164,7 +164,7 @@ class _SplashScreenState extends State<SplashScreen>
       } else if (configModel != null &&
           MaintenanceHelper.isMaintenanceModeEnable(configModel) &&
           MaintenanceHelper.isCustomerMaintenanceEnable(configModel)) {
-        RouteHelper.getMainRoute(
+        RouteHelper.getMaintenanceRoute(
           action: RouteAction.pushNamedAndRemoveUntil,
         );
       } else if (notificationBody != null) {

@@ -1,8 +1,11 @@
+import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../../common/models/place_order_model.dart';
 import '../../../common/providers/cart_provider.dart';
 import '../../../common/widgets/custom_loader_widget.dart';
+import '../../../common/widgets/custom_image_widget.dart';
 import '../../../common/widgets/key_value_item_widget.dart';
 import '../../../features/order/domain/models/offline_payment_model.dart';
 import '../../../features/order/domain/models/order_model.dart';
@@ -440,18 +443,42 @@ class _OfflinePaymentWidgetState extends State<OfflinePaymentWidget> {
                                                 children: [
                                                   Expanded(
                                                     flex: 2,
-                                                    child: Text(
-                                                      offline?.methodName ?? '',
-                                                      style: poppinsRegular
-                                                          .copyWith(
-                                                            fontSize: Dimensions
-                                                                .fontSizeLarge,
-                                                            color: Theme.of(
-                                                              context,
-                                                            ).primaryColor,
+                                                    child: Row(
+                                                      children: [
+                                                        if (offline?.imageFullPath != null &&
+                                                            offline!.imageFullPath!.isNotEmpty) ...[
+                                                          ClipRRect(
+                                                            borderRadius:
+                                                                BorderRadius.circular(
+                                                                  Dimensions.radiusSizeSmall,
+                                                                ),
+                                                            child: CustomImageWidget(
+                                                              image: offline.imageFullPath ?? '',
+                                                              height: 32,
+                                                              width: 32,
+                                                              fit: BoxFit.contain,
+                                                            ),
                                                           ),
-                                                      overflow:
-                                                          TextOverflow.ellipsis,
+                                                          const SizedBox(
+                                                            width: Dimensions.paddingSizeSmall,
+                                                          ),
+                                                        ],
+                                                        Flexible(
+                                                          child: Text(
+                                                            offline?.methodName ?? '',
+                                                            style: poppinsRegular
+                                                                .copyWith(
+                                                                  fontSize: Dimensions
+                                                                      .fontSizeLarge,
+                                                                  color: Theme.of(
+                                                                    context,
+                                                                  ).primaryColor,
+                                                                ),
+                                                            overflow:
+                                                                TextOverflow.ellipsis,
+                                                          ),
+                                                        ),
+                                                      ],
                                                     ),
                                                   ),
                                                   const SizedBox(
@@ -597,6 +624,8 @@ class _OfflinePaymentWidgetState extends State<OfflinePaymentWidget> {
                                 paymentNote: orderProvider
                                     .selectedOfflineMethod
                                     ?.paymentNote,
+                                customerReceiptBase64:
+                                    orderProvider.receiptBase64,
                               ),
                               fromOrderDetails: widget.orderOfflineData != null,
                               isPartial: widget.fromCheckout
@@ -706,6 +735,7 @@ class _PaymentInfoWidgetState extends State<_PaymentInfoWidget> {
       context,
       listen: false,
     );
+    orderProvider.setReceiptFile(null);
     orderProvider.field = {};
     for (int i = 0; i < widget.methodInfo.length; i++) {
       if (widget.methodName == widget.orderOfflineData?.paymentName) {
@@ -838,6 +868,137 @@ class _PaymentInfoWidgetState extends State<_PaymentInfoWidget> {
                           );
                         },
                       ),
+                    ),
+
+                    SizedBox(height: Dimensions.paddingSizeDefault),
+
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: Dimensions.paddingSizeSmall,
+                      ),
+                      child: Text(
+                        getTranslated('transfer_receipt', context),
+                        style: poppinsMedium.copyWith(
+                          fontSize: Dimensions.fontSizeSmall,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: Dimensions.paddingSizeSmall),
+
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: Dimensions.paddingSizeSmall,
+                      ),
+                      child: orderProvider.receiptFile != null
+                          ? Stack(
+                              children: [
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(
+                                    Dimensions.radiusSizeSmall,
+                                  ),
+                                  child: Container(
+                                    height: 120,
+                                    width: double.infinity,
+                                    decoration: BoxDecoration(
+                                      border: Border.all(
+                                        color: Theme.of(context)
+                                            .primaryColor
+                                            .withValues(alpha: 0.3),
+                                      ),
+                                      borderRadius: BorderRadius.circular(
+                                        Dimensions.radiusSizeSmall,
+                                      ),
+                                    ),
+                                    child: kIsWeb
+                                        ? Image.network(
+                                            orderProvider.receiptFile!.path,
+                                            fit: BoxFit.cover,
+                                          )
+                                        : Image.file(
+                                            File(
+                                              orderProvider.receiptFile!.path,
+                                            ),
+                                            fit: BoxFit.cover,
+                                          ),
+                                  ),
+                                ),
+                                Positioned(
+                                  top: 6,
+                                  right: 6,
+                                  child: InkWell(
+                                    onTap: () =>
+                                        orderProvider.setReceiptFile(null),
+                                    child: Container(
+                                      padding: const EdgeInsets.all(4),
+                                      decoration: const BoxDecoration(
+                                        color: Colors.red,
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: const Icon(
+                                        Icons.close,
+                                        size: 16,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            )
+                          : InkWell(
+                              onTap: () async {
+                                final ImagePicker picker = ImagePicker();
+                                final XFile? picked = await picker.pickImage(
+                                  source: ImageSource.gallery,
+                                  maxWidth: 1200,
+                                  maxHeight: 1200,
+                                  imageQuality: 80,
+                                );
+                                if (picked != null) {
+                                  orderProvider.setReceiptFile(picked);
+                                }
+                              },
+                              child: Container(
+                                width: double.infinity,
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: Dimensions.paddingSizeDefault,
+                                  horizontal: Dimensions.paddingSizeSmall,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Theme.of(context).cardColor,
+                                  borderRadius: BorderRadius.circular(
+                                    Dimensions.radiusSizeSmall,
+                                  ),
+                                  border: Border.all(
+                                    color: Theme.of(context)
+                                        .hintColor
+                                        .withValues(alpha: 0.3),
+                                  ),
+                                ),
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      Icons.camera_alt_outlined,
+                                      size: 32,
+                                      color: Theme.of(context).primaryColor,
+                                    ),
+                                    const SizedBox(
+                                      height: Dimensions.paddingSizeExtraSmall,
+                                    ),
+                                    Text(
+                                      getTranslated(
+                                        'attach_transfer_receipt',
+                                        context,
+                                      ),
+                                      style: poppinsRegular.copyWith(
+                                        fontSize: Dimensions.fontSizeSmall,
+                                        color: Theme.of(context).hintColor,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
                     ),
 
                     SizedBox(height: Dimensions.paddingSizeDefault),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../common/widgets/custom_image_widget.dart';
 import '../../../common/widgets/custom_single_child_list_widget.dart';
 import '../../../common/widgets/key_value_item_widget.dart';
 import '../../../features/auth/providers/auth_provider.dart';
@@ -121,6 +122,25 @@ class PaymentInfoWidget extends StatelessWidget {
                     ?.paymentNote ??
                 '',
           ),
+
+          if (orderProvider.trackModel?.offlinePaymentInformation?.receiptFullPath != null &&
+              orderProvider.trackModel!.offlinePaymentInformation!.receiptFullPath!.isNotEmpty) ...[
+            const SizedBox(height: Dimensions.paddingSizeSmall),
+            Text(
+              getTranslated('transfer_receipt', context),
+              style: poppinsMedium.copyWith(fontSize: Dimensions.fontSizeSmall),
+            ),
+            const SizedBox(height: Dimensions.paddingSizeExtraSmall),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(Dimensions.radiusSizeSmall),
+              child: CustomImageWidget(
+                image: orderProvider.trackModel?.offlinePaymentInformation?.receiptFullPath ?? '',
+                height: 160,
+                width: double.infinity,
+                fit: BoxFit.cover,
+              ),
+            ),
+          ],
         ],
       ),
     );

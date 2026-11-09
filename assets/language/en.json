@@ -400,6 +400,8 @@
   "stock_out": "Stock Out",
   "select_payment_method": "Select a Payment Method",
   "offline_payment": "Offline Payment",
+  "transfer_receipt": "Transfer / Deposit Receipt",
+  "attach_transfer_receipt": "Attach transfer or deposit receipt",
   "payment_by": "Payment By",
   "transaction_id": "Transaction ID",
   "payment_note": "Payment Note",

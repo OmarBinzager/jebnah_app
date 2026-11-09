@@ -387,6 +387,8 @@
   "stock_out": "স্টক আউট",
   "select_payment_method": "একটি অর্থ প্রদানের পদ্ধতি নির্বাচন করুন",
   "offline_payment": "অফলাইন পেমেন্ট",
+  "transfer_receipt": "ট্রান্সফার / জমা রসিদ",
+  "attach_transfer_receipt": "ট্রান্সফার বা জমা রসিদ সংযুক্ত করুন",
   "payment_by": "দ্বারা প্রদান",
   "transaction_id": "লেনদেন আইডি",
   "payment_note": "পেমেন্ট নোট",
