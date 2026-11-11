@@ -573,6 +573,11 @@ class _OfflinePaymentWidgetState extends State<OfflinePaymentWidget> {
 
                       const SizedBox(height: Dimensions.paddingSizeExtraLarge),
 
+                      if (orderProvider.selectedOfflineMethod != null)
+                        _TransferInstructionsWidget(
+                          selectedMethod: orderProvider.selectedOfflineMethod,
+                        ),
+
                       if (orderProvider.selectedOfflineMethod?.methodFields !=
                           null)
                         _PaymentInfoWidget(
@@ -1011,6 +1016,251 @@ class _PaymentInfoWidgetState extends State<_PaymentInfoWidget> {
           SizedBox(height: Dimensions.paddingSizeExtraLarge),
         ],
       ),
+    );
+  }
+}
+
+class _TransferInstructionsWidget extends StatefulWidget {
+  final OfflinePaymentModel? selectedMethod;
+  const _TransferInstructionsWidget({required this.selectedMethod});
+
+  @override
+  State<_TransferInstructionsWidget> createState() => _TransferInstructionsWidgetState();
+}
+
+class _TransferInstructionsWidgetState extends State<_TransferInstructionsWidget> {
+  bool _isExpanded = true;
+
+  @override
+  Widget build(BuildContext context) {
+    final String methodName = widget.selectedMethod?.methodName ?? '';
+    final String? customInstructions = widget.selectedMethod?.instructions;
+    final bool hasCustomInstructions = customInstructions != null && customInstructions.trim().isNotEmpty;
+
+    return Container(
+      margin: const EdgeInsets.symmetric(
+        horizontal: Dimensions.paddingSizeDefault,
+        vertical: Dimensions.paddingSizeSmall,
+      ),
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
+        borderRadius: BorderRadius.circular(Dimensions.radiusSizeDefault),
+        border: Border.all(
+          color: const Color(0xFFFDE68A),
+          width: 1,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.amber.withValues(alpha: 0.08),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          InkWell(
+            onTap: () {
+              setState(() {
+                _isExpanded = !_isExpanded;
+              });
+            },
+            borderRadius: BorderRadius.circular(Dimensions.radiusSizeDefault),
+            child: Padding(
+              padding: const EdgeInsets.all(Dimensions.paddingSizeSmall + 2),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFFEF3C7),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.error_outline_rounded,
+                      color: Color(0xFFD97706),
+                      size: 20,
+                    ),
+                  ),
+                  const SizedBox(width: Dimensions.paddingSizeSmall),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'إرشادات إتمام التحويل',
+                          style: poppinsBold.copyWith(
+                            fontSize: Dimensions.fontSizeDefault,
+                            color: const Color(0xFF9A3412),
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          'اتبع هذه الخطوات لتأكيد طلبك بأسرع وقت',
+                          style: poppinsRegular.copyWith(
+                            fontSize: Dimensions.fontSizeExtraSmall,
+                            color: Theme.of(context).hintColor,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Icon(
+                    _isExpanded
+                        ? Icons.keyboard_arrow_up_rounded
+                        : Icons.keyboard_arrow_down_rounded,
+                    color: Theme.of(context).hintColor,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          if (_isExpanded) ...[
+            const Divider(height: 1, color: Color(0xFFFEF3C7)),
+            Padding(
+              padding: const EdgeInsets.all(Dimensions.paddingSizeDefault),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (hasCustomInstructions)
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFFFBEB),
+                        borderRadius: BorderRadius.circular(Dimensions.radiusSizeSmall),
+                      ),
+                      child: Text(
+                        customInstructions.trim(),
+                        style: poppinsRegular.copyWith(
+                          fontSize: Dimensions.fontSizeSmall,
+                          color: Theme.of(context).textTheme.bodyLarge?.color,
+                          height: 1.5,
+                        ),
+                      ),
+                    )
+                  else ...[
+                    _buildStepRow(
+                      number: '1',
+                      title: 'نسخ رقم الحساب',
+                      description: 'انسخ رقم الحساب من الحساب الموضح أعلاه أو اضغط على نسخ للانتقال السريع إلى تطبيق $methodName.',
+                    ),
+                    const SizedBox(height: Dimensions.paddingSizeSmall),
+                    _buildStepRow(
+                      number: '2',
+                      title: 'التحويل من تطبيق ($methodName)',
+                      description: 'قم بتحويل المبلغ المطلوب بدقة إلى الحساب الموضح مع التقاط صورة للإشعار.',
+                    ),
+                    const SizedBox(height: Dimensions.paddingSizeSmall),
+                    _buildStepRow(
+                      number: '3',
+                      title: 'تأكيد الحوالة إرفاق إثبات الدفع',
+                      description: 'أرفق صورة الإشعار أو اكتب الرقم المرجعي للحوالة ثم اضغط "تأكيد الدفع".',
+                    ),
+                  ],
+                  const SizedBox(height: Dimensions.paddingSizeDefault),
+                  Container(
+                    padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF0FDF4),
+                      borderRadius: BorderRadius.circular(Dimensions.radiusSizeDefault),
+                      border: Border.all(color: const Color(0xFFBBF7D0)),
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Icon(
+                          Icons.verified_user_outlined,
+                          color: Color(0xFF16A34A),
+                          size: 20,
+                        ),
+                        const SizedBox(width: Dimensions.paddingSizeSmall),
+                        Expanded(
+                          child: RichText(
+                            text: TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: 'ملاحظة: ',
+                                  style: poppinsBold.copyWith(
+                                    fontSize: 11,
+                                    color: const Color(0xFF15803D),
+                                  ),
+                                ),
+                                TextSpan(
+                                  text: 'إذا أُغلق التطبيق تلقائياً أثناء وجودك في تطبيق البنك أو المحفظة لا تقلق! سيتم إعادتك تلقائياً إلى هذه الشاشة لمتابعة الدفع فور فتح التطبيق مجدداً.',
+                                  style: poppinsRegular.copyWith(
+                                    fontSize: 11,
+                                    color: const Color(0xFF166534),
+                                    height: 1.4,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStepRow({
+    required String number,
+    required String title,
+    required String description,
+  }) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: 22,
+          height: 22,
+          decoration: BoxDecoration(
+            color: const Color(0xFFFDF4EC),
+            shape: BoxShape.circle,
+            border: Border.all(color: const Color(0xFFFDE68A)),
+          ),
+          alignment: Alignment.center,
+          child: Text(
+            number,
+            style: poppinsBold.copyWith(
+              fontSize: 11,
+              color: const Color(0xFFD97706),
+            ),
+          ),
+        ),
+        const SizedBox(width: Dimensions.paddingSizeSmall),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: poppinsBold.copyWith(
+                  fontSize: Dimensions.fontSizeSmall,
+                  color: Theme.of(context).textTheme.bodyLarge?.color,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                description,
+                style: poppinsRegular.copyWith(
+                  fontSize: Dimensions.fontSizeExtraSmall,
+                  color: Theme.of(context).hintColor,
+                  height: 1.4,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

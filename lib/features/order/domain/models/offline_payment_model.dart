@@ -7,6 +7,7 @@ class OfflinePaymentModel {
     String? imageFullPath;
     List<MethodField>? methodFields;
     String? paymentNote;
+    String? instructions;
     List<MethodInformation>? methodInformations;
 
 
@@ -17,6 +18,7 @@ class OfflinePaymentModel {
         this.imageFullPath,
         this.methodFields,
         this.paymentNote,
+        this.instructions,
         this.methodInformations,
     });
 
@@ -36,6 +38,7 @@ class OfflinePaymentModel {
         imageFullPath: json["image_full_path"],
         methodFields: json["method_fields"] == null ? [] : List<MethodField>.from(json["method_fields"]!.map((x) => MethodField.fromJson(x))),
         paymentNote: json["payment_note"],
+        instructions: json["instructions"],
         methodInformations: json["method_informations"] == null ? [] : List<MethodInformation>.from(json["method_informations"]!.map((x) => MethodInformation.fromJson(x))),
     );
 
@@ -46,6 +49,7 @@ class OfflinePaymentModel {
         "image_full_path": imageFullPath,
         "method_fields": methodFields == null ? [] : List<dynamic>.from(methodFields!.map((x) => x.toJson())),
         "payment_note": paymentNote,
+        "instructions": instructions,
         "method_informations": methodInformations == null ? [] : List<dynamic>.from(methodInformations!.map((x) => x.toJson())),
     };
 }
