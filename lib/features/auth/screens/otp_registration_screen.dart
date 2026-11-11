@@ -329,7 +329,18 @@ class _OtpRegistrationScreenState extends State<OtpRegistrationScreen> {
                                                     }
                                                   });
                                             } else {
-                                              phone = countryCode! + phone;
+                                              String cleanPhone = phone.replaceAll(RegExp(r'[\s\-()]'), '');
+                                              if (cleanPhone.startsWith('+')) {
+                                                phone = cleanPhone;
+                                              } else if (countryCode != null &&
+                                                  cleanPhone.startsWith(countryCode!.replaceAll('+', ''))) {
+                                                phone = '+$cleanPhone';
+                                              } else {
+                                                if (cleanPhone.startsWith('0')) {
+                                                  cleanPhone = cleanPhone.substring(1);
+                                                }
+                                                phone = '${countryCode ?? ''}$cleanPhone';
+                                              }
                                               bool isNumberValid =
                                                   PhoneNumberCheckerHelper.isPhoneValidWithCountryCode(
                                                     phone,

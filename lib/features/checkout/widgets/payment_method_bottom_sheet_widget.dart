@@ -1,18 +1,12 @@
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import '../../../common/models/cart_model.dart';
 import '../../../common/models/config_model.dart';
 import '../../../common/models/place_order_model.dart';
-import '../../../common/providers/cart_provider.dart';
 import '../../../common/widgets/custom_loader_widget.dart';
-import '../../../features/address/providers/location_provider.dart';
-import '../../../features/checkout/domain/models/check_out_model.dart';
-import '../../../features/coupon/providers/coupon_provider.dart';
 import '../../../features/order/domain/models/offline_payment_model.dart';
 import '../../../features/order/widgets/bring_change_input_widget.dart';
 import '../../../features/wallet_and_loyalty/widgets/add_fund_dialogue_widget.dart';
-import '../../../helper/custom_snackbar_helper.dart';
 import '../../../helper/price_converter_helper.dart';
 import '../../../helper/responsive_helper.dart';
 import '../../../helper/route_helper.dart';
@@ -21,7 +15,6 @@ import '../../../features/auth/providers/auth_provider.dart';
 import '../../../features/order/providers/order_provider.dart';
 import '../../../features/profile/providers/profile_provider.dart';
 import '../../../features/splash/providers/splash_provider.dart';
-import '../../../main.dart';
 import '../../../utill/app_constants.dart';
 import '../../../utill/dimensions.dart';
 import '../../../utill/images.dart';
@@ -431,47 +424,28 @@ class _PaymentMethodBottomSheetWidgetState
                                                       null)
                                           ? null
                                           : () {
-                                              if (_paymentMethod?.type ==
-                                                          'offline' &&
-                                                      _selectedOfflineValue ==
-                                                          null ||
-                                                  (widget.orderId != null &&
-                                                      widget.orderId !=
-                                                          "null" &&
-                                                      orderProvider
-                                                              .selectedOfflineValue !=
-                                                          null)) {
-                                                if (widget.orderId != null &&
-                                                    widget.orderId != "null" &&
-                                                    _selectedOfflineMethod !=
-                                                        null) {
-                                                  ResponsiveHelper().showDialogOrBottomSheet(
-                                                    context,
-                                                    isScrollControlled: true,
-                                                    OfflinePaymentWidget(
-                                                      totalAmount:
-                                                          widget.totalPrice,
-                                                      selectedOfflineMethod:
-                                                          _selectedOfflineMethod,
-                                                      partialAmount:
-                                                          isPartialPayment &&
-                                                              _partialAmount !=
-                                                                  null
-                                                          ? (widget.totalPrice -
-                                                                walletBalance)
-                                                          : widget.totalPrice,
-                                                      orderId: widget.orderId,
-                                                    ),
-                                                  );
-                                                } else {
-                                                  _placeOfflineOrder(
-                                                    orderProvider:
-                                                        orderProvider,
-                                                    weight: widget.weight,
-                                                    context: context,
-                                                  );
-                                                }
-                                              } else {
+                                              if (_paymentMethod?.type == 'offline') {
+                                                Navigator.of(context).pop();
+                                                ResponsiveHelper().showDialogOrBottomSheet(
+                                                  context,
+                                                  isScrollControlled: true,
+                                                  OfflinePaymentWidget(
+                                                    totalAmount:
+                                                        widget.totalPrice,
+                                                    selectedOfflineMethod:
+                                                        _selectedOfflineMethod,
+                                                    partialAmount:
+                                                        isPartialPayment &&
+                                                            _partialAmount !=
+                                                                null
+                                                        ? (widget.totalPrice -
+                                                              walletBalance)
+                                                        : widget.totalPrice,
+                                                    orderId: widget.orderId,
+                                                    fromCheckout: true,
+                                                  ),
+                                                );
+                                               } else {
                                                 if (_paymentMethodIndex == 1) {
                                                   orderProvider
                                                       .setBringChangeAmount(
@@ -626,141 +600,6 @@ class _PaymentMethodBottomSheetWidgetState
     } else {
       _bringAmountController?.text =
           "${orderProvider.bringChangeAmount?.floor() ?? ""}";
-    }
-  }
-
-  void _placeOfflineOrder({
-    required OrderProvider orderProvider,
-    required double? weight,
-    required BuildContext context,
-  }) {
-    final AuthProvider authProvider = Provider.of<AuthProvider>(
-      context,
-      listen: false,
-    );
-    final ProfileProvider profileProvider = Provider.of<ProfileProvider>(
-      context,
-      listen: false,
-    );
-
-    CheckOutModel? checkOutData = orderProvider.getCheckOutData;
-    final configModel = Provider.of<SplashProvider>(
-      context,
-      listen: false,
-    ).configModel;
-    List<CartModel> cartList = Provider.of<CartProvider>(
-      context,
-      listen: false,
-    ).cartList;
-    List<Cart> carts = [];
-
-    for (int index = 0; index < cartList.length; index++) {
-      Cart cart = Cart(
-        productId: cartList[index].id,
-        price: cartList[index].price,
-        discountAmount: cartList[index].discountedPrice,
-        quantity: cartList[index].quantity,
-        taxAmount: cartList[index].tax,
-        variant: cartList[index].variation?.type ?? '',
-        variation: (cartList[index].variation?.type != null &&
-                cartList[index].variation!.type!.trim().isNotEmpty)
-            ? [Variation(type: cartList[index].variation?.type)]
-            : [],
-      );
-      carts.add(cart);
-    }
-
-    PlaceOrderModel placeOrderBody = PlaceOrderModel(
-      cart: carts,
-      orderType: checkOutData?.orderType,
-      couponCode: checkOutData?.couponCode,
-      orderNote: checkOutData?.orderNote,
-      branchId: configModel!.branches![orderProvider.branchIndex].id,
-      deliveryAddressId: (orderProvider.addressIndex != -1 &&
-              Provider.of<LocationProvider>(
-                context,
-                listen: false,
-              ).addressList != null &&
-              orderProvider.addressIndex <
-                  Provider.of<LocationProvider>(
-                    context,
-                    listen: false,
-                  ).addressList!.length)
-          ? Provider.of<LocationProvider>(
-              context,
-              listen: false,
-            ).addressList![orderProvider.addressIndex].id
-          : null,
-      distance: orderProvider.distance == -1 ? 0 : orderProvider.distance,
-      couponDiscountAmount: Provider.of<CouponProvider>(
-        context,
-        listen: false,
-      ).discount,
-      timeSlotId: (orderProvider.timeSlots != null &&
-              orderProvider.timeSlots!.isNotEmpty &&
-              orderProvider.selectTimeSlot < orderProvider.timeSlots!.length)
-          ? orderProvider.timeSlots![orderProvider.selectTimeSlot].id
-          : null,
-      paymentMethod: 'offline_payment',
-      deliveryDate: orderProvider.getDateList()[orderProvider.selectDateSlot],
-      couponDiscountTitle: '',
-      orderAmount:
-          (checkOutData!.amount ?? 0) +
-          (orderProvider.deliveryCharge ?? 0) +
-          (weight ?? 0),
-      selectedDeliveryArea: orderProvider.selectedAreaID,
-      isPartial: _partialAmount != null && _partialAmount! > 0 ? '1' : '0',
-      bringChangeAmount: orderProvider.bringChangeAmount,
-      isGuest: authProvider.isLoggedIn() ? "0" : "1",
-      customerId: authProvider.isLoggedIn()
-          ? profileProvider.userInfoModel?.id.toString()
-          : '',
-    );
-    orderProvider.placeOrder(placeOrderBody, _callback);
-  }
-
-  void _callback(bool isSuccess, String message, String orderID) async {
-    final navContext = Get.context ?? context;
-    try {
-      Provider.of<OrderProvider>(navContext, listen: false).stopLoader();
-    } catch (_) {}
-    if (isSuccess) {
-      try {
-        Provider.of<CartProvider>(navContext, listen: false).clearCartList();
-      } catch (_) {}
-      double walletBalance =
-          Provider.of<ProfileProvider>(
-            navContext,
-            listen: false,
-          ).userInfoModel?.walletBalance ??
-          0;
-      bool isPartialPayment = widget.totalPrice > walletBalance;
-      Navigator.of(context).pop();
-
-      ResponsiveHelper().showDialogOrBottomSheet(
-        context,
-        isScrollControlled: true,
-        isDismissible: false,
-        enableDrag: false,
-        OfflinePaymentWidget(
-          totalAmount: widget.totalPrice,
-          selectedOfflineMethod: _selectedOfflineMethod,
-          partialAmount: isPartialPayment && _partialAmount != null
-              ? (widget.totalPrice - walletBalance)
-              : widget.totalPrice,
-          orderId: orderID,
-          fromCheckout: true,
-        ),
-      );
-      showFlutterCustomToaster(
-        "now_pay_you_bill_using_the_payment_method",
-        toasterTitle: "your_order_has_placed_successfully",
-        context: context,
-        type: ToasterMessageType.success,
-        duration: 4,
-      );
-    } else {
-      showFlutterCustomToaster(message.replaceAll("_", " "), context: context);
     }
   }
 

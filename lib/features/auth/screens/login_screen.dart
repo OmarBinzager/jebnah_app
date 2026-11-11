@@ -693,7 +693,18 @@ class _LoginScreenState extends State<LoginScreen> {
     } else {
       bool isNumber = PhoneNumberCheckerHelper.isValidPhone(userInput);
       if (isNumber) {
-        userInput = countryCode! + userInput;
+        String cleanNumber = userInput.replaceAll(RegExp(r'[\s\-()]'), '');
+        if (cleanNumber.startsWith('+')) {
+          userInput = cleanNumber;
+        } else if (countryCode != null &&
+            cleanNumber.startsWith(countryCode!.replaceAll('+', ''))) {
+          userInput = '+$cleanNumber';
+        } else {
+          if (cleanNumber.startsWith('0')) {
+            cleanNumber = cleanNumber.substring(1);
+          }
+          userInput = '${countryCode ?? ''}$cleanNumber';
+        }
       }
 
       String type = isNumber

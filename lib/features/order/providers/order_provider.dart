@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../common/models/payment_response_model.dart';
 import '../../../common/models/place_order_model.dart';
@@ -258,7 +259,14 @@ class OrderProvider extends ChangeNotifier {
     _isActiveOrder = status;
 
     if (isUpdate) {
-      notifyListeners();
+      if (WidgetsBinding.instance.schedulerPhase ==
+          SchedulerPhase.persistentCallbacks) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          notifyListeners();
+        });
+      } else {
+        notifyListeners();
+      }
     }
   }
 
@@ -617,7 +625,14 @@ class OrderProvider extends ChangeNotifier {
       clearOfflinePayment();
     }
     if (isUpdate) {
-      notifyListeners();
+      if (WidgetsBinding.instance.schedulerPhase ==
+          SchedulerPhase.persistentCallbacks) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          notifyListeners();
+        });
+      } else {
+        notifyListeners();
+      }
     }
   }
 
@@ -625,7 +640,14 @@ class OrderProvider extends ChangeNotifier {
     _paymentMethodIndex = index;
     _paymentMethod = null;
     if (isUpdate) {
-      notifyListeners();
+      if (WidgetsBinding.instance.schedulerPhase ==
+          SchedulerPhase.persistentCallbacks) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          notifyListeners();
+        });
+      } else {
+        notifyListeners();
+      }
     }
   }
 
@@ -651,7 +673,14 @@ class OrderProvider extends ChangeNotifier {
       clearOfflinePayment();
     }
     if (isUpdate) {
-      notifyListeners();
+      if (WidgetsBinding.instance.schedulerPhase ==
+          SchedulerPhase.persistentCallbacks) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          notifyListeners();
+        });
+      } else {
+        notifyListeners();
+      }
     }
   }
 
@@ -727,7 +756,14 @@ class OrderProvider extends ChangeNotifier {
     }
 
     if (isUpdate) {
-      notifyListeners();
+      if (WidgetsBinding.instance.schedulerPhase ==
+          SchedulerPhase.persistentCallbacks) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          notifyListeners();
+        });
+      } else {
+        notifyListeners();
+      }
     }
   }
 
@@ -789,7 +825,14 @@ class OrderProvider extends ChangeNotifier {
     _selectedOfflineValue = data;
 
     if (isUpdate) {
-      notifyListeners();
+      if (WidgetsBinding.instance.schedulerPhase ==
+          SchedulerPhase.persistentCallbacks) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          notifyListeners();
+        });
+      } else {
+        notifyListeners();
+      }
     }
   }
 
@@ -801,7 +844,14 @@ class OrderProvider extends ChangeNotifier {
   void changePartialPayment({double? amount, bool isUpdate = true}) {
     _partialAmount = amount;
     if (isUpdate) {
-      notifyListeners();
+      if (WidgetsBinding.instance.schedulerPhase ==
+          SchedulerPhase.persistentCallbacks) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          notifyListeners();
+        });
+      } else {
+        notifyListeners();
+      }
     }
   }
 
@@ -840,7 +890,14 @@ class OrderProvider extends ChangeNotifier {
       _receiptBase64 = null;
     }
     if (isUpdate) {
-      notifyListeners();
+      if (WidgetsBinding.instance.schedulerPhase ==
+          SchedulerPhase.persistentCallbacks) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          notifyListeners();
+        });
+      } else {
+        notifyListeners();
+      }
     }
   }
 
@@ -904,7 +961,14 @@ class OrderProvider extends ChangeNotifier {
       _selectedAreaID = areaID!;
     }
     if (isUpdate) {
-      notifyListeners();
+      if (WidgetsBinding.instance.schedulerPhase ==
+          SchedulerPhase.persistentCallbacks) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          notifyListeners();
+        });
+      } else {
+        notifyListeners();
+      }
     }
   }
 
@@ -922,14 +986,28 @@ class OrderProvider extends ChangeNotifier {
     }
 
     if (isUpdate) {
-      notifyListeners();
+      if (WidgetsBinding.instance.schedulerPhase ==
+          SchedulerPhase.persistentCallbacks) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          notifyListeners();
+        });
+      } else {
+        notifyListeners();
+      }
     }
   }
 
   void updateBringChangeInputOptionStatus(bool value, {bool isUpdate = true}) {
     _showBringChangeInputOption = value;
     if (isUpdate) {
-      notifyListeners();
+      if (WidgetsBinding.instance.schedulerPhase ==
+          SchedulerPhase.persistentCallbacks) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          notifyListeners();
+        });
+      } else {
+        notifyListeners();
+      }
     }
   }
 

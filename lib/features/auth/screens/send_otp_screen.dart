@@ -308,12 +308,19 @@ class _SendOtpScreenState extends State<SendOtpScreen> {
                                                             ),
                                                           );
                                                         } else {
-                                                          String
-                                                          phoneWithCountryCode =
-                                                              countryCode! +
-                                                              _phoneNumberController!
-                                                                  .text
-                                                                  .trim();
+                                                          String rawNumber = _phoneNumberController!.text.trim().replaceAll(RegExp(r'[\s\-()]'), '');
+                                                          String phoneWithCountryCode;
+                                                          if (rawNumber.startsWith('+')) {
+                                                            phoneWithCountryCode = rawNumber;
+                                                          } else if (countryCode != null &&
+                                                              rawNumber.startsWith(countryCode!.replaceAll('+', ''))) {
+                                                            phoneWithCountryCode = '+$rawNumber';
+                                                          } else {
+                                                            if (rawNumber.startsWith('0')) {
+                                                              rawNumber = rawNumber.substring(1);
+                                                            }
+                                                            phoneWithCountryCode = '${countryCode ?? ''}$rawNumber';
+                                                          }
                                                           if (PhoneNumberCheckerHelper.isPhoneValidWithCountryCode(
                                                             phoneWithCountryCode,
                                                           )) {

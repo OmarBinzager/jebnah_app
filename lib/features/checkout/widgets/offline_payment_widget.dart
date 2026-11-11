@@ -2,13 +2,19 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import '../../../common/models/cart_model.dart';
 import '../../../common/models/place_order_model.dart';
 import '../../../common/providers/cart_provider.dart';
+import '../../../common/providers/currency_provider.dart';
 import '../../../common/widgets/custom_loader_widget.dart';
 import '../../../common/widgets/custom_image_widget.dart';
-import '../../../common/widgets/key_value_item_widget.dart';
+import '../../../features/address/providers/location_provider.dart';
+import '../../../features/auth/providers/auth_provider.dart';
+import '../../../features/checkout/domain/models/check_out_model.dart';
+import '../../../features/coupon/providers/coupon_provider.dart';
 import '../../../features/order/domain/models/offline_payment_model.dart';
 import '../../../features/order/domain/models/order_model.dart';
+import '../../../features/profile/providers/profile_provider.dart';
 import '../../../helper/checkout_helper.dart';
 import '../../../helper/custom_snackbar_helper.dart';
 import '../../../helper/price_converter_helper.dart';
@@ -193,34 +199,45 @@ class _OfflinePaymentWidgetState extends State<OfflinePaymentWidget> {
                       ),
                       const SizedBox(height: Dimensions.paddingSizeSmall),
 
-                      RichText(
-                        text: TextSpan(
-                          style: poppinsRegular.copyWith(
-                            fontSize: Dimensions.fontSizeDefault,
-                            color: Theme.of(context).textTheme.bodySmall?.color,
+                      if (widget.orderId != null &&
+                          widget.orderId!.isNotEmpty &&
+                          widget.orderId != "null")
+                        RichText(
+                          text: TextSpan(
+                            style: poppinsRegular.copyWith(
+                              fontSize: Dimensions.fontSizeDefault,
+                              color: Theme.of(context).textTheme.bodySmall?.color,
+                            ),
+                            children: <TextSpan>[
+                              TextSpan(
+                                text: getTranslated('order', context),
+                                style: poppinsRegular.copyWith(
+                                  fontSize: Dimensions.fontSizeDefault,
+                                  color: Theme.of(context)
+                                      .textTheme
+                                      .bodySmall
+                                      ?.color
+                                      ?.withValues(alpha: 0.7),
+                                ),
+                              ),
+                              TextSpan(text: ' # ', style: poppinsRegular),
+                              TextSpan(
+                                text: widget.orderId,
+                                style: poppinsMedium.copyWith(
+                                  fontSize: Dimensions.fontSizeLarge,
+                                ),
+                              ),
+                            ],
                           ),
-                          children: <TextSpan>[
-                            TextSpan(
-                              text: getTranslated('order', context),
-                              style: poppinsRegular.copyWith(
-                                fontSize: Dimensions.fontSizeDefault,
-                                color: Theme.of(context)
-                                    .textTheme
-                                    .bodySmall
-                                    ?.color
-                                    ?.withValues(alpha: 0.7),
-                              ),
-                            ),
-                            TextSpan(text: ' # ', style: poppinsRegular),
-                            TextSpan(
-                              text: widget.orderId,
-                              style: poppinsMedium.copyWith(
-                                fontSize: Dimensions.fontSizeLarge,
-                              ),
-                            ),
-                          ],
+                        )
+                      else
+                        Text(
+                          getTranslated('offline_payment', context),
+                          style: poppinsMedium.copyWith(
+                            fontSize: Dimensions.fontSizeLarge,
+                            color: Theme.of(context).primaryColor,
+                          ),
                         ),
-                      ),
 
                       Text(
                         PriceConverterHelper.convertPrice(
@@ -388,14 +405,13 @@ class _OfflinePaymentWidgetState extends State<OfflinePaymentWidget> {
                                           );
                                         },
                                         child: Container(
-                                          width: ResponsiveHelper.isMobile()
-                                              ? MediaQuery.sizeOf(
-                                                      context,
-                                                    ).width *
-                                                    0.7
-                                              : 300,
+                                          width: (splashProvider.offlinePaymentModelList?.length ?? 0) <= 1
+                                              ? (MediaQuery.sizeOf(context).width - 32)
+                                              : ResponsiveHelper.isMobile()
+                                                  ? (MediaQuery.sizeOf(context).width * 0.88).clamp(300.0, 480.0)
+                                                  : 340,
                                           constraints: const BoxConstraints(
-                                            minHeight: 160,
+                                            minHeight: 140,
                                           ),
                                           padding: const EdgeInsets.all(
                                             Dimensions.paddingSizeDefault,
@@ -440,10 +456,13 @@ class _OfflinePaymentWidgetState extends State<OfflinePaymentWidget> {
                                                 mainAxisAlignment:
                                                     MainAxisAlignment
                                                         .spaceBetween,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
                                                 children: [
                                                   Expanded(
-                                                    flex: 2,
                                                     child: Row(
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment.center,
                                                       children: [
                                                         if (offline?.imageFullPath != null &&
                                                             offline!.imageFullPath!.isNotEmpty) ...[
@@ -463,33 +482,31 @@ class _OfflinePaymentWidgetState extends State<OfflinePaymentWidget> {
                                                             width: Dimensions.paddingSizeSmall,
                                                           ),
                                                         ],
-                                                        Flexible(
+                                                        Expanded(
                                                           child: Text(
                                                             offline?.methodName ?? '',
-                                                            style: poppinsRegular
+                                                            style: poppinsBold
                                                                 .copyWith(
                                                                   fontSize: Dimensions
-                                                                      .fontSizeLarge,
+                                                                      .fontSizeDefault,
                                                                   color: Theme.of(
                                                                     context,
                                                                   ).primaryColor,
                                                                 ),
-                                                            overflow:
-                                                                TextOverflow.ellipsis,
+                                                            maxLines: 2,
+                                                            softWrap: true,
                                                           ),
                                                         ),
                                                       ],
                                                     ),
                                                   ),
-                                                  const SizedBox(
-                                                    width: Dimensions
-                                                        .paddingSizeDefault,
-                                                  ),
-
                                                   if (offline?.id ==
                                                       orderProvider
                                                           .selectedOfflineMethod
-                                                          ?.id)
+                                                          ?.id) ...[
+                                                    const SizedBox(
+                                                      width: Dimensions.paddingSizeExtraSmall,
+                                                    ),
                                                     Container(
                                                       decoration: BoxDecoration(
                                                         color: Theme.of(context)
@@ -505,48 +522,42 @@ class _OfflinePaymentWidgetState extends State<OfflinePaymentWidget> {
                                                             ),
                                                       ),
                                                       padding:
-                                                          EdgeInsets.symmetric(
+                                                          const EdgeInsets.symmetric(
                                                             vertical: 3,
-                                                            horizontal: 5,
+                                                            horizontal: 6,
                                                           ),
                                                       child: Row(
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .end,
+                                                        mainAxisSize:
+                                                            MainAxisSize.min,
                                                         children: [
                                                           Text(
                                                             getTranslated(
                                                               'pay_on_this_account',
                                                               context,
                                                             ),
-                                                            maxLines: 1,
                                                             style: poppinsRegular.copyWith(
                                                               color: Theme.of(
                                                                 context,
                                                               ).primaryColor,
                                                               fontSize: Dimensions
-                                                                  .fontSizeSmall,
-                                                              overflow:
-                                                                  TextOverflow
-                                                                      .ellipsis,
+                                                                  .fontSizeExtraSmall,
                                                             ),
                                                           ),
                                                           const SizedBox(
-                                                            width: Dimensions
-                                                                .paddingSizeExtraSmall,
+                                                            width: 4,
                                                           ),
-
                                                           Icon(
                                                             Icons
                                                                 .check_circle_rounded,
                                                             color: Theme.of(
                                                               context,
                                                             ).primaryColor,
-                                                            size: 15,
+                                                            size: 14,
                                                           ),
                                                         ],
                                                       ),
                                                     ),
+                                                  ],
                                                 ],
                                               ),
                                               const SizedBox(
@@ -612,37 +623,40 @@ class _OfflinePaymentWidgetState extends State<OfflinePaymentWidget> {
                               false) {
                             FocusScope.of(context).unfocus();
 
-                            orderProvider.storeOfflineData(
-                              orderId: widget.orderId,
-                              paymentInfo: OfflinePaymentInfo(
-                                methodFields:
-                                    CheckOutHelper.getOfflineMethodJson(
-                                      orderProvider
-                                          .selectedOfflineMethod
-                                          ?.methodFields,
-                                    ),
-                                methodInformation: orderProvider
-                                    .getOfflinePaymentData(),
-                                paymentName: orderProvider
-                                    .selectedOfflineMethod
-                                    ?.methodName,
-                                paymentNote: orderProvider
-                                    .selectedOfflineMethod
-                                    ?.paymentNote,
-                                customerReceiptBase64:
-                                    orderProvider.receiptBase64,
+                            final offlinePaymentInfo = OfflinePaymentInfo(
+                              methodFields: CheckOutHelper.getOfflineMethodJson(
+                                orderProvider.selectedOfflineMethod?.methodFields,
                               ),
-                              fromOrderDetails: widget.orderOfflineData != null,
-                              isPartial: widget.fromCheckout
-                                  ? "0"
-                                  : widget.partialAmount != null &&
-                                        ((widget.totalAmount -
-                                                (widget.partialAmount ?? 0))) >
-                                            0
-                                  ? '1'
-                                  : '0',
-                              callback: _callback,
+                              methodInformation: orderProvider.getOfflinePaymentData(),
+                              paymentName: orderProvider.selectedOfflineMethod?.methodName,
+                              paymentNote: orderProvider.selectedOfflineMethod?.paymentNote,
+                              customerReceiptBase64: orderProvider.receiptBase64,
                             );
+
+                            if (widget.orderId != null &&
+                                widget.orderId != "null" &&
+                                widget.orderId!.trim().isNotEmpty) {
+                              orderProvider.storeOfflineData(
+                                orderId: widget.orderId,
+                                paymentInfo: offlinePaymentInfo,
+                                fromOrderDetails: widget.orderOfflineData != null,
+                                isPartial: widget.fromCheckout
+                                    ? "0"
+                                    : widget.partialAmount != null &&
+                                          ((widget.totalAmount -
+                                                  (widget.partialAmount ?? 0))) >
+                                              0
+                                      ? '1'
+                                      : '0',
+                                callback: _callback,
+                              );
+                            } else {
+                              _placeOrderWithOfflineInfo(
+                                orderProvider: orderProvider,
+                                offlinePaymentInfo: offlinePaymentInfo,
+                                context: context,
+                              );
+                            }
                           }
                         },
                       ),
@@ -655,6 +669,158 @@ class _OfflinePaymentWidgetState extends State<OfflinePaymentWidget> {
           );
         },
       ),
+    );
+  }
+
+  void _placeOrderWithOfflineInfo({
+    required OrderProvider orderProvider,
+    required OfflinePaymentInfo offlinePaymentInfo,
+    required BuildContext context,
+  }) {
+    final AuthProvider authProvider = Provider.of<AuthProvider>(
+      context,
+      listen: false,
+    );
+    final ProfileProvider profileProvider = Provider.of<ProfileProvider>(
+      context,
+      listen: false,
+    );
+
+    CheckOutModel? checkOutData = orderProvider.getCheckOutData;
+    final configModel = Provider.of<SplashProvider>(
+      context,
+      listen: false,
+    ).configModel;
+    List<CartModel> cartList = Provider.of<CartProvider>(
+      context,
+      listen: false,
+    ).cartList;
+    List<Cart> carts = [];
+
+    for (int index = 0; index < cartList.length; index++) {
+      Cart cart = Cart(
+        productId: cartList[index].id,
+        price: cartList[index].price,
+        discountAmount: cartList[index].discountedPrice,
+        quantity: cartList[index].quantity,
+        taxAmount: cartList[index].tax,
+        variant: cartList[index].variation?.type ?? '',
+        variation: (cartList[index].variation?.type != null &&
+                cartList[index].variation!.type!.trim().isNotEmpty)
+            ? [Variation(type: cartList[index].variation?.type)]
+            : [],
+      );
+      carts.add(cart);
+    }
+
+    String? senderName;
+    String? txRef;
+    if (offlinePaymentInfo.methodInformation != null) {
+      for (final map in offlinePaymentInfo.methodInformation!) {
+        map.forEach((k, v) {
+          if (senderName == null && (k.contains('مرسل') || k.contains('اسم') || k.contains('مودع') || k.contains('name') || k.contains('sender'))) {
+            senderName = v;
+          }
+          if (txRef == null && (k.contains('اشعار') || k.contains('إشعار') || k.contains('سند') || k.contains('حوالة') || k.contains('عملية') || k.contains('ref') || k.contains('number') || k.contains('trans'))) {
+            txRef = v;
+          }
+        });
+      }
+    }
+
+    int branchId = 1;
+    if (configModel?.branches != null &&
+        configModel!.branches!.isNotEmpty &&
+        orderProvider.branchIndex < configModel.branches!.length) {
+      branchId = configModel.branches![orderProvider.branchIndex].id ?? 1;
+    }
+
+    PlaceOrderModel placeOrderBody = PlaceOrderModel(
+      cart: carts,
+      orderType: checkOutData?.orderType,
+      couponCode: checkOutData?.couponCode,
+      orderNote: checkOutData?.orderNote,
+      branchId: branchId,
+      deliveryAddressId: (orderProvider.addressIndex != -1 &&
+              Provider.of<LocationProvider>(
+                context,
+                listen: false,
+              ).addressList != null &&
+              orderProvider.addressIndex <
+                  Provider.of<LocationProvider>(
+                    context,
+                    listen: false,
+                  ).addressList!.length)
+          ? Provider.of<LocationProvider>(
+              context,
+              listen: false,
+            ).addressList![orderProvider.addressIndex].id
+          : null,
+      distance: orderProvider.distance == -1 ? 0 : orderProvider.distance,
+      couponDiscountAmount: Provider.of<CouponProvider>(
+        context,
+        listen: false,
+      ).discount,
+      timeSlotId: (orderProvider.timeSlots != null &&
+              orderProvider.timeSlots!.isNotEmpty &&
+              orderProvider.selectTimeSlot >= 0 &&
+              orderProvider.selectTimeSlot < orderProvider.timeSlots!.length)
+          ? orderProvider.timeSlots![orderProvider.selectTimeSlot].id
+          : null,
+      paymentMethod: 'offline_payment',
+      paymentBy: senderName ?? offlinePaymentInfo.paymentName ?? 'العميل',
+      transactionReference: txRef ?? 'سند تحويل',
+      paymentNote: offlinePaymentInfo.paymentNote,
+      paymentInfo: offlinePaymentInfo,
+      deliveryDate: orderProvider.getDateList().isNotEmpty &&
+              orderProvider.selectDateSlot < orderProvider.getDateList().length
+          ? orderProvider.getDateList()[orderProvider.selectDateSlot]
+          : '',
+      couponDiscountTitle: '',
+      orderAmount:
+          (checkOutData?.amount ?? 0) +
+          (orderProvider.deliveryCharge ?? 0),
+      selectedDeliveryArea: orderProvider.selectedAreaID,
+      isPartial: widget.partialAmount != null && widget.partialAmount! > 0 ? '1' : '0',
+      bringChangeAmount: orderProvider.bringChangeAmount,
+      isGuest: authProvider.isLoggedIn() ? "0" : "1",
+      customerId: authProvider.isLoggedIn()
+          ? profileProvider.userInfoModel?.id?.toString() ?? ''
+          : '',
+      paymentPlatform: kIsWeb ? 'web' : 'app',
+      currencyCode: Provider.of<CurrencyProvider>(context, listen: false).selectedCurrency?.currencyCode,
+    );
+
+    orderProvider.placeOrder(
+      placeOrderBody,
+      (bool isSuccess, String message, String orderID) {
+        if (isSuccess) {
+          Navigator.of(context).pop();
+          try {
+            Provider.of<CartProvider>(Get.context ?? context, listen: false).clearCartList();
+          } catch (_) {}
+          final SplashProvider splashProvider = Provider.of<SplashProvider>(
+            context,
+            listen: false,
+          );
+          splashProvider.setPageIndex(0);
+          RouteHelper.getOrderSuccessRoute(
+            orderID,
+            'success',
+            action: RouteAction.pushReplacement,
+          );
+          showFlutterCustomToaster(
+            "now_wait_for_your_payment_to_be_verified",
+            toasterTitle: "your_payment_confirm_successfully",
+            context: context,
+            type: ToasterMessageType.success,
+            duration: 4,
+          );
+        } else {
+          showFlutterCustomToaster(message, context: context);
+        }
+      },
+      context: context,
     );
   }
 
@@ -705,9 +871,31 @@ class _BillInfoWidget extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: methodList
           .map(
-            (method) => KeyValueItemWidget(
-              item: method.fieldName ?? '',
-              value: '${method.fieldData}',
+            (method) => Padding(
+              padding: const EdgeInsets.only(bottom: 6),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '${method.fieldName ?? ''} : ',
+                    style: poppinsRegular.copyWith(
+                      fontSize: Dimensions.fontSizeSmall,
+                      color: Theme.of(context).hintColor,
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  Expanded(
+                    child: Text(
+                      method.fieldData ?? '',
+                      style: poppinsMedium.copyWith(
+                        fontSize: Dimensions.fontSizeSmall,
+                        color: Theme.of(context).textTheme.bodyLarge?.color,
+                      ),
+                      softWrap: true,
+                    ),
+                  ),
+                ],
+              ),
             ),
           )
           .toList(),
@@ -740,7 +928,7 @@ class _PaymentInfoWidgetState extends State<_PaymentInfoWidget> {
       context,
       listen: false,
     );
-    orderProvider.setReceiptFile(null);
+    orderProvider.setReceiptFile(null, isUpdate: false);
     orderProvider.field = {};
     for (int i = 0; i < widget.methodInfo.length; i++) {
       if (widget.methodName == widget.orderOfflineData?.paymentName) {

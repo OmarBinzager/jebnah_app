@@ -15,6 +15,7 @@ import '../../../features/checkout/domain/models/check_out_model.dart';
 import '../../../features/checkout/widgets/add_address_dialog.dart';
 import '../../../features/checkout/widgets/amount_widget.dart';
 import '../../../features/checkout/widgets/payment_method_bottom_sheet_widget.dart';
+import '../../../features/checkout/widgets/offline_payment_widget.dart';
 import '../../../features/checkout/widgets/total_amount_widget.dart';
 import '../../../features/checkout/widgets/upside_expansion_widget.dart';
 import '../../../features/coupon/providers/coupon_provider.dart';
@@ -378,13 +379,24 @@ class PlaceOrderButtonWidget extends StatelessWidget {
                               if (placeOrderBody.paymentMethod ==
                                       'wallet_payment' ||
                                   placeOrderBody.paymentMethod ==
-                                      'cash_on_delivery' ||
-                                  placeOrderBody.paymentMethod ==
-                                      'offline_payment') {
+                                      'cash_on_delivery') {
                                 orderProvider.placeOrder(
                                   placeOrderBody,
                                   _callback,
                                   context: context,
+                                );
+                              } else if (placeOrderBody.paymentMethod ==
+                                  'offline_payment') {
+                                ResponsiveHelper().showDialogOrBottomSheet(
+                                  context,
+                                  isScrollControlled: true,
+                                  OfflinePaymentWidget(
+                                    totalAmount: total,
+                                    selectedOfflineMethod:
+                                        orderProvider.selectedOfflineMethod,
+                                    orderId: null,
+                                    fromCheckout: true,
+                                  ),
                                 );
                               } else {
                                 final String placeOrder = convert.base64Url

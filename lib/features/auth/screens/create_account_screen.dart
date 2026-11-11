@@ -376,7 +376,19 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
     String password = _passwordController.text.trim();
     String confirmPassword = _confirmPasswordController.text.trim();
 
-    String phoneWithCountryCode = (countryCode ?? '') + number;
+    String cleanNumber = number.replaceAll(RegExp(r'[\s\-()]'), '');
+    String phoneWithCountryCode;
+    if (cleanNumber.startsWith('+')) {
+      phoneWithCountryCode = cleanNumber;
+    } else if (countryCode != null &&
+        cleanNumber.startsWith(countryCode!.replaceAll('+', ''))) {
+      phoneWithCountryCode = '+$cleanNumber';
+    } else {
+      if (cleanNumber.startsWith('0')) {
+        cleanNumber = cleanNumber.substring(1);
+      }
+      phoneWithCountryCode = '${countryCode ?? ''}$cleanNumber';
+    }
     bool isPhoneValid = PhoneNumberCheckerHelper.isPhoneValidWithCountryCode(
       phoneWithCountryCode,
     );
@@ -407,7 +419,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
         lName: lastName,
 
         password: password,
-        phone: '$countryCode$number',
+        phone: phoneWithCountryCode,
         referralCode: _referTextController.text.trim(),
       );
       authProvider.registration(context, signUpModel, config).then((
