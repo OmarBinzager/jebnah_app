@@ -122,6 +122,32 @@ class _SplashScreenState extends State<SplashScreen>
     }
   }
 
+  bool _isVersionBelow({required String currentVersion, required String? minVersion}) {
+    if (minVersion == null || minVersion.trim().isEmpty) return false;
+
+    final currentClean = currentVersion.split('+').first.trim();
+    final minClean = minVersion.split('+').first.trim();
+
+    if (minClean == '0' || minClean == '0.0' || minClean == '0.0.0') return false;
+
+    final currentParts = currentClean.split('.').map((e) => int.tryParse(e) ?? 0).toList();
+    final minParts = minClean.split('.').map((e) => int.tryParse(e) ?? 0).toList();
+
+    final maxLength = currentParts.length > minParts.length ? currentParts.length : minParts.length;
+
+    for (int i = 0; i < maxLength; i++) {
+      final currentPart = i < currentParts.length ? currentParts[i] : 0;
+      final minPart = i < minParts.length ? minParts[i] : 0;
+
+      if (currentPart < minPart) {
+        return true;
+      } else if (currentPart > minPart) {
+        return false;
+      }
+    }
+    return false;
+  }
+
   void _onConfigAction(
     ConfigModel? configModel,
     SplashProvider splashProvider,
@@ -132,19 +158,11 @@ class _SplashScreenState extends State<SplashScreen>
       splashProvider.initializeScreenList();
     }
 
-    double minimumVersion = 0.0;
+    String? minimumVersion;
     if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
-      if (splashProvider.configModel?.playStoreConfig?.minVersion != null) {
-        minimumVersion =
-            splashProvider.configModel?.playStoreConfig?.minVersion ??
-            AppConstants.appVersion;
-      }
+      minimumVersion = splashProvider.configModel?.playStoreConfig?.minVersion;
     } else if (!kIsWeb && defaultTargetPlatform == TargetPlatform.iOS) {
-      if (splashProvider.configModel?.appStoreConfig?.minVersion != null) {
-        minimumVersion =
-            splashProvider.configModel?.appStoreConfig?.minVersion ??
-            AppConstants.appVersion;
-      }
+      minimumVersion = splashProvider.configModel?.appStoreConfig?.minVersion;
     }
 
     final int elapsedTime = DateTime.now()
@@ -156,7 +174,10 @@ class _SplashScreenState extends State<SplashScreen>
       if (!mounted) return;
 
       if (configModel != null &&
-          AppConstants.appVersion < minimumVersion &&
+          _isVersionBelow(
+            currentVersion: AppConstants.appVersion,
+            minVersion: minimumVersion,
+          ) &&
           !ResponsiveHelper.isWeb()) {
         RouteHelper.getUpdateRoute(
           action: RouteAction.pushNamedAndRemoveUntil,

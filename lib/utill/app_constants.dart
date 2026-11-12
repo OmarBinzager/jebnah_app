@@ -5,7 +5,7 @@ import 'images.dart';
 
 class AppConstants {
   static const String appName = 'Jebnah';
-  static const double appVersion = 1.0;
+  static const String appVersion = '1.0.8';
 
   /// Flutter Sdk : 3.38.5
   static const AppMode appMode = AppMode.release;

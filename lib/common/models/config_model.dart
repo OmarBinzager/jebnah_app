@@ -655,26 +655,26 @@ class EcommerceLocationCoverage {
 class PlayStoreConfig {
   bool? _status;
   String? _link;
-  double? _minVersion;
+  String? _minVersion;
 
-  PlayStoreConfig({bool? status, String? link, double? minVersion}) {
+  PlayStoreConfig({bool? status, String? link, String? minVersion}) {
     _status = status;
     _link = link;
     _minVersion = minVersion;
   }
   bool? get status => _status;
   String? get link => _link;
-  double? get minVersion => _minVersion;
+  String? get minVersion => _minVersion;
 
   PlayStoreConfig.fromJson(Map<String, dynamic> json) {
     _status = json['status'];
     if (json['link'] != null) {
       _link = json['link'];
     }
-    if (json['min_version'] != null && json['min_version'] != '') {
-      _minVersion = double.parse(json['min_version'].toString());
+    if (json['min_version'] != null && json['min_version'].toString().isNotEmpty) {
+      _minVersion = json['min_version'].toString();
     } else {
-      _minVersion = 0;
+      _minVersion = '0';
     }
   }
   Map<String, dynamic> toJson() {
@@ -690,9 +690,9 @@ class PlayStoreConfig {
 class AppStoreConfig {
   bool? _status;
   String? _link;
-  double? _minVersion;
+  String? _minVersion;
 
-  AppStoreConfig({bool? status, String? link, double? minVersion}) {
+  AppStoreConfig({bool? status, String? link, String? minVersion}) {
     _status = status;
     _link = link;
     _minVersion = minVersion;
@@ -700,17 +700,17 @@ class AppStoreConfig {
 
   bool? get status => _status;
   String? get link => _link;
-  double? get minVersion => _minVersion;
+  String? get minVersion => _minVersion;
 
   AppStoreConfig.fromJson(Map<String, dynamic> json) {
     _status = json['status'];
     if (json['link'] != null) {
       _link = json['link'];
     }
-    if (json['min_version'] != null && json['min_version'] != '') {
-      _minVersion = double.parse(json['min_version'].toString());
+    if (json['min_version'] != null && json['min_version'].toString().isNotEmpty) {
+      _minVersion = json['min_version'].toString();
     } else {
-      _minVersion = 0;
+      _minVersion = '0';
     }
   }
   Map<String, dynamic> toJson() {
