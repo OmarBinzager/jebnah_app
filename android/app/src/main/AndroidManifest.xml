@@ -91,6 +91,6 @@
 
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"
-            android:value="high_importance_channel" />
+            android:value="jebnah_notification_channel_v1" />
     </application>
 </manifest>

@@ -262,7 +262,7 @@ class AuthRepo {
                 badge: true,
                 carPlay: false,
                 criticalAlert: false,
-                provisional: true,
+                provisional: false,
                 sound: true,
               );
           if (settings.authorizationStatus == AuthorizationStatus.authorized ||

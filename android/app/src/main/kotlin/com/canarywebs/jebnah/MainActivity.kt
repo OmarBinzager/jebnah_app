@@ -12,7 +12,7 @@ class MainActivity : FlutterActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channelId = "high_importance_channel"
+            val channelId = "jebnah_notification_channel_v1"
             val channelName = "Jebnah Notifications"
             val channelDescription = "Notifications for orders and updates"
             val importance = NotificationManager.IMPORTANCE_HIGH
@@ -25,10 +25,10 @@ class MainActivity : FlutterActivity() {
 
             val notificationManager = getSystemService(NotificationManager::class.java)
             if (notificationManager != null) {
-                val existingChannel = notificationManager.getNotificationChannel(channelId)
-                if (existingChannel != null && existingChannel.sound == null) {
-                    notificationManager.deleteNotificationChannel(channelId)
-                }
+                // Delete previous channels that might be cached without sound
+                try {
+                    notificationManager.deleteNotificationChannel("high_importance_channel")
+                } catch (_: Exception) {}
 
                 val channel = NotificationChannel(channelId, channelName, importance).apply {
                     description = channelDescription
