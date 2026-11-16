@@ -362,7 +362,7 @@ class PlaceOrderButtonWidget extends StatelessWidget {
                                 selectedDeliveryArea:
                                     orderProvider.selectedAreaID,
 
-                                isPartial: orderProvider.partialAmount == null
+                                isPartial: (selectedPaymentMethodStr == 'wallet_payment' || orderProvider.partialAmount == null)
                                     ? '0'
                                     : '1',
                                 bringChangeAmount:
