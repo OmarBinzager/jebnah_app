@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import '../../../features/address/domain/models/address_model.dart';
 import '../../../features/address/providers/location_provider.dart';
@@ -66,6 +68,11 @@ class MapWidget extends StatelessWidget {
           clipBehavior: Clip.none,
           children: [
             GoogleMap(
+              gestureRecognizers: <Factory<OneSequenceGestureRecognizer>>{
+                Factory<OneSequenceGestureRecognizer>(
+                  () => EagerGestureRecognizer(),
+                ),
+              },
               minMaxZoomPreference: const MinMaxZoomPreference(0, 16),
               mapType: MapType.normal,
               initialCameraPosition: CameraPosition(
