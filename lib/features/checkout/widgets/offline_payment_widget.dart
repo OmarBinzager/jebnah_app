@@ -781,7 +781,10 @@ class _OfflinePaymentWidgetState extends State<OfflinePaymentWidget> {
           (checkOutData?.amount ?? 0) +
           (orderProvider.deliveryCharge ?? 0),
       selectedDeliveryArea: orderProvider.selectedAreaID,
-      isPartial: widget.partialAmount != null && widget.partialAmount! > 0 ? '1' : '0',
+      isPartial: (widget.partialAmount != null &&
+              ((widget.totalAmount - (widget.partialAmount ?? 0)) > 0.01))
+          ? '1'
+          : '0',
       bringChangeAmount: orderProvider.bringChangeAmount,
       isGuest: authProvider.isLoggedIn() ? "0" : "1",
       customerId: authProvider.isLoggedIn()

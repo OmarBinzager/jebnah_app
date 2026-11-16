@@ -394,6 +394,11 @@ class PlaceOrderButtonWidget extends StatelessWidget {
                                     totalAmount: total,
                                     selectedOfflineMethod:
                                         orderProvider.selectedOfflineMethod,
+                                    partialAmount: (orderProvider.partialAmount != null &&
+                                            orderProvider.partialAmount! > 0 &&
+                                            (total - orderProvider.partialAmount!) > 0.01)
+                                        ? (total - orderProvider.partialAmount!)
+                                        : null,
                                     orderId: null,
                                     fromCheckout: true,
                                   ),

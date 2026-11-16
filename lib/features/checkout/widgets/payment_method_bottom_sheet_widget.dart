@@ -437,10 +437,11 @@ class _PaymentMethodBottomSheetWidgetState
                                                     partialAmount:
                                                         isPartialPayment &&
                                                             _partialAmount !=
-                                                                null
+                                                                null &&
+                                                            _partialAmount! > 0
                                                         ? (widget.totalPrice -
                                                               walletBalance)
-                                                        : widget.totalPrice,
+                                                        : null,
                                                     orderId: widget.orderId,
                                                     fromCheckout: true,
                                                   ),
